@@ -13,4 +13,3 @@ class hr_other_allowence(models.Model):
     nama_cabang = fields.Many2one("account.analytic.account", string="Nama Cabang")
     nilai_tunj_lain = fields.Float(digits=dp.get_precision('Payroll'), string="Nilai Tunjangan Lain-lain")
     alasan = fields.Char()
-    

@@ -15,4 +15,3 @@ class hr_salary_particular(models.Model):
     uang_kerajinan = fields.Float(digits=dp.get_precision('Payroll'), string="Uang Kerajinan")
     tunj_kerja_malam = fields.Float(digits=dp.get_precision('Payroll'), string="Tunjangan Kerja Malam")
     tunj_jabatan = fields.Float(digits=dp.get_precision('Payroll'), string="Tunjangan Jabatan")
-    
