@@ -4,6 +4,7 @@ import openerp.addons.decimal_precision as dp
 class hr_salary_particular(models.Model):
     _name = "hr_salary_particular"
     
+    name = fields.Char(string="code")
     tanggal = fields.Date()
     requestor = fields.Many2one('res.users', string="Requestor")
     nama_cabang = fields.Many2one('account.analytics.account', string="Nama Cabang")
