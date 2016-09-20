@@ -1,0 +1,54 @@
+<openerp>
+	<data>
+<!--	START LEMBURAN	-->
+		<record model="ir.actions.act_window" id="overtime_action">
+            <field name="name">overtime</field>
+            <field name="res_model">hr_overtime</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="overtime_tree_view">
+            <field name="name">overtime.tree</field>
+            <field name="model">hr_overtime</field>
+            <field name="arch" type="xml">
+                <tree string="Overtime Tree">
+                    <field name="tanggal"/>
+                    <field name="nama_cabang"/>
+                    <field name="requestor"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="overtime_form_view">
+            <field name="name">overtime.form</field>
+            <field name="model">hr_overtime</field>
+            <field name="arch" type="xml">
+                <form string="Overtime Form">
+                	<header>
+	            		<field name="status_" widget="statusbar"/>
+	            	</header>
+                    <group string="Overtime">
+                    	<field name="tanggal"/>
+                    	<field name="requestor"/>
+                    	<field name="nama_cabang"/>
+                    </group>
+                    <group string="Detail">
+                    	<field name="nik"/>
+                    	<field name="nama_karyawan"/>
+                		<field name="nama_cabang"/>
+                		<field name="nilai"/>
+                		<field name="alasan"/>
+                		<field name="status"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+<!--    END OF LEMBURAN    -->
+	
+<!--    START MENU ITEM    -->
+        <menuitem id="lemburan_menu" name="Lemburan" 
+        		  parent="hr_menu"
+                  action="overtime_action" sequence="3"/>
+<!--    END OF MENU ITEM    	-->
+
+	</data>
+</openerp>

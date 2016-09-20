@@ -1,0 +1,59 @@
+<openerp>
+	<data>
+<!--	START TUNJANGAN LAIN-LAIN	-->
+		<record model="ir.actions.act_window" id="tunjangan_lain_action">
+            <field name="name">tunjangan_lain</field>
+            <field name="res_model">hr_other_allowence</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="tunjangan_lain_tree_view">
+            <field name="name">tunjangan_lain.tree</field>
+            <field name="model">hr_other_allowence</field>
+            <field name="arch" type="xml">
+                <tree string="Tunjangan Lain Tree">
+                    <field name="tanggal"/>
+                    <field name="nama_cabang"/>
+                    <field name="requestor"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="tunjangan_lain_form_view">
+            <field name="name">tunjangan_lain.form</field>
+            <field name="model">hr_other_allowence</field>
+            <field name="arch" type="xml">
+                <form string="Tunjangan Lain Form">
+                	<header>
+                		<button name="action_submit" type="object"
+                                string="Submit" states="open"/>
+                        <button name="action_approve" type="object"
+                                string="Approve" states="submit"/>
+                        <button name="action_reject" type="object"
+                                string="Reject" states="submit"/>
+	            		<field name="state" widget="statusbar"/>
+	            	</header>
+                    <group string="Tunjangan Lain">
+                    	<field name="tanggal"/>
+                    	<field name="requestor"/>
+                    	<field name="nama_cabang"/>
+                    </group>
+                    <group string="Detail">
+                    	<field name="nama_karyawan"/>
+                		<field name="jabatan"/>
+                		<field name="nama_cabang"/>
+                		<field name="nilai_tunj_lain"/>
+                		<field name="alasan"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+<!--    END OF TUNJANGAN LAIN-LAIN    -->
+
+<!--    START MENU ITEM    -->
+        <menuitem id="tunj_lain_menu" name="Tunjangan Lain" 
+        		  parent="hr_menu"
+                  action="tunjangan_lain_action" sequence="2"/>
+<!--    END OF MENU ITEM    	-->
+	
+	</data>
+</openerp>

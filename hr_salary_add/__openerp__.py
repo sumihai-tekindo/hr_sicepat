@@ -16,10 +16,10 @@
     'version': '1.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['account', 'analytic', 'hr'],
 
     # always loaded
-    'data': ["views/hr_salary_particular.xml"],
+    'data': ["views/hr_salary_particular_view.xml","views/hr_delivery_package.xml","views/hr_overtime.xml","views/hr_other_allowence.xml"],
     # only loaded in demonstration mode
     'demo': [],
     'images': [],
