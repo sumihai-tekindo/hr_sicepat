@@ -13,3 +13,4 @@ class hr_loan(models.Model):
     nilai_potongan_gaji = fields.Float(digits=dp.get_precision('Payroll'), string="Nilai")
     bulan_awal_pemotongan = fields.Char()
     
+#   BELUM DILANJUTKAN  
