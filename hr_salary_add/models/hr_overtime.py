@@ -1,4 +1,4 @@
-from openerp import models, fields
+from openerp import models, fields, api
 import openerp.addons.decimal_precision as dp
 
 class hr_overtime(models.Model):
@@ -17,10 +17,22 @@ class hr_overtime(models.Model):
             ('approve','Approve'),
             ('reject','Reject'),
         ], string='Status', default='draft')
-    status_ = fields.Selection([
+    state = fields.Selection([
             ('open','Open'),
             ('submit','Submit'),
             ('approved','Approved'),
             ('proses','Proses Di Gaji'),
             ('reject','Reject'),
         ], string='Status Page', default='open')
+    
+    @api.multi
+    def action_submit(self):
+        self.state = 'submit'
+
+    @api.multi
+    def action_approve(self):
+        self.state = 'approved'
+        
+    @api.multi
+    def action_reject(self):
+        self.state = 'reject'

@@ -24,12 +24,17 @@
             <field name="arch" type="xml">
                 <form string="Overtime Form">
                 	<header>
-	            		<field name="status_" widget="statusbar"/>
+                		<button name="action_submit" type="object"
+                                string="Submit" states="open"/>
+                        <button name="action_approve" type="object"
+                                string="Approve" states="submit"/>
+                        <button name="action_reject" type="object"
+                                string="Reject" states="submit"/>
+	            		<field name="state" widget="statusbar"/>
 	            	</header>
                     <group string="Overtime">
                     	<field name="tanggal"/>
                     	<field name="requestor"/>
-                    	<field name="nama_cabang"/>
                     </group>
                     <group string="Detail">
                     	<field name="nik"/>

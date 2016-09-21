@@ -35,9 +35,9 @@
                     	<field name="periode"/>
                     	<field name="nama_cabang"/>
                     	<field name="target_paket"/>
-                    	<field name="target_paket_bulan_lalu"/>
+                    	<field name="target_paket_bulan_lalu" readonly="1"/>
                     	<field name="pertambahan_bonus"/>
-                    	<field name="pertambahan_bonus_bulan_lalu"/>
+                    	<field name="pertambahan_bonus_bulan_lalu" readonly="1"/>
                     </group>
                 </form>
             </field>

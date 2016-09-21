@@ -39,12 +39,12 @@
                     </group>
                     <group string="Detail">
                     	<field name="jabatan"/>
-                		<field name="nilai_insentif"/>
                 		<field name="uang_makan"/>
-                		<field name="service_motor"/>
+                		<field name="transport"/>
                 		<field name="uang_kerajinan"/>
-                		<field name="tunj_kerja_malam"/>
+                		<field name="tunj_operasional"/>
                 		<field name="tunj_jabatan"/>
+                		<field name="service_motor"/>
                     </group>
                 </form>
             </field>

@@ -1,28 +1,28 @@
 <openerp>
 	<data>
 <!--	START TUNJANGAN LAIN-LAIN	-->
-		<record model="ir.actions.act_window" id="tunjangan_lain_action">
-            <field name="name">tunjangan_lain</field>
-            <field name="res_model">hr_other_allowence</field>
+		<record model="ir.actions.act_window" id="insentif_action">
+            <field name="name">insentif</field>
+            <field name="res_model">hr_insentif</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <record model="ir.ui.view" id="tunjangan_lain_tree_view">
-            <field name="name">tunjangan_lain.tree</field>
-            <field name="model">hr_other_allowence</field>
+        <record model="ir.ui.view" id="insentif_tree_view">
+            <field name="name">insentif.tree</field>
+            <field name="model">hr_insentif</field>
             <field name="arch" type="xml">
-                <tree string="Tunjangan Lain Tree">
+                <tree string="Insentif Tree">
                     <field name="tanggal"/>
                     <field name="nama_cabang"/>
                     <field name="requestor"/>
                 </tree>
             </field>
         </record>
-        <record model="ir.ui.view" id="tunjangan_lain_form_view">
-            <field name="name">tunjangan_lain.form</field>
-            <field name="model">hr_other_allowence</field>
+        <record model="ir.ui.view" id="insentif_form_view">
+            <field name="name">insentif.form</field>
+            <field name="model">hr_insentif</field>
             <field name="arch" type="xml">
-                <form string="Tunjangan Lain Form">
+                <form string="Insentif Form">
                 	<header>
                 		<button name="action_submit" type="object"
                                 string="Submit" states="open"/>
@@ -35,13 +35,13 @@
                     <group string="Tunjangan Lain">
                     	<field name="tanggal"/>
                     	<field name="requestor"/>
-                    	<field name="nama_cabang"/>
+                    	<field name="nama_koordinator"/>
                     </group>
                     <group string="Detail">
                     	<field name="nama_karyawan"/>
                 		<field name="jabatan"/>
                 		<field name="nama_cabang"/>
-                		<field name="nilai_tunj_lain"/>
+                		<field name="nilai_insentif"/>
                 		<field name="alasan"/>
                     </group>
                 </form>
@@ -50,9 +50,9 @@
 <!--    END OF TUNJANGAN LAIN-LAIN    -->
 
 <!--    START MENU ITEM    -->
-        <menuitem id="tunj_lain_menu" name="Tunjangan Lain" 
+        <menuitem id="insentif_menu" name="Insentif" 
         		  parent="hr_menu"
-                  action="tunjangan_lain_action" sequence="2"/>
+                  action="insentif_action" sequence="2"/>
 <!--    END OF MENU ITEM    	-->
 	
 	</data>
