@@ -1,6 +1,6 @@
 from openerp import models, fields, api
 
-class hr_salary_particular(models.Model):
+class hr_employee_mutation(models.Model):
     _name = "hr_employee_mutation"
     
     name = fields.Char(string="code")

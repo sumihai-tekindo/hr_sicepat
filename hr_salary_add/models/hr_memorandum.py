@@ -1,18 +1,17 @@
 from openerp import models, fields, api
 
-class hr_promotion(models.Model):
-    _name = "hr_promotion"
+class hr_memorandum(models.Model):
+    _name = "hr_memorandum"
     
     name = fields.Char(string="code")
     
     tanggal = fields.Date()
-    requestor = fields.Many2one('res.users', string="Requestor")
-    
     nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
-    jabatan_awal = fields.Many2one('hr.job', string="Jabatan")
-    cabang_awal = fields.Many2one('account.analytic.account', string="Cabang Asal")
-    usulan_jabatan_baru = fields.Many2one('hr.job', string="Usulan Jabatan")
-    cabang_baru = fields.Many2one('account.analytic.account', string="Cabang Baru")
+    nama_atasan = fields.Many2one("hr.employee", string="Nama Atasan")
+    jabatan = fields.Many2one('hr.job', string="Jabatan")
+    nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
+    alasan = fields.Text()
+    flag = fields.Boolean()
     
     state = fields.Selection([
             ('open','Open'),

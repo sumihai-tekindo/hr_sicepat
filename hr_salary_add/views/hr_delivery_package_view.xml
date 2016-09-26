@@ -44,7 +44,7 @@
         </record>
 <!--    END OF TARGET PAKET    -->
 <!--    START MENU ITEM    -->
-        <menuitem id="target_menu" name="Target" 
+        <menuitem id="target_menu" name="Target Paket" 
         		  parent="hr_menu"
                   action="target_paket_action" sequence="4"/>
 <!--    END OF MENU ITEM    	-->

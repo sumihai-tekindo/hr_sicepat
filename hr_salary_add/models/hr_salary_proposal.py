@@ -1,6 +1,7 @@
 from openerp import models, fields, api
+import openerp.addons.decimal_precision as dp
 
-class hr_salary_particular(models.Model):
+class hr_salary_proposal(models.Model):
     _name = "hr_salary_proposal"
     
     name = fields.Char(string="code")
@@ -10,9 +11,9 @@ class hr_salary_particular(models.Model):
     nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
     nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
     jabatan = fields.Many2one('hr.job', string="Jabatan")
-    gaji_semula = fields.Integer()
-    kenaikan_gaji = fields.Integer()
-    gaji_usulan = fields.Integer()
+    gaji_semula = fields.Float(digits=dp.get_precision('Payroll'), string="Gaji Awal")
+    kenaikan_gaji = fields.Float(digits=dp.get_precision('Payroll'), string="Kenaikan Gaji")
+    gaji_usulan = fields.Float(digits=dp.get_precision('Payroll'), string="Gaji Usulan")
     alasan = fields.Text()
     
     state = fields.Selection([

@@ -32,18 +32,30 @@
                                 string="Reject" states="submit"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
-                    <group string="Overtime">
-                    	<field name="tanggal"/>
-                    	<field name="requestor"/>
-                    </group>
-                    <group string="Detail">
-                    	<field name="nik"/>
-                    	<field name="nama_karyawan"/>
-                		<field name="nama_cabang"/>
-                		<field name="nilai"/>
-                		<field name="alasan"/>
-                		<field name="status"/>
-                    </group>
+	            	<group string="Lemburan">
+	            		<field name="tanggal"/>
+	                	<field name="requestor"/>
+	                	<field name="nama_cabang"/>
+	            	</group>
+                	
+                    <field name="overtime_ids">
+                    	<tree string="Detail">
+	                    	<field name="nik"/>
+	                    	<field name="nama_karyawan"/>
+	                		<field name="nilai"/>
+	                		<field name="alasan"/>
+	                		<button name="action_cancel" states="submit" string="Reject Lemburan" icon="gtk-cancel"/>
+                            <button name="action_confirm" states="submit" string="Confirm Lemburan" icon="gtk-apply"/>
+                		</tree>
+                		<form name="overtime_ids">
+                			<group string="Lemburan">
+	                			<field name="nik"/>
+		                    	<field name="nama_karyawan"/>
+		                		<field name="nilai"/>
+		                		<field name="alasan"/>
+	                		</group>
+                		</form>
+                    </field>
                 </form>
             </field>
         </record>

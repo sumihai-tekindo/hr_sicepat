@@ -8,15 +8,8 @@ class hr_overtime(models.Model):
     tanggal = fields.Date()
     requestor = fields.Many2one('res.users', string="Requestor")
     nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
-    nik = fields.Many2one("hr.employee", string="NIK")
-    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
-    nilai = fields.Float(digits=dp.get_precision('Payroll'), string="Nilai")
-    alasan = fields.Text()
-    status = fields.Selection([
-            ('draft','Draft'),
-            ('approve','Approve'),
-            ('reject','Reject'),
-        ], string='Status', default='draft')
+    overtime_ids = fields.One2many('hr_overtime_line','overtime_id')
+    
     state = fields.Selection([
             ('open','Open'),
             ('submit','Submit'),
@@ -36,3 +29,26 @@ class hr_overtime(models.Model):
     @api.multi
     def action_reject(self):
         self.state = 'reject'
+
+class hr_overtime_line(models.Model):
+    _name = "hr_overtime_line"
+    
+    name = fields.Char(string="code")
+    overtime_id = fields.Many2one('hr_overtime')
+    nik = fields.Many2one("hr.employee", string="NIK")
+    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
+    nilai = fields.Float(digits=dp.get_precision('Payroll'), string="Nilai")
+    alasan = fields.Text()
+    state = fields.Selection([
+            ('draft','Draft'),
+            ('confirmed','Confirmed'),
+            ('cancel','Cancel'),
+        ], string='Status', default='draft')
+    
+    @api.multi
+    def action_confirm(self):
+        self.state = 'cancel'
+        
+    @api.multi
+    def action_cancel(self):
+        self.state = 'cancel'

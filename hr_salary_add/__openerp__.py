@@ -19,7 +19,9 @@
     'depends': ['account', 'analytic', 'hr'],
 
     # always loaded
-    'data': ["views/hr_salary_particular_view.xml","views/hr_delivery_package_view.xml","views/hr_overtime_view.xml","views/hr_insentif_view.xml"],
+    'data': ["views/hr_salary_particular_view.xml","views/hr_delivery_package_view.xml","views/hr_overtime_view.xml"
+             ,"views/hr_insentif_view.xml","views/hr_employee_mutation_view.xml","views/hr_memorandum_view.xml",
+             "views/hr_promotion_view.xml","views/hr_salary_proposal_view.xml"],
     # only loaded in demonstration mode
     'demo': [],
     'images': [],
