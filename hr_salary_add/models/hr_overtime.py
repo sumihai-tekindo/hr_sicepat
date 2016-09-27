@@ -47,7 +47,7 @@ class hr_overtime_line(models.Model):
     
     @api.multi
     def action_confirm(self):
-        self.state = 'cancel'
+        self.state = 'confirmed'
         
     @api.multi
     def action_cancel(self):

@@ -44,8 +44,9 @@
 	                    	<field name="nama_karyawan"/>
 	                		<field name="nilai"/>
 	                		<field name="alasan"/>
-	                		<button name="action_cancel" states="submit" string="Reject Lemburan" icon="gtk-cancel"/>
-                            <button name="action_confirm" states="submit" string="Confirm Lemburan" icon="gtk-apply"/>
+	                		<field name="state"/>
+	                		<button name="action_cancel" states="draft" type="object" string="Reject Lemburan" icon="gtk-cancel"/>
+                            <button name="action_confirm" states="draft" type="object" string="Confirm Lemburan" icon="gtk-apply"/>
                 		</tree>
                 		<form name="overtime_ids">
                 			<group string="Lemburan">
