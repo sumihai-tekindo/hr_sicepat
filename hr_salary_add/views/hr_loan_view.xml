@@ -38,10 +38,9 @@
 	                    <field name="nama_karyawan"/>
 	                    <field name="jabatan"/>
 	                    <field name="nama_cabang"/>
-	                    <field name="nilai_pinjaman"  on_change="compute_cicilan_per_bulan(nilai_pinjaman, jumlah_cicilan)"/>
-	                    <field name="jumlah_cicilan" on_change="compute_cicilan_per_bulan(nilai_pinjaman, jumlah_cicilan)"/>
-	                    <field name="cicilan_per_bulan"/>
-	                    <field name="bulan_awal_pemotongan"/>
+	                    <field name="nilai_pinjaman"/>
+	                    <field name="jumlah_cicilan"/>
+	                    <field name="cicilan_per_bulan" readonly="1"/>
 	                    <field name="keperluan"/>
 	                    <field name="nama_bank"/>
 	                    <field name="no_rekening"/>
@@ -49,22 +48,12 @@
                     <field name="loan_ids" context="{'loan_id':id}">
                     	<tree string="Detail" editable="bottom">
 	                    	<field name="tanggal_cicil"/>
-	                    	<field name="nilai_cicilan" on_change="compute_nilai_cicilan(nilai_cicilan,parent.cicilan_per_bulan,parent.nilai_pinjaman)"/>
-	                		<field name="total_nilai_cicilan"/>
-	                		<field name="sisa_pinjaman"/>
+	                    	<field name="nilai_cicilan"/>
+	                		<field name="total_nilai_cicilan" readonly="1"/>
+	                		<field name="sisa_pinjaman" readonly="1"/>
 	                		<field name="keterangan"/>
 	                		<field name="posted"/>
 						</tree>
-                		<form>
-                			<group string="Pinjaman">
-	                			<field name="tanggal_cicil"/>
-		                    	<field name="nilai_cicilan"/>
-		                		<field name="total_nilai_cicilan"/>
-		                		<field name="sisa_pinjaman"/>
-		                		<field name="keterangan"/>
-		                		<field name="posted"/>
-	                		</group>
-                		</form>
                     </field>
                 </form>
             </field>
