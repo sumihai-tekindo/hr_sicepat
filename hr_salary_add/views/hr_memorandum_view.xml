@@ -1,0 +1,55 @@
+<openerp>
+	<data>
+<!--	START MEMORANDUM	-->
+		<record model="ir.actions.act_window" id="memorandum_action">
+            <field name="name">Surat Peringatan</field>
+            <field name="res_model">hr_memorandum</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="memorandum_tree_view">
+            <field name="name">memorandum.tree</field>
+            <field name="model">hr_memorandum</field>
+            <field name="arch" type="xml">
+                <tree string="Memorandum Tree">
+                    <field name="tanggal"/>
+                    <field name="nama_karyawan"/>
+                    <field name="nama_cabang"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="memorandum_form_view">
+            <field name="name">memorandum.form</field>
+            <field name="model">hr_memorandum</field>
+            <field name="arch" type="xml">
+                <form string="Memorandum Form">
+                	<header>
+                		<button name="action_submit" type="object"
+                                string="Submit" states="open"/>
+                        <button name="action_approve" type="object"
+                                string="Approve" states="submit"/>
+                        <button name="action_reject" type="object"
+                                string="Reject" states="submit"/>
+	            		<field name="state" widget="statusbar"/>
+	            	</header>
+	            	<group string="Surat Peringatan">
+						<field name="tanggal" string="Tanggal"/>
+	                	<field name="nama_karyawan"/>
+	                	<field name="nama_atasan"/>
+	            		<field name="jabatan"/>
+	            		<field name="nama_cabang"/>
+	            		<field name="alasan"/>
+	            		<field name="flag"/>	            		
+	            	</group>
+                </form>
+            </field>
+        </record>
+<!--    END OF MEMORANDUM    -->
+        
+<!--    START MENU ITEM    -->
+        <menuitem id="memorandum" name="SP" 
+        		  parent="hr_menu"
+                  action="memorandum_action" sequence="8"/>
+<!--    END OF MENU ITEM    	-->
+	</data>
+</openerp>

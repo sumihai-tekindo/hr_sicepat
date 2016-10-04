@@ -1,0 +1,57 @@
+<openerp>
+	<data>
+<!--	START EMPLOYEE MUTASI	-->
+		<record model="ir.actions.act_window" id="employee_mutation_action">
+            <field name="name">employee_mutation</field>
+            <field name="res_model">hr_employee_mutation</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="employee_mutation_tree_view">
+            <field name="name">employee_mutation.tree</field>
+            <field name="model">hr_employee_mutation</field>
+            <field name="arch" type="xml">
+                <tree string="Employee Mutation Tree">
+                    <field name="tanggal"/>
+                    <field name="requestor"/>
+                    <field name="nama_karyawan"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="komponen_gaji_form_view">
+            <field name="name">employee_mutation.form</field>
+            <field name="model">hr_employee_mutation</field>
+            <field name="arch" type="xml">
+                <form string="Employee Mutation Form">
+                	<header>
+                		<button name="action_submit" type="object"
+                                string="Submit" states="open"/>
+                        <button name="action_approve" type="object"
+                                string="Approve" states="submit"/>
+                        <button name="action_reject" type="object"
+                                string="Reject" states="submit"/>
+	            		<field name="state" widget="statusbar"/>
+	            	</header>
+                    <group string="Mutasi Karyawan">
+                    	<field name="tanggal"/>
+                    	<field name="requestor"/>
+                    	<field name="nama_karyawan"/>
+                    </group>
+                    <group string="Detail">
+                    	<field name="nama_karyawan"/>
+                		<field name="cabang_awal"/>
+                		<field name="cabang_baru"/>
+                		<field name="alasan"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+<!--    END OF EMPLOYEE MUTASI    -->
+        
+<!--    START MENU ITEM    -->
+        <menuitem id="employee_mutation" name="Mutasi Karyawan" 
+        		  parent="hr_menu"
+                  action="employee_mutation_action" sequence="5"/>
+<!--    END OF MENU ITEM    	-->
+	</data>
+</openerp>
