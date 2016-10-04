@@ -41,11 +41,11 @@ class hr_loan(models.Model):
         self.state = 'reject'
         
     @api.multi
-    def compute_cicilan_per_bulan(self):
-        print('test tes tes')
-#         print('nilai pinjaman : %s dan jumlah cicilan : %s' % (nilai_pinjaman,jumlah_cicilan))
-#         if((nilai_pinjaman!=0) and (jumlah_cicilan!=0)):
-#             return {'value': {'cicilan_per_bulan':(nilai_pinjaman/jumlah_cicilan)}}
+    def compute_cicilan_per_bulan(self, nilai_pinjaman, jumlah_cicilan):
+#         print('test tes tes')
+        print('nilai pinjaman : %s dan jumlah cicilan : %s' % (nilai_pinjaman,jumlah_cicilan))
+        if((nilai_pinjaman!=0) and (jumlah_cicilan!=0)):
+            return {'value': {'cicilan_per_bulan':(nilai_pinjaman/jumlah_cicilan)}}
 #             raise osv.except_osv(_('Jumlah cicilan anda kurang dari minimum!'), _('atau melebihi Sisa Pinjaman Anda.'))
 
 class hr_loan_line(models.Model):

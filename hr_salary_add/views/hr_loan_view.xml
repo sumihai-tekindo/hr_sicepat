@@ -38,8 +38,8 @@
 	                    <field name="nama_karyawan"/>
 	                    <field name="jabatan"/>
 	                    <field name="nama_cabang"/>
-	                    <field name="nilai_pinjaman"/>
-	                    <field name="jumlah_cicilan" on_change="compute_cicilan_per_bulan()"/>
+	                    <field name="nilai_pinjaman"  on_change="compute_cicilan_per_bulan(nilai_pinjaman, jumlah_cicilan)"/>
+	                    <field name="jumlah_cicilan" on_change="compute_cicilan_per_bulan(nilai_pinjaman, jumlah_cicilan)"/>
 	                    <field name="cicilan_per_bulan"/>
 	                    <field name="bulan_awal_pemotongan"/>
 	                    <field name="keperluan"/>
