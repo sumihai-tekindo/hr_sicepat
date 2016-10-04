@@ -7,7 +7,7 @@ class hr_loan(models.Model):
     _name = "hr_loan"
     
     name = fields.Char(string="code")
-    tanggal = fields.Date()
+    tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
     jabatan = fields.Many2one('hr.job', string="Jabatan")
     nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
