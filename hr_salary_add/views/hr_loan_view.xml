@@ -48,9 +48,9 @@
                     <field name="loan_ids" context="{'loan_id':id}">
                     	<tree string="Detail" editable="bottom">
 	                    	<field name="tanggal_cicil"/>
-	                    	<field name="nilai_cicilan"/>
-	                		<field name="total_nilai_cicilan" readonly="1"/>
-	                		<field name="sisa_pinjaman" readonly="1"/>
+	                    	<field name="nilai_cicilan" on_change="compute_nilai_cicilan(nilai_cicilan, parent.cicilan_per_bulan, parent.nilai_pinjaman)"/>
+	                		<field name="total_nilai_cicilan"/>
+	                		<field name="sisa_pinjaman"/>
 	                		<field name="keterangan"/>
 	                		<field name="posted"/>
 						</tree>
