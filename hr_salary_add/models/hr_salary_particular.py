@@ -6,7 +6,7 @@ class hr_salary_particular(models.Model):
     
     name = fields.Char(string="code")
     
-    tanggal = fields.Date()
+    tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor")
     nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
     jabatan = fields.Many2one('hr.job', string="Jabatan")
@@ -17,6 +17,7 @@ class hr_salary_particular(models.Model):
     tunj_operasional = fields.Float(digits=dp.get_precision('Payroll'), string="Tunjangan Operasional")
     tunj_jabatan = fields.Float(digits=dp.get_precision('Payroll'), string="Tunjangan Jabatan")
     service_motor = fields.Float(digits=dp.get_precision('Payroll'), string="Service Motor")
+    
     state = fields.Selection([
             ('open','Open'),
             ('submit','Submit'),

@@ -48,7 +48,7 @@
         
 <!--    START MENU ITEM    -->
         <menuitem id="promotion" name="Usulan Jabatan" 
-        		  parent="hr_menu"
+        		  parent="hr_sicepat_salary"
                   action="promotion_action" sequence="6"/>
 <!--    END OF MENU ITEM    	-->
 	</data>

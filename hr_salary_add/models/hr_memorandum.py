@@ -5,7 +5,7 @@ class hr_memorandum(models.Model):
     
     name = fields.Char(string="code")
     
-    tanggal = fields.Date()
+    tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
     nama_atasan = fields.Many2one("hr.employee", string="Nama Atasan")
     jabatan = fields.Many2one('hr.job', string="Jabatan")

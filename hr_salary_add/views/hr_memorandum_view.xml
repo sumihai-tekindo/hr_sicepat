@@ -48,7 +48,7 @@
         
 <!--    START MENU ITEM    -->
         <menuitem id="memorandum" name="SP" 
-        		  parent="hr_menu"
+        		  parent="hr_sicepat_salary"
                   action="memorandum_action" sequence="8"/>
 <!--    END OF MENU ITEM    	-->
 	</data>

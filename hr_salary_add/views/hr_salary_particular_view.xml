@@ -4,7 +4,6 @@
 		<record model="ir.actions.act_window" id="komponen_gaji_action">
             <field name="name">komponen_gaji</field>
             <field name="res_model">hr_salary_particular</field>
-            <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
         <record model="ir.ui.view" id="komponen_gaji_tree_view">
@@ -52,11 +51,10 @@
 <!--    END OF KOMPONEN GAJI    -->
         
 <!--    START MENU ITEM    -->
-		<menuitem id="main_hr_menu" name="Human Resource"/>
-        <menuitem id="hr_menu" name="Human Resource"
-                  parent="main_hr_menu"/>
+		<menuitem id="hr_sicepat_configuration" name="Sicepat" 
+        		  parent="hr.menu_hr_configuration" sequence="1"/>
         <menuitem id="komponen_gaji_menu" name="Komponen Gaji" 
-        		  parent="hr_menu"
+        		  parent="hr_sicepat_configuration"
                   action="komponen_gaji_action" sequence="1"/>
 <!--    END OF MENU ITEM    	-->
 	</data>

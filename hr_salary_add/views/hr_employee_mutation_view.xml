@@ -18,7 +18,7 @@
                 </tree>
             </field>
         </record>
-        <record model="ir.ui.view" id="komponen_gaji_form_view">
+        <record model="ir.ui.view" id="employee_mutation_view">
             <field name="name">employee_mutation.form</field>
             <field name="model">hr_employee_mutation</field>
             <field name="arch" type="xml">
@@ -49,8 +49,10 @@
 <!--    END OF EMPLOYEE MUTASI    -->
         
 <!--    START MENU ITEM    -->
+		<menuitem id="hr_sicepat_salary" name="Sicepat"
+                  parent="hr.menu_hr_root"/>
         <menuitem id="employee_mutation" name="Mutasi Karyawan" 
-        		  parent="hr_menu"
+        		  parent="hr_sicepat_salary"
                   action="employee_mutation_action" sequence="5"/>
 <!--    END OF MENU ITEM    	-->
 	</data>

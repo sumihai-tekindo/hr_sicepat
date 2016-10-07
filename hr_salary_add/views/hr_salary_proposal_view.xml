@@ -51,7 +51,7 @@
         
 <!--    START MENU ITEM    -->
         <menuitem id="salary_proposal" name="Usulan Gaji" 
-        		  parent="hr_menu"
+        		  parent="hr_sicepat_salary"
                   action="salary_proposal_action" sequence="7"/>
 <!--    END OF MENU ITEM    	-->
 	</data>

@@ -6,7 +6,7 @@ class hr_insentif(models.Model):
     
     name = fields.Char(string="code")
     
-    tanggal = fields.Date()
+    tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor")
     nama_koordinator = fields.Many2one('res.users', string="Nama Koordinator Wilayah")
     nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")

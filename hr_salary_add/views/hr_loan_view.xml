@@ -34,18 +34,18 @@
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
 	            	<group string="Lemburan">
-	            		<field name="tanggal"/>
-	                    <field name="nama_karyawan"/>
-	                    <field name="jabatan"/>
-	                    <field name="nama_cabang"/>
-	                    <field name="nilai_pinjaman"/>
-	                    <field name="jumlah_cicilan"/>
+	            		<field name="tanggal" attrs="{'readonly':[('state','!=','open')]}"/>
+	                    <field name="nama_karyawan" attrs="{'readonly':[('state','!=','open')]}"/>
+	                    <field name="jabatan" attrs="{'readonly':[('state','!=','open')]}"/>
+	                    <field name="nama_cabang" attrs="{'readonly':[('state','!=','open')]}"/>
+	                    <field name="nilai_pinjaman" attrs="{'readonly':[('state','!=','open')]}"/>
+	                    <field name="jumlah_cicilan" attrs="{'readonly':[('state','!=','open')]}"/>
 	                    <field name="cicilan_per_bulan" readonly="1"/>
-	                    <field name="keperluan"/>
-	                    <field name="nama_bank"/>
-	                    <field name="no_rekening"/>
+	                    <field name="keperluan" attrs="{'readonly':[('state','!=','open')]}"/>
+	                    <field name="nama_bank" attrs="{'readonly':[('state','!=','open')]}"/>
+	                    <field name="no_rekening" attrs="{'readonly':[('state','!=','open')]}"/>
 	            	</group>
-                    <field name="loan_ids" context="{'loan_id':id}">
+                    <field name="loan_ids" context="{'loan_id':id}" attrs="{'invisible':[('state','!=','approved')]}">
                     	<tree string="Detail" editable="bottom">
 	                    	<field name="tanggal_cicil"/>
 	                    	<field name="nilai_cicilan" on_change="compute_nilai_cicilan(nilai_cicilan, parent.cicilan_per_bulan, parent.nilai_pinjaman)"/>
@@ -62,7 +62,7 @@
 	
 <!--    START MENU ITEM    -->
         <menuitem id="loan_menu" name="Pinjaman" 
-        		  parent="hr_menu"
+        		  parent="hr_sicepat_salary"
                   action="loan_action" sequence="9"/>
 <!--    END OF MENU ITEM    	-->
 

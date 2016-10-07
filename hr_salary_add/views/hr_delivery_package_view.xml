@@ -45,7 +45,7 @@
 <!--    END OF TARGET PAKET    -->
 <!--    START MENU ITEM    -->
         <menuitem id="target_menu" name="Target Paket" 
-        		  parent="hr_menu"
+        		  parent="hr_sicepat_configuration"
                   action="target_paket_action" sequence="4"/>
 <!--    END OF MENU ITEM    	-->
 	</data>

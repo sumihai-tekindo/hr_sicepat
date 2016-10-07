@@ -5,7 +5,7 @@ class hr_overtime(models.Model):
     _name = "hr_overtime"
     
     name = fields.Char(string="code")
-    tanggal = fields.Date()
+    tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor")
     nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
     overtime_ids = fields.One2many('hr_overtime_line','overtime_id')

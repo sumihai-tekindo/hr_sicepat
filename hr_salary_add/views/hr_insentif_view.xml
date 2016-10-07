@@ -51,7 +51,7 @@
 
 <!--    START MENU ITEM    -->
         <menuitem id="insentif_menu" name="Insentif" 
-        		  parent="hr_menu"
+        		  parent="hr_sicepat_configuration"
                   action="insentif_action" sequence="2"/>
 <!--    END OF MENU ITEM    	-->
 	
