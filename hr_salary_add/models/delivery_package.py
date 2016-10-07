@@ -9,8 +9,8 @@ class delivery_package(models.Model):
     nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
     target_paket = fields.Integer()
     target_paket_bulan_lalu = fields.Integer()
-    pertambahan_bonus = fields.Float(digits=dp.get_precision('Payroll'), string="Pertambahan Bonus")
-    pertambahan_bonus_bulan_lalu = fields.Float(digits=dp.get_precision('Payroll'), string="Pertambahan Bonus Bulan Lalu")
+    pertambahan_bonus = fields.Integer(string="Pertambahan Bonus")
+    pertambahan_bonus_bulan_lalu = fields.Integer(string="Pertambahan Bonus Bulan Lalu")
     state = fields.Selection([
             ('open','Open'),
             ('submit','Submit'),
