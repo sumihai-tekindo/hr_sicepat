@@ -7,13 +7,13 @@ class hr_salary_proposal(models.Model):
     name = fields.Char(string="code")
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
-    requestor = fields.Many2one('res.users', string="Requestor")
-    nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
-    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
-    jabatan = fields.Many2one('hr.job', string="Jabatan")
-    gaji_semula = fields.Float(digits=dp.get_precision('Payroll'), string="Gaji Awal")
-    kenaikan_gaji = fields.Float(digits=dp.get_precision('Payroll'), string="Kenaikan Gaji")
-    gaji_usulan = fields.Float(digits=dp.get_precision('Payroll'), string="Gaji Usulan")
+    requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
+    nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang", required=True)
+    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan", required=True)
+    jabatan = fields.Many2one('hr.job', string="Jabatan", required=True)
+    gaji_semula = fields.Float(digits=dp.get_precision('Payroll'), string="Gaji Awal", required=True)
+    kenaikan_gaji = fields.Float(digits=dp.get_precision('Payroll'), string="Kenaikan Gaji", required=True)
+    gaji_usulan = fields.Float(digits=dp.get_precision('Payroll'), string="Gaji Usulan", compute="compute_gaji_usulan", required=True)
     alasan = fields.Text()
     
     state = fields.Selection([
@@ -34,3 +34,9 @@ class hr_salary_proposal(models.Model):
     @api.multi
     def action_reject(self):
         self.state = 'reject'
+        
+    @api.one
+    @api.depends('gaji_semula','kenaikan_gaji')
+    def compute_gaji_usulan(self):
+        if((self.gaji_semula!=0) and (self.kenaikan_gaji!=0)):
+            self.gaji_usulan = self.gaji_semula+self.kenaikan_gaji

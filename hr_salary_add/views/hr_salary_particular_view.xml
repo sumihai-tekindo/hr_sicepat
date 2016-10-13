@@ -2,7 +2,7 @@
 	<data>
 <!--	START KOMPONEN GAJI	-->
 		<record model="ir.actions.act_window" id="komponen_gaji_action">
-            <field name="name">komponen_gaji</field>
+            <field name="name">Komponen Gaji</field>
             <field name="res_model">hr_salary_particular</field>
             <field name="view_mode">tree,form</field>
         </record>
@@ -14,6 +14,7 @@
                     <field name="tanggal"/>
                     <field name="nama_cabang"/>
                     <field name="requestor"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
@@ -24,26 +25,32 @@
                 <form string="Komponen Gaji Form">
                 	<header>
                 		<button name="action_submit" type="object"
-                                string="Submit" states="open"/>
+                                string="Submit" states="open" class="oe_highlight"/>
                         <button name="action_approve" type="object"
-                                string="Approve" states="submit"/>
+                                string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
                     <group string="Komponen Gaji">
-                    	<field name="tanggal"/>
-                    	<field name="nama_cabang"/>
-                    	<field name="requestor"/>
+                    	<group>
+                    		<field name="tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="nama_cabang" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="requestor" readonly="1"/>
+                    	</group>
+                    	<group></group>
                     </group>
                     <group string="Detail">
-                    	<field name="jabatan"/>
-                		<field name="uang_makan"/>
-                		<field name="transport"/>
-                		<field name="uang_kerajinan"/>
-                		<field name="tunj_operasional"/>
-                		<field name="tunj_jabatan"/>
-                		<field name="service_motor"/>
+                    	<group>
+                    		<field name="jabatan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="uang_makan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="transport" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="uang_kerajinan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="tunj_operasional" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="tunj_jabatan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="service_motor" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+                    	</group>
+                    	<group></group>
                     </group>
                 </form>
             </field>

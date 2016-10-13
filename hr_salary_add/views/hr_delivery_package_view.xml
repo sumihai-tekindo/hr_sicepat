@@ -2,7 +2,7 @@
 	<data>
 <!--	START TARGET PAKET	-->
 		<record model="ir.actions.act_window" id="target_paket_action">
-            <field name="name">target_paket</field>
+            <field name="name">Target Paket</field>
             <field name="res_model">delivery_package</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -14,6 +14,7 @@
                 <tree string="Target Paket Tree">
                     <field name="periode"/>
                     <field name="nama_cabang"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
@@ -24,21 +25,24 @@
                 <form string="Target Paket Form">
                 	<header>
                 		<button name="action_submit" type="object"
-                                string="Submit" states="open"/>
+                                string="Submit" states="open" class="oe_highlight"/>
                         <button name="action_approve" type="object"
-                                string="Approve" states="submit"/>
+                                string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
-                    <group string="Target Paket">
-                    	<field name="periode"/>
-                    	<field name="nama_cabang"/>
-                    	<field name="target_paket"/>
-                    	<field name="target_paket_bulan_lalu" readonly="1"/>
-                    	<field name="pertambahan_bonus"/>
-                    	<field name="pertambahan_bonus_bulan_lalu" readonly="1"/>
-                    </group>
+	            	<group>
+	            		<group string="Target Paket">
+	                    	<field name="periode" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="nama_cabang" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="target_paket" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="target_paket_bulan_lalu" readonly="1"/>
+	                    	<field name="pertambahan_bonus" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="pertambahan_bonus_bulan_lalu" readonly="1"/>
+	                    </group>
+	                    <group></group>
+	            	</group>
                 </form>
             </field>
         </record>

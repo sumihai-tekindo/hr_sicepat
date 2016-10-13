@@ -2,7 +2,7 @@
 	<data>
 <!--	START SALARY PROPOSAL	-->
 		<record model="ir.actions.act_window" id="salary_proposal_action">
-            <field name="name">salary_proposal</field>
+            <field name="name">Usulan Kenaikan Gaji</field>
             <field name="res_model">hr_salary_proposal</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -15,6 +15,8 @@
                     <field name="tanggal"/>
                     <field name="requestor"/>
                     <field name="nama_karyawan"/>
+                    <field name="nama_cabang"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
@@ -25,24 +27,31 @@
                 <form string="Salary Proposal Form">
                 	<header>
                 		<button name="action_submit" type="object"
-                                string="Submit" states="open"/>
+                                string="Submit" states="open" class="oe_highlight"/>
                         <button name="action_approve" type="object"
-                                string="Approve" states="submit"/>
+                                string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
-                    <group string="Kenaikan Jabatan">
-                    	<field name="tanggal"/>
-                    	<field name="requestor"/>
-                    </group>
+	            	<group>
+	            		<group string="Usulan Kenaikan Gaji">
+	                    	<field name="tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="requestor" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}" readonly="1"/>
+	                    	<field name="nama_cabang" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    </group>
+	                    <group></group>
+	            	</group>
                     <group string="Detail">
-                    	<field name="nama_karyawan"/>
-                    	<field name="jabatan"/>
-                		<field name="gaji_semula"/>
-                		<field name="kenaikan_gaji"/>
-                		<field name="gaji_usulan"/>
-                		<field name="alasan"/>
+                    	<group>
+                    		<field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="jabatan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="gaji_semula" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="kenaikan_gaji" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="gaji_usulan" readonly="1"/>
+	                		<field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+                    	</group>
+                    	<group></group>
                     </group>
                 </form>
             </field>

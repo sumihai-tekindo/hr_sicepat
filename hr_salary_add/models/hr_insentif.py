@@ -7,12 +7,12 @@ class hr_insentif(models.Model):
     name = fields.Char(string="code")
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
-    requestor = fields.Many2one('res.users', string="Requestor")
-    nama_koordinator = fields.Many2one('res.users', string="Nama Koordinator Wilayah")
-    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
-    jabatan = fields.Many2one("hr.job", string="Jabatan")
-    nama_cabang = fields.Many2one("account.analytic.account", string="Nama Cabang")
-    nilai_insentif = fields.Float(digits=dp.get_precision('Payroll'), string="Nilai Tunjangan Lain-lain")
+    requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
+    nama_koordinator = fields.Many2one('hr.employee', string="Nama Koordinator Wilayah")
+    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan", required=True)
+    jabatan = fields.Many2one("hr.job", string="Jabatan", required=True)
+    nama_cabang = fields.Many2one("account.analytic.account", string="Nama Cabang", required=True)
+    nilai_insentif = fields.Float(digits=dp.get_precision('Payroll'), string="Nilai Insentif", required=True)
     alasan = fields.Char()
     state = fields.Selection([
             ('open','Open'),

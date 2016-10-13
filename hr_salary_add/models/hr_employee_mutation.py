@@ -6,11 +6,11 @@ class hr_employee_mutation(models.Model):
     name = fields.Char(string="code")
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
-    requestor = fields.Many2one('res.users', string="Requestor")
+    requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
     
-    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
-    cabang_awal = fields.Many2one('account.analytic.account', string="Cabang Asal")
-    cabang_baru = fields.Many2one('account.analytic.account', string="Cabang Baru")
+    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan", required=True)
+    cabang_awal = fields.Many2one('account.analytic.account', string="Cabang Asal", required=True)
+    cabang_baru = fields.Many2one('account.analytic.account', string="Cabang Baru", required=True)
     alasan = fields.Text()
     
     state = fields.Selection([

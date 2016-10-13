@@ -2,7 +2,7 @@
 	<data>
 <!--	START TUNJANGAN LAIN-LAIN	-->
 		<record model="ir.actions.act_window" id="insentif_action">
-            <field name="name">insentif</field>
+            <field name="name">Insentif</field>
             <field name="res_model">hr_insentif</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -15,6 +15,7 @@
                     <field name="tanggal"/>
                     <field name="nama_cabang"/>
                     <field name="requestor"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
@@ -25,25 +26,31 @@
                 <form string="Insentif Form">
                 	<header>
                 		<button name="action_submit" type="object"
-                                string="Submit" states="open"/>
+                                string="Submit" states="open" class="oe_highlight"/>
                         <button name="action_approve" type="object"
-                                string="Approve" states="submit"/>
+                                string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
-                    <group string="Tunjangan Lain">
-                    	<field name="tanggal"/>
-                    	<field name="requestor"/>
-                    	<field name="nama_koordinator"/>
-                    </group>
-                    <group string="Detail">
-                    	<field name="nama_karyawan"/>
-                		<field name="jabatan"/>
-                		<field name="nama_cabang"/>
-                		<field name="nilai_insentif"/>
-                		<field name="alasan"/>
-                    </group>
+	            	<group>
+	            		<group string="Insentif (Bonus Tambahan)">
+	                    	<field name="tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="requestor" readonly="1"/>
+	                    	<field name="nama_koordinator" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    </group>
+	                    <group></group>
+	                </group>
+	                <group>
+	                    <group string="Detail">
+	                    	<field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="jabatan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="nama_cabang" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="nilai_insentif" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    </group>
+	                    <group></group>
+	            	</group>
                 </form>
             </field>
         </record>

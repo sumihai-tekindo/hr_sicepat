@@ -2,7 +2,7 @@
 	<data>
 <!--	START LEMBURAN	-->
 		<record model="ir.actions.act_window" id="overtime_action">
-            <field name="name">overtime</field>
+            <field name="name">Lemburan Karyawan</field>
             <field name="res_model">hr_overtime</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -13,8 +13,8 @@
             <field name="arch" type="xml">
                 <tree string="Overtime Tree">
                     <field name="tanggal"/>
-                    <field name="nama_cabang"/>
                     <field name="requestor"/>
+	                <field name="state"/>
                 </tree>
             </field>
         </record>
@@ -25,22 +25,26 @@
                 <form string="Overtime Form">
                 	<header>
                 		<button name="action_submit" type="object"
-                                string="Submit" states="open"/>
+                                string="Submit" states="open" class="oe_highlight"/>
                         <button name="action_approve" type="object"
-                                string="Approve" states="submit"/>
+                                string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit"/>
+                        <button name="action_proses" type="object"
+                                string="Proses di Gaji" states="approved" class="oe_highlight"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
-	            	<group string="Lemburan">
-	            		<field name="tanggal"/>
-	                	<field name="requestor"/>
-	                	<field name="nama_cabang"/>
+	            	<group>
+	            		<group string="Lemburan">
+		            		<field name="tanggal" attrs="{'readonly':['|','|',('state','=','approved'),('state','=','reject'),('state','=','proses')]}"/>
+		                	<field name="requestor" readonly="1"/>
+		            	</group>
+		            	<group></group>
 	            	</group>
-                	
-                    <field name="overtime_ids">
+                    <field name="overtime_ids" attrs="{'readonly':['|','|',('state','=','approved'),('state','=','reject'),('state','=','proses')]}">
                     	<tree string="Detail">
 	                    	<field name="nik"/>
+                    		<field name="nama_cabang"/>
 	                		<field name="nilai"/>
 	                		<field name="alasan"/>
 	                		<field name="state"/>
@@ -50,6 +54,7 @@
                 		<form>
                 			<group string="Lemburan">
 	                			<field name="nik"/>
+	                			<field name="nama_cabang"/>
 		                		<field name="nilai"/>
 		                		<field name="alasan"/>
 	                		</group>

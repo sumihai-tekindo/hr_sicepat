@@ -6,10 +6,10 @@ class hr_memorandum(models.Model):
     name = fields.Char(string="code")
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
-    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan")
-    nama_atasan = fields.Many2one("hr.employee", string="Nama Atasan")
-    jabatan = fields.Many2one('hr.job', string="Jabatan")
-    nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
+    nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan", required=True)
+    nama_atasan = fields.Many2one("hr.employee", string="Nama Atasan", required=True)
+    jabatan = fields.Many2one('hr.job', string="Jabatan", required=True)
+    nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang", required=True)
     alasan = fields.Text()
     flag = fields.Boolean()
     

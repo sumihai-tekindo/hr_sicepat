@@ -7,9 +7,9 @@ class hr_salary_particular(models.Model):
     name = fields.Char(string="code")
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
-    requestor = fields.Many2one('res.users', string="Requestor")
-    nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang")
-    jabatan = fields.Many2one('hr.job', string="Jabatan")
+    requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
+    nama_cabang = fields.Many2one('account.analytic.account', string="Nama Cabang", required=True)
+    jabatan = fields.Many2one('hr.job', string="Jabatan", required=True)
 #     nilai_insentif = fields.Float(digits=dp.get_precision('Payroll'), string="Nilai Insentif")
     uang_makan = fields.Float(digits=dp.get_precision('Payroll'), string="Uang Makan")
     transport = fields.Float(digits=dp.get_precision('Payroll'), string="Transport")
