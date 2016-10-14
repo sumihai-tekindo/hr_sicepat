@@ -130,35 +130,3 @@ class hr_loan_line(models.Model):
                     'value': {'total_nilai_cicilan':nilai_cicilan,
                               'sisa_pinjaman':nilai_pinjaman-nilai_cicilan}
                     }
-                
-#     @api.one
-#     @api.depends('nilai_cicilan')
-#     def compute_nilai_cicilan(self):
-# #         print(self.loan_id.id)
-#         ctx = self._context
-#         loan_id = ctx.get('loan_id',False)
-# #         print(loan_id)
-#         if (loan_id):
-#             loan = self.env['hr_loan'].browse([loan_id])
-#             nilai_pinjaman = loan.nilai_pinjaman
-#             cicilan_per_bulan = loan.cicilan_per_bulan
-#             loan_line = self.search([('loan_id','=',loan_id)], order='sisa_pinjaman desc')[0] or False
-#             total_nilai_cicilan,sisa_pinjaman = self.env['hr_loan'].compute_pinjaman(loan_id)
-# #         print('sisa pinjaman %s dan total nilai cicilan %s' % (loan_line.sisa_pinjaman,loan_line.total_nilai_cicilan))
-#         if(self.nilai_cicilan!=0):
-#             if loan_line:
-# #                 print('nilai cicilan %s cicilan per bulan %s sisa pinjaman %s' % (self.nilai_cicilan,cicilan_per_bulan,sisa_pinjaman))
-#                 if ((self.nilai_cicilan < cicilan_per_bulan) or (self.nilai_cicilan > sisa_pinjaman)):
-# #                     print('IF nilai cicilan %s cicilan per bulan %s sisa pinjaman %s' % (self.nilai_cicilan,cicilan_per_bulan,sisa_pinjaman ))
-#                     raise osv.except_osv(_('Jumlah cicilan anda kurang dari minimum!'), _('atau melebihi Sisa Pinjaman Anda.'))
-#                 else:
-#                     self.total_nilai_cicilan=total_nilai_cicilan+self.nilai_cicilan
-#                     self.sisa_pinjaman=nilai_pinjaman-self.total_nilai_cicilan
-# #                     print('else self sisa pinjaman %s dan self total cicilan %s' % (self.sisa_pinjaman,self.total_nilai_cicilan))
-# #             else:
-# #                 print('tanpa loan line')
-#     #             if(((self.nilai_cicilan < loan_line.loan_id.cicilan_per_bulan) or (self.nilai_cicilan>loan_line.loan_id.nilai_pinjaman))and (self.nilai_cicilan != 0)):
-#     #                 raise osv.except_osv(_('Jumlah cicilan anda kurang dari minimum!'), _('atau melebihi Sisa Pinjaman Anda.'))
-#     #             else:
-#     #                 self.total_nilai_cicilan=self.nilai_cicilan
-#     #                 self.sisa_pinjaman=loan_line.loan_id.nilai_pinjaman-self.nilai_cicilan
