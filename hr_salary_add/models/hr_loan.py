@@ -50,10 +50,9 @@ class hr_loan(models.Model):
     @api.one
     @api.depends('loan_ids.sisa_pinjaman')
     def compute_sisa_pinjaman(self):
-        loan_line = self.env['hr_loan_line'].search([('loan_id','=',self.id)], order='sisa_pinjaman asc')
-        if(loan_line):
-            loan_line = self.env['hr_loan_line'].search([('loan_id','=',self.id)], order='sisa_pinjaman asc')
-            self.sisa_pinjaman = loan_line.sisa_pinjaman
+        loan_lines = self.env['hr_loan_line'].search([('loan_id','=',self.id)], order='sisa_pinjaman asc') or False
+        if(loan_lines):
+            self.sisa_pinjaman = loan_lines[0].sisa_pinjaman
         
 #     @api.multi
 #     def compute_pinjaman(self,loan_id):
@@ -106,19 +105,18 @@ class hr_loan_line(models.Model):
     def compute_nilai_cicilan(self, nilai_cicilan, cicilan_per_bulan, nilai_pinjaman):
         ctx = self._context
         loan_id = ctx.get('loan_id',False)
-        loan_line = self.search([('loan_id','=',loan_id)], order='sisa_pinjaman desc')
-        if loan_line:
-            loan_line = self.search([('loan_id','=',loan_id)], order='sisa_pinjaman asc')[0]
-            if (((nilai_cicilan < cicilan_per_bulan) or (nilai_cicilan > loan_line.sisa_pinjaman)) and (nilai_cicilan != 0)):
+        loan_lines = self.search([('loan_id','=',loan_id)], order='sisa_pinjaman asc') or False
+        if loan_lines:
+            if (((nilai_cicilan < cicilan_per_bulan) or (nilai_cicilan > loan_lines[0].sisa_pinjaman)) and (nilai_cicilan != 0)):
 #                 raise osv.except_osv(_('Jumlah cicilan anda kurang dari minimum!'), _('atau melebihi Sisa Pinjaman Anda.'))
                 return {
-                    'value': {'total_nilai_cicilan':loan_line.total_nilai_cicilan+nilai_cicilan,
-                              'sisa_pinjaman':loan_line.sisa_pinjaman-nilai_cicilan}
+                    'value': {'total_nilai_cicilan':loan_lines[0].total_nilai_cicilan+nilai_cicilan,
+                              'sisa_pinjaman':loan_lines[0].sisa_pinjaman-nilai_cicilan}
                     }
             else:
                 return {
-                    'value': {'total_nilai_cicilan':loan_line.total_nilai_cicilan+nilai_cicilan,
-                              'sisa_pinjaman':loan_line.sisa_pinjaman-nilai_cicilan}
+                    'value': {'total_nilai_cicilan':loan_lines[0].total_nilai_cicilan+nilai_cicilan,
+                              'sisa_pinjaman':loan_lines[0].sisa_pinjaman-nilai_cicilan}
                     }
         else:
             if(((nilai_cicilan < cicilan_per_bulan) or (nilai_cicilan>nilai_pinjaman))and (nilai_cicilan != 0)):
