@@ -30,7 +30,7 @@
                         <button name="action_approve" type="object"
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
-                                string="Reject" states="submit"/>
+                                string="Reject" states="submit" class="oe_highlight"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
 	            	<group string="Surat Peringatan">

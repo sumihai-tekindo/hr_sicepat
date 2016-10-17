@@ -2,11 +2,12 @@ from openerp import models, fields, api
 from openerp.osv import osv
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
+from pychart.arrow import default
 
 class hr_loan(models.Model):
     _name = "hr_loan"
     
-    name = fields.Char(string="code")
+    name = fields.Char(string="code", default=lambda self: self.env['ir.sequence'].get("hr.loan"))
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan", required=True)
     jabatan = fields.Many2one('hr.job', string="Jabatan", required=True)
@@ -16,18 +17,27 @@ class hr_loan(models.Model):
     cicilan_per_bulan = fields.Float(digits=dp.get_precision('Payroll'), string="Cicilan Per Bulan", compute="compute_cicilan_per_bulan")
     bulan_awal_pemotongan = fields.Date(required=True)
     keperluan = fields.Char()
-    nama_bank = fields.Char()
+#     nama_bank = fields.Char()
     no_rekening = fields.Char(required=True)
     alasan_reject = fields.Char()
     loan_ids = fields.One2many("hr_loan_line","loan_id")
     sisa_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string="Sisa Pinjaman", compute="compute_sisa_pinjaman", store=1)
     
+    nama_bank = fields.Selection([
+            ('bca','BCA'),
+            ('cimb','CIMB'),
+            ('mandiri','Mandiri'),
+            ('bni','BNI'),
+            ('bri','BRI'),
+            ('cash','CASH'),
+            ('lain','Lain-lain'),
+        ], string='Nama Bank', default='bca', required=True)
     state = fields.Selection([
             ('open','Open'),
             ('submit','Submit'),
             ('reject','Reject'),
             ('approved','Approved'),
-        ], string='State', default='open')
+        ], string='Status', default='open')
     
     @api.multi
     def action_submit(self):
@@ -54,6 +64,10 @@ class hr_loan(models.Model):
         if(loan_lines):
             self.sisa_pinjaman = loan_lines[0].sisa_pinjaman
         
+#     @api.model
+#     def create(self, vals):
+#         vals['name'] = self.env['ir.sequence'].get_id("hr.loan")
+#         return super(hr_loan, self).create(vals)
 #     @api.multi
 #     def compute_pinjaman(self,loan_id):
 #         loans = self.browse([loan_id])
@@ -94,10 +108,13 @@ class hr_loan_line(models.Model):
         loan_id = vals.get('loan_id')
         loan = self.env['hr_loan'].browse([loan_id])
         self.env['hr_loan'].compute_sisa_pinjaman()
-        if((vals.get('nilai_cicilan') < loan.cicilan_per_bulan) or (vals.get('total_nilai_cicilan') > loan.nilai_pinjaman) or (vals.get('sisa_pinjaman') < 0)):
-            raise osv.except_osv(_('Gagal Menyimpan!'), _('Jumlah cicilan anda kurang dari minimum atau melebihi Sisa Pinjaman Anda.'))
-        else:
+        if(vals.get('sisa_pinjaman')==0):
             result = super(hr_loan_line,self).create(vals)
+        else:
+            if((vals.get('nilai_cicilan') < loan.cicilan_per_bulan) or (vals.get('total_nilai_cicilan') > loan.nilai_pinjaman) or (vals.get('sisa_pinjaman') < 0)):
+                raise osv.except_osv(_('Gagal Menyimpan!'), _('Jumlah cicilan anda kurang dari minimum atau melebihi Sisa Pinjaman Anda.'))
+            else:
+                result = super(hr_loan_line,self).create(vals)
 #             loan.compute_sisa_pinjaman()
         return result
     

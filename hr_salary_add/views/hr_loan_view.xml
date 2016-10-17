@@ -32,7 +32,7 @@
                         <button name="action_approve" type="object"
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
-                                string="Reject" states="submit"/>
+                                string="Reject" states="submit" class="oe_highlight"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
 	            	<group string="Pinjaman Karyawan">
@@ -41,7 +41,9 @@
 		                    <field name="nama_karyawan" attrs="{'readonly':[('state','!=','open')]}"/>
 		                    <field name="jabatan" attrs="{'readonly':[('state','!=','open')]}"/>
 		                    <field name="nama_cabang" attrs="{'readonly':[('state','!=','open')]}"/>
-		                    <field name="nilai_pinjaman" attrs="{'readonly':[('state','!=','open')]}"/>
+	            		</group>
+	            		<group>
+	            			<field name="nilai_pinjaman" attrs="{'readonly':[('state','!=','open')]}"/>
 		                    <field name="jumlah_cicilan" attrs="{'readonly':[('state','!=','open')]}"/>
 		                    <field name="cicilan_per_bulan" readonly="1"/>
 		                    <field name="bulan_awal_pemotongan" attrs="{'readonly':[('state','!=','open')]}"/>
@@ -49,7 +51,6 @@
 		                    <field name="nama_bank" attrs="{'readonly':[('state','!=','open')]}"/>
 		                    <field name="no_rekening" attrs="{'readonly':[('state','!=','open')]}"/>
 	            		</group>
-	            		<group></group>
 	            	</group>
                     <field name="loan_ids" context="{'loan_id':id}" attrs="{'invisible':[('state','!=','approved')]}">
                     	<tree string="Detail" editable="bottom">
@@ -62,6 +63,18 @@
 						</tree>
                     </field>
                 </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="loan_search_view">
+            <field name="name">loan.search</field>
+            <field name="model">hr_loan</field>
+            <field name="arch" type="xml">
+                <search string="Loan Tree">
+                	<field name="name"/>
+                    <field name="nama_karyawan"/>
+                    <field name="jabatan"/>
+                    <field name="nama_cabang"/>
+                </search>
             </field>
         </record>
 <!--    END OF LOAN    -->

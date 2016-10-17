@@ -3,7 +3,7 @@ from openerp import models, fields, api
 class hr_memorandum(models.Model):
     _name = "hr_memorandum"
     
-    name = fields.Char(string="code")
+    name = fields.Char(string="code", default=lambda self: self.env['ir.sequence'].get("memorandum"))
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan", required=True)
@@ -18,7 +18,7 @@ class hr_memorandum(models.Model):
             ('submit','Submit'),
             ('reject','Reject'),
             ('approved','Approved'),
-        ], string='State', default='open')
+        ], string='Status', default='open')
     
     @api.multi
     def action_submit(self):

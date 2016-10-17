@@ -4,7 +4,7 @@ import openerp.addons.decimal_precision as dp
 class hr_salary_particular(models.Model):
     _name = "hr_salary_particular"
     
-    name = fields.Char(string="code")
+    name = fields.Char(string="code", default=lambda self: self.env['ir.sequence'].get("salary.particular"))
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)

@@ -4,7 +4,7 @@ import openerp.addons.decimal_precision as dp
 class hr_salary_proposal(models.Model):
     _name = "hr_salary_proposal"
     
-    name = fields.Char(string="code")
+    name = fields.Char(string="code", default=lambda self: self.env['ir.sequence'].get("salary.proposal"))
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
@@ -21,7 +21,7 @@ class hr_salary_proposal(models.Model):
             ('submit','Submit'),
             ('reject','Reject'),
             ('approved','Approved'),
-        ], string='State', default='open')
+        ], string='Status', default='open')
     
     @api.multi
     def action_submit(self):

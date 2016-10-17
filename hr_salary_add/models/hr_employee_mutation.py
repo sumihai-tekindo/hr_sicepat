@@ -3,7 +3,7 @@ from openerp import models, fields, api
 class hr_employee_mutation(models.Model):
     _name = "hr_employee_mutation"
     
-    name = fields.Char(string="code")
+    name = fields.Char(string="code", default=lambda self: self.env['ir.sequence'].get("employee.mutation"))
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
@@ -18,7 +18,7 @@ class hr_employee_mutation(models.Model):
             ('submit','Submit'),
             ('reject','Reject'),
             ('approved','Approved'),
-        ], string='State', default='open')
+        ], string='Status', default='open')
     
     @api.multi
     def action_submit(self):

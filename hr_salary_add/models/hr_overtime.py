@@ -6,7 +6,7 @@ import openerp.addons.decimal_precision as dp
 class hr_overtime(models.Model):
     _name = "hr_overtime"
     
-    name = fields.Char(string="code")
+    name = fields.Char(string="code", default=lambda self: self.env['ir.sequence'].get("overtime"))
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
     overtime_ids = fields.One2many('hr_overtime_line','overtime_id')

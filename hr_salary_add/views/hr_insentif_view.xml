@@ -30,14 +30,13 @@
                         <button name="action_approve" type="object"
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
-                                string="Reject" states="submit"/>
+                                string="Reject" states="submit" class="oe_highlight"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
 	            	<group>
 	            		<group string="Insentif (Bonus Tambahan)">
 	                    	<field name="tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	                    	<field name="requestor" readonly="1"/>
-	                    	<field name="nama_koordinator" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	                    </group>
 	                    <group></group>
 	                </group>

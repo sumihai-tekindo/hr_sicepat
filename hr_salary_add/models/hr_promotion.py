@@ -3,13 +3,13 @@ from openerp import models, fields, api
 class hr_promotion(models.Model):
     _name = "hr_promotion"
     
-    name = fields.Char(string="code")
+    name = fields.Char(string="code", default=lambda self: self.env['ir.sequence'].get("promotion"))
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
     
     nama_karyawan = fields.Many2one("hr.employee", string="Nama Karyawan", required=True)
-    jabatan_awal = fields.Many2one('hr.job', string="Jabatan", required=True)
+    jabatan_awal = fields.Many2one('hr.job', string="Jabatan Semula", required=True)
     cabang_awal = fields.Many2one('account.analytic.account', string="Cabang Asal", required=True)
     usulan_jabatan_baru = fields.Many2one('hr.job', string="Usulan Jabatan", required=True)
     cabang_baru = fields.Many2one('account.analytic.account', string="Cabang Baru", required=True)
@@ -19,7 +19,7 @@ class hr_promotion(models.Model):
             ('submit','Submit'),
             ('reject','Reject'),
             ('approved','Approved'),
-        ], string='State', default='open')
+        ], string='Status', default='open')
     
     @api.multi
     def action_submit(self):

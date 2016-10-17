@@ -4,7 +4,7 @@ import openerp.addons.decimal_precision as dp
 class hr_insentif(models.Model):
     _name = "hr_insentif"
     
-    name = fields.Char(string="code")
+    name = fields.Char(string="code", default=lambda self: self.env['ir.sequence'].get("insentif"))
     
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self))
     requestor = fields.Many2one('res.users', string="Requestor", default=lambda self: self.env.user)
@@ -19,7 +19,7 @@ class hr_insentif(models.Model):
             ('submit','Submit'),
             ('reject','Reject'),
             ('approved','Approved'),
-        ], string='Status Page', default='open')
+        ], string='Status', default='open')
     
     @api.multi
     def action_submit(self):
