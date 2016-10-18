@@ -15,8 +15,8 @@
                     <field name="nama_karyawan"/>
                     <field name="jabatan"/>
                     <field name="nama_cabang"/>
-                    <field name="nilai_pinjaman"/>
-                    <field name="sisa_pinjaman"/>
+                    <field name="nilai_pinjaman" sum="Total Pinjaman"/>
+                    <field name="sisa_pinjaman" sum="Sisa Pinjaman"/>
                     <field name="state"/>
                 </tree>
             </field>
@@ -37,19 +37,19 @@
 	            	</header>
 	            	<group string="Pinjaman Karyawan">
 	            		<group>
-	            			<field name="tanggal" attrs="{'readonly':[('state','!=','open')]}"/>
-		                    <field name="nama_karyawan" attrs="{'readonly':[('state','!=','open')]}"/>
-		                    <field name="jabatan" attrs="{'readonly':[('state','!=','open')]}"/>
-		                    <field name="nama_cabang" attrs="{'readonly':[('state','!=','open')]}"/>
+	            			<field name="tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+		                    <field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+		                    <field name="jabatan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+		                    <field name="nama_cabang" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	            		</group>
 	            		<group>
-	            			<field name="nilai_pinjaman" attrs="{'readonly':[('state','!=','open')]}"/>
-		                    <field name="jumlah_cicilan" attrs="{'readonly':[('state','!=','open')]}"/>
+	            			<field name="nilai_pinjaman" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+		                    <field name="jumlah_cicilan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 		                    <field name="cicilan_per_bulan" readonly="1"/>
-		                    <field name="bulan_awal_pemotongan" attrs="{'readonly':[('state','!=','open')]}"/>
-		                    <field name="keperluan" attrs="{'readonly':[('state','!=','open')]}"/>
-		                    <field name="nama_bank" attrs="{'readonly':[('state','!=','open')]}"/>
-		                    <field name="no_rekening" attrs="{'readonly':[('state','!=','open')]}"/>
+		                    <field name="bulan_awal_pemotongan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+		                    <field name="keperluan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+		                    <field name="nama_bank" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+		                    <field name="no_rekening" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	            		</group>
 	            	</group>
                     <field name="loan_ids" context="{'loan_id':id}" attrs="{'invisible':[('state','!=','approved')]}">

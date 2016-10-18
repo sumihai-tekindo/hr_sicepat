@@ -34,19 +34,23 @@ class delivery_package(models.Model):
     @api.one
     @api.depends('nama_cabang','periode','target_paket','pertambahan_bonus')
     def compute_target_bulan_lalu(self):
-        print('panggil compute')
         dp = self.search([('nama_cabang','=',self.nama_cabang.id)], order='periode desc') or False
         if(dp):
             self.target_paket_bulan_lalu = dp[0].target_paket
             self.pertambahan_bonus_bulan_lalu = dp[0].pertambahan_bonus
             
-    @api.model
+    @api.model 
     @api.returns('self', lambda value: value.id)
     def create(self, vals):
-        print('ini create', vals)
-        return super(delivery_package,self).create(vals)
+        dp = self.search([('nama_cabang','=',self.nama_cabang.id)], order='periode desc') or False
+        if(dp):
+            vals.target_paket_bulan_lalu = dp[1].target_paket
+            vals.pertambahan_bonus_bulan_lalu = dp[1].pertambahan_bonus
+            return super(delivery_package,self).create(vals)
+        else:
+            return super(delivery_package,self).create(vals)
     
-    @api.multi
-    def write(self, vals):
-        print('ini write', vals)
-        return super(delivery_package,self).write(vals)
+#     @api.multi
+#     def write(self, vals):
+#         print('ini write', vals)
+#         return super(delivery_package,self).write(vals)
