@@ -1,0 +1,95 @@
+<openerp>
+	<data>
+<!--	START KOMPONEN GAJI	-->
+		<record model="ir.actions.act_window" id="action_salary_structure">
+            <field name="name">Komponen Gaji</field>
+            <field name="res_model">hr.salary.structure</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="salary_structure_search_view">
+            <field name="name">salary.structure.search.view</field>
+            <field name="model">hr.salary.structure</field>
+            <field name="arch" type="xml">
+                <search string="Search Komponen Gaji">
+                    <field name="name"/>
+                    <field name="tanggal"/>
+                    <field name="dept_id" operator="child_of"/>
+                    <field name="request_id" string="Requestor"/>
+                    <field name="state"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Cabang" context="{'group_by':'dept_id'}"/>
+                        <filter string="Status" context="{'group_by':'state'}"/>
+                        <separator/>
+                    	<filter name="group_by_request_id" string="Requestor" context="{'group_by':'request_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="salary_structure_tree_view">
+            <field name="name">salary.structure.tree.view</field>
+            <field name="model">hr.salary.structure</field>
+            <field name="arch" type="xml">
+                <tree colors="blue:state=='draft';black:state=='submit';red:state=='reject';gray:state=='approved'" string="Komponen Gaji" >
+                    <field name="name"/>
+                    <field name="tanggal"/>
+                    <field name="dept_id"/>
+                    <field name="request_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="komponen_gaji_form_view">
+            <field name="name">salary.structure.form.view</field>
+            <field name="model">hr.salary.structure</field>
+            <field name="arch" type="xml">
+                <form string="Komponen Gaji">
+                	<header>
+                		<button name="action_submit" type="object"
+                			string="Submit" states="draft" class="oe_highlight"/>
+                        <button name="action_approve" type="object"
+                        	string="Approve" states="submit" class="oe_highlight"/>
+                        <button name="action_reject" type="object"
+                        	string="Reject" states="submit" class="oe_highlight"/>
+	            		<field name="state" widget="statusbar"/>
+	            	</header>
+	            	<sheet string="Komponen Gaji">
+	                    <div class="oe_title">
+	                        <h1>
+	                            <field name="name"/>
+	                        </h1>
+	                    </div>
+	                    <group name="salary_structure">
+	                    	<group col="4">
+		                    	<field name="request_id"/>
+	                    		<field name="tanggal"/>
+		                    	<field name="dept_id"/>
+	                    	</group>
+	                    </group>
+	                    <field name="structure_line">
+	                    	<tree string="Detail" editable="bottom">
+			            		<field name="jabatan_id"/>
+			            		<field name="uang_makan"/>
+			            		<field name="transport"/>
+			            		<field name="uang_kerajinan"/>
+			            		<field name="tunj_operasional"/>
+			            		<field name="tunj_jabatan"/>
+			            		<field name="service_motor"/>
+			            		<field name="state" invisible="1"/>
+			            	</tree>
+	                    </field>
+	            	</sheet>
+                </form>
+            </field>
+        </record>
+<!--    END OF KOMPONEN GAJI    -->
+        
+<!--    START MENU ITEM    -->
+		<menuitem id="hr_sicepat_configuration" name="Sicepat" 
+        		  parent="hr.menu_hr_configuration" sequence="1"/>
+        <menuitem id="komponen_gaji_menu" name="Komponen Gaji" 
+        		  parent="hr_sicepat_configuration"
+                  action="action_salary_structure" sequence="1"/>
+<!--    END OF MENU ITEM    	-->
+	</data>
+</openerp>
