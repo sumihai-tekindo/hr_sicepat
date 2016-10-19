@@ -21,6 +21,7 @@ HR Sicepat Ekspres
     # Check https://github.com/odoo/odoo/blob/master/openerp/addons/base/module/module_data.xml
     # for the full list
     'category': 'Human Resources',
+    'sequence': 2,
     'version': '8.0.0.1.0',
 
     # any module necessary for this one to work correctly
