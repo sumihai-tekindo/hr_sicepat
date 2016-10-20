@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Copyright (C) 2016 Pambudi Satria (<https://github.com/pambudisatria>).
-#    @author Pambudi Satria <pambudi.satria@yahoo.com>
+#    Copyright (C) 2016 Sicepat Ekspres Indonesia (<http://www.sicepat.com>).
+#    @author: - Timotius Wigianto <https://github.com/timotiuswigianto/>
+#             - Pambudi Satria <pambudi.satria@yahoo.com>
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -19,18 +20,18 @@
 #
 ##############################################################################
 
-from openerp import models, fields, api
+from openerp import api, fields, models
 import openerp.addons.decimal_precision as dp
 
 class SalaryStructure(models.Model):
-    _name = "hr.salary.structure"
+    _name = 'hr.salary.structure'
     
-    name = fields.Char(string="Number", readonly=True)
-    request_id = fields.Many2one('res.users', string="Requestor", readonly=True,
+    name = fields.Char(string='Number', readonly=True)
+    request_id = fields.Many2one('res.users', string='Requestor', readonly=True,
         default=lambda self: self.env.user)
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self), readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    dept_id = fields.Many2one('hr.department', string="Nama Cabang", required=True, readonly=True,
+    department_id = fields.Many2one('hr.department', string='Nama Cabang', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     state = fields.Selection([
         ('draft','Open'),
@@ -44,20 +45,14 @@ class SalaryStructure(models.Model):
     @api.multi
     def action_submit(self):
         self.state = 'submit'
-#         for line in self.structure_line:
-#             line.state = 'submit'
 
     @api.multi
     def action_approve(self):
         self.state = 'approved'
-#         for line in self.structure_line:
-#             line.state = 'approved'
         
     @api.multi
     def action_reject(self):
         self.state = 'reject'
-#         for line in self.structure_line:
-#             line.state = 'reject'
 
     @api.model
     def create(self, vals):
@@ -65,17 +60,78 @@ class SalaryStructure(models.Model):
         return super(SalaryStructure, self).create(vals)
 
 
+CODE2INPUT = {
+    'MEAL': 'uang_makan',
+    'TRANSPORT': 'transport',
+    'PERSISTANCE': 'uang_kerajinan',
+    'OPER': 'tunj_operasional',
+    'ALLOW': 'tunj_jabatan',
+    'BIKE': 'service_motor'
+}
+
 class SalaryStructureLine(models.Model):
-    _name = "salary.structure.line"
+    _name = 'salary.structure.line'
+    _rec_name = 'structure_id'
 
     structure_id = fields.Many2one('hr.salary.structure', string='Salary Structure')
-    jabatan_id = fields.Many2one('hr.job', string="Jabatan", required=True)
-    uang_makan = fields.Float(digits=dp.get_precision('Payroll'), string="Uang Makan")
-    transport = fields.Float(digits=dp.get_precision('Payroll'), string="Transport")
-    uang_kerajinan = fields.Float(digits=dp.get_precision('Payroll'), string="Uang Kerajinan")
-    tunj_operasional = fields.Float(digits=dp.get_precision('Payroll'), string="Tunjangan Operasional")
-    tunj_jabatan = fields.Float(digits=dp.get_precision('Payroll'), string="Tunjangan Jabatan")
-    service_motor = fields.Float(digits=dp.get_precision('Payroll'), string="Service Motor")
-    tanggal = fields.Date(related='structure_id.tanggal')
-    dept_id = fields.Many2one('hr.department', string="Nama Cabang", related='structure_id.dept_id')
+    jabatan_id = fields.Many2one('hr.job', string='Jabatan', required=True)
+    uang_makan = fields.Float(digits=dp.get_precision('Payroll'), string='Uang Makan')
+    transport = fields.Float(digits=dp.get_precision('Payroll'), string='Transport')
+    uang_kerajinan = fields.Float(digits=dp.get_precision('Payroll'), string='Uang Kerajinan')
+    tunj_operasional = fields.Float(digits=dp.get_precision('Payroll'), string='Tunjangan Operasional')
+    tunj_jabatan = fields.Float(digits=dp.get_precision('Payroll'), string='Tunjangan Jabatan')
+    service_motor = fields.Float(digits=dp.get_precision('Payroll'), string='Service Motor')
+    tanggal = fields.Date(related='structure_id.tanggal', store=True)
+    department_id = fields.Many2one('hr.department', string='Nama Cabang', related='structure_id.department_id')
     state = fields.Selection(related='structure_id.state', store=True, default='draft')
+
+    def get_structure_line(self, cr, uid, employee, date_from, date_to, context=None):
+        """
+        @param employee: browse record of employee
+        @param date_from: date field
+        @param date_to: date field
+        @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
+        """
+        clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
+        clause_final = [('department_id','=',employee.department_id.id), ('jabatan_id','=',employee.job_id.id), ('state','=','approved')] + clause_1
+        struc_line_ids = self.search(cr, uid, clause_final, order='tanggal desc', context=context)
+        return struc_line_ids
+
+    def get_amount(self, cr, uid, ids, code, context=None):
+        """
+        @param code: char field
+        @return: returns amount based on code
+        """
+        struct_line = self.browse(cr, uid, ids, context)
+        return struct_line[0][CODE2INPUT.get(code)]
+
+    def get_condition(self, cr, uid, code, context=None):
+        """
+        @param code: char field
+        @return: returns True or False
+        """
+        if code:
+            if code in CODE2INPUT:
+                return True
+        return False
+
+class HRPayslip(models.Model):
+    _inherit = 'hr.payslip'
+
+    def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
+        res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
+
+        contract_obj = self.pool.get('hr.contract')
+        employee_obj = self.pool.get('hr.employee')
+        struct_line = self.pool.get('salary.structure.line')
+        
+        employee_id = contract_obj.browse(cr, uid, contract_ids, context=context)[0].employee_id.id
+        employee = employee_obj.browse(cr, uid, employee_id, context=context)
+        
+        for result in res:
+            if struct_line.get_condition(cr, uid, result.get('code'), context=context):
+                struct_line_ids = struct_line.get_structure_line(cr, uid, employee, date_from, date_to, context=context)
+                if struct_line_ids:
+                    result['amount'] = struct_line.get_amount(cr, uid, struct_line_ids, result['code'], context=context)
+
+        return res
