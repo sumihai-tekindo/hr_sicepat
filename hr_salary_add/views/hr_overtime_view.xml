@@ -3,29 +3,51 @@
 <!--	START LEMBURAN	-->
 		<record model="ir.actions.act_window" id="overtime_action">
             <field name="name">Lemburan Karyawan</field>
-            <field name="res_model">hr_overtime</field>
+            <field name="res_model">hr.overtime</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
+        <record model="ir.ui.view" id="overtime_search_view">
+            <field name="name">overtime.search</field>
+            <field name="model">hr.overtime</field>
+            <field name="arch" type="xml">
+                <search string="Overtime Search">
+                    <field name="name"/>
+                    <field name="tanggal"/>
+                    <field name="department_id" operator="child_of"/>
+                    <field name="request_id" string="Requestor"/>
+                    <field name="state"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Cabang" context="{'group_by':'department_id'}"/>
+                        <filter string="Status" context="{'group_by':'state'}"/>
+                        <separator/>
+                    	<filter name="group_by_request_id" string="Requestor" context="{'group_by':'request_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record model="ir.ui.view" id="overtime_tree_view">
             <field name="name">overtime.tree</field>
-            <field name="model">hr_overtime</field>
+            <field name="model">hr.overtime</field>
             <field name="arch" type="xml">
-                <tree string="Overtime Tree">
+                <tree colors="blue:state in ('draft','submit');black:state=='approved';red:state=='reject';gray:state=='proses'" string="Overtime" >
+                    <field name="name"/>
                     <field name="tanggal"/>
-                    <field name="requestor"/>
-	                <field name="state"/>
+                    <field name="department_id"/>
+                    <field name="request_id"/>
+                    <field name="state"/>
                 </tree>
             </field>
         </record>
         <record model="ir.ui.view" id="overtime_form_view">
             <field name="name">overtime.form</field>
-            <field name="model">hr_overtime</field>
+            <field name="model">hr.overtime</field>
             <field name="arch" type="xml">
                 <form string="Overtime Form">
                 	<header>
                 		<button name="action_submit" type="object"
-                                string="Submit" states="open" class="oe_highlight"/>
+                                string="Submit" states="draft" class="oe_highlight"/>
                         <button name="action_approve" type="object"
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
@@ -34,32 +56,31 @@
                                 string="Proses di Gaji" states="approved" class="oe_highlight"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
-	            	<group>
-	            		<group string="Lemburan">
-		            		<field name="tanggal" attrs="{'readonly':['|','|',('state','=','approved'),('state','=','reject'),('state','=','proses')]}"/>
-		                	<field name="requestor" readonly="1"/>
-		            	</group>
-		            	<group></group>
-	            	</group>
-                    <field name="overtime_ids" attrs="{'readonly':['|','|',('state','=','approved'),('state','=','reject'),('state','=','proses')]}">
-                    	<tree string="Detail">
-	                    	<field name="nik"/>
-                    		<field name="nama_cabang"/>
-	                		<field name="nilai"/>
-	                		<field name="alasan"/>
-	                		<field name="state"/>
-	                		<button name="action_cancel" states="draft" type="object" string="Reject Lemburan" icon="gtk-cancel"/>
-                            <button name="action_confirm" states="draft" type="object" string="Confirm Lemburan" icon="gtk-apply"/>
-                		</tree>
-                		<form>
-                			<group string="Lemburan">
-	                			<field name="nik"/>
-	                			<field name="nama_cabang"/>
+	            	<sheet string="Lemburan">
+	                    <div class="oe_title">
+	                        <h1>
+	                            <field name="name"/>
+	                        </h1>
+	                    </div>
+		            	<group>
+		            		<group col="4">
+		                    	<field name="request_id"/>
+	                    		<field name="tanggal"/>
+		                    	<field name="department_id"/>
+		                    </group>
+		                </group>
+	                    <field name="overtime_line">
+	                    	<tree string="Detail" editable="bottom">
+		                    	<field name="employee_id" domain="[('department_id', '=', parent.department_id)]"/>
+	                    		<field name="jabatan_id"/>
 		                		<field name="nilai"/>
 		                		<field name="alasan"/>
-	                		</group>
-                		</form>
-                    </field>
+		                		<field name="state"/>
+		                		<button name="action_cancel" states="draft,cancel" type="object" string="Reject Lemburan" icon="gtk-cancel" attrs="{'readonly': [('state','!=','draft')]}"/>
+	                            <button name="action_confirm" states="draft,confirmed" type="object" string="Confirm Lemburan" icon="gtk-apply" attrs="{'readonly': [('state','!=','draft')]}"/>
+	                		</tree>
+	                    </field>
+	            	</sheet>
                 </form>
             </field>
         </record>
