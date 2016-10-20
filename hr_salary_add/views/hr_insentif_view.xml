@@ -3,53 +3,79 @@
 <!--	START TUNJANGAN LAIN-LAIN	-->
 		<record model="ir.actions.act_window" id="insentif_action">
             <field name="name">Insentif</field>
-            <field name="res_model">hr_insentif</field>
+            <field name="res_model">hr.insentif</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
+        <record model="ir.ui.view" id="insentif_search_view">
+            <field name="name">insentif.search</field>
+            <field name="model">hr.insentif</field>
+            <field name="arch" type="xml">
+                <search string="Insentif Search">
+                    <field name="name"/>
+                    <field name="tanggal"/>
+                    <field name="department_id" operator="child_of"/>
+                    <field name="request_id" string="Requestor"/>
+                    <field name="state"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Cabang" context="{'group_by':'department_id'}"/>
+                        <filter string="Status" context="{'group_by':'state'}"/>
+                        <separator/>
+                    	<filter name="group_by_request_id" string="Requestor" context="{'group_by':'request_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record model="ir.ui.view" id="insentif_tree_view">
             <field name="name">insentif.tree</field>
-            <field name="model">hr_insentif</field>
+            <field name="model">hr.insentif</field>
             <field name="arch" type="xml">
-                <tree string="Insentif Tree">
+                <tree colors="blue:state=='draft';black:state=='submit';red:state=='reject';gray:state=='approved'" string="Insentif" >
+                    <field name="name"/>
                     <field name="tanggal"/>
-                    <field name="nama_cabang"/>
-                    <field name="requestor"/>
+                    <field name="department_id"/>
+                    <field name="request_id"/>
                     <field name="state"/>
                 </tree>
             </field>
         </record>
         <record model="ir.ui.view" id="insentif_form_view">
             <field name="name">insentif.form</field>
-            <field name="model">hr_insentif</field>
+            <field name="model">hr.insentif</field>
             <field name="arch" type="xml">
                 <form string="Insentif Form">
                 	<header>
                 		<button name="action_submit" type="object"
-                                string="Submit" states="open" class="oe_highlight"/>
+                                string="Submit" states="draft" class="oe_highlight"/>
                         <button name="action_approve" type="object"
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit" class="oe_highlight"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
-	            	<group>
-	            		<group string="Insentif (Bonus Tambahan)">
-	                    	<field name="tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                    	<field name="requestor" readonly="1"/>
-	                    </group>
-	                    <group></group>
-	                </group>
-	                <group>
-	                    <group string="Detail">
-	                    	<field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                		<field name="jabatan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                		<field name="nama_cabang" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                		<field name="nilai_insentif" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                		<field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                    </group>
-	                    <group></group>
-	            	</group>
+	            	<sheet string="Insentif (Bonus Tambahan)">
+	                    <div class="oe_title">
+	                        <h1>
+	                            <field name="name"/>
+	                        </h1>
+	                    </div>
+		            	<group>
+		            		<group col="4">
+		                    	<field name="request_id"/>
+	                    		<field name="tanggal"/>
+		                    	<field name="department_id"/>
+		                    </group>
+		                </group>
+		                <field name="insentif_line">
+		                    <tree string="Detail" editable="bottom">
+		                    	<field name="employee_id" domain="[('department_id', '=', parent.department_id)]"/>
+		                		<field name="jabatan_id"/>
+		                		<field name="nilai_insentif"/>
+		                		<field name="alasan"/>
+		                    </tree>
+		            	</field>
+	            	</sheet>
                 </form>
             </field>
         </record>

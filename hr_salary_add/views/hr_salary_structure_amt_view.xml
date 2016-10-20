@@ -13,12 +13,12 @@
                 <search string="Search Komponen Gaji">
                     <field name="name"/>
                     <field name="tanggal"/>
-                    <field name="dept_id" operator="child_of"/>
+                    <field name="department_id" operator="child_of"/>
                     <field name="request_id" string="Requestor"/>
                     <field name="state"/>
                     <separator/>
                     <group expand="0" string="Group By">
-                        <filter string="Cabang" context="{'group_by':'dept_id'}"/>
+                        <filter string="Cabang" context="{'group_by':'department_id'}"/>
                         <filter string="Status" context="{'group_by':'state'}"/>
                         <separator/>
                     	<filter name="group_by_request_id" string="Requestor" context="{'group_by':'request_id'}"/>
@@ -33,7 +33,7 @@
                 <tree colors="blue:state=='draft';black:state=='submit';red:state=='reject';gray:state=='approved'" string="Komponen Gaji" >
                     <field name="name"/>
                     <field name="tanggal"/>
-                    <field name="dept_id"/>
+                    <field name="department_id"/>
                     <field name="request_id"/>
                     <field name="state"/>
                 </tree>
@@ -63,7 +63,7 @@
 	                    	<group col="4">
 		                    	<field name="request_id"/>
 	                    		<field name="tanggal"/>
-		                    	<field name="dept_id"/>
+		                    	<field name="department_id"/>
 	                    	</group>
 	                    </group>
 	                    <field name="structure_line">
