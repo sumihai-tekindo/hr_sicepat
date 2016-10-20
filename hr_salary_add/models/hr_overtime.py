@@ -87,7 +87,7 @@ class HROvertimeLine(models.Model):
     _name = 'hr.overtime.line'
     _rec_name = 'overtime_id'
     
-    overtime_id = fields.Many2one('hr_overtime', string='Overtime')
+    overtime_id = fields.Many2one('hr.overtime', string='Overtime')
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True)
     jabatan_id = fields.Many2one('hr.job', string='Jabatan', related='employee_id.job_id', readonly=True)
     nilai = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Lemburan', required=True)
