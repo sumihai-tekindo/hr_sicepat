@@ -63,6 +63,8 @@ class hr_loan(models.Model):
         loan_lines = self.env['hr_loan_line'].search([('loan_id','=',self.id)], order='sisa_pinjaman asc') or False
         if(loan_lines):
             self.sisa_pinjaman = loan_lines[0].sisa_pinjaman
+        else:
+            self.sisa_pinjaman =self.nilai_pinjaman
         
 #     @api.model
 #     def create(self, vals):

@@ -7,3 +7,4 @@ import hr_employee_mutation
 import hr_memorandum
 import hr_promotion
 import hr_loan
+import hr_employee
