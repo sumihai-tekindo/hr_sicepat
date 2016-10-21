@@ -5,9 +5,14 @@ class hr_employee(models.Model):
     _inherit = 'hr.employee'
     
     sisa_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string="Sisa Pinjaman", compute="compute_sisa_pinjaman")
-    flag = fields.Boolean(compute="compute_flag")
+    flag = fields.Boolean(compute="compute_flag", string="Status SP")
     loan_ids = fields.One2many("hr_loan","nama_karyawan")
     memorandum_ids = fields.One2many("hr_memorandum","nama_karyawan")
+    referensi = fields.Selection([
+            ('jobdb','jobsDB'),
+            ('koran','Koran'),
+            ('karyawan','karyawan'),
+        ], string='Referensi')
     
     @api.one
     @api.depends('loan_ids.sisa_pinjaman')

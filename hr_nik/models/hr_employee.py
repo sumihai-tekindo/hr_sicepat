@@ -63,12 +63,12 @@ class HrEmployee(models.Model):
         args = args or []
         recs = self.browse()
         if name:
-            recs = self.search([('nik', '=', name)] + args, limit=limit)
+            recs = self.search(['|',('nik', '=', name),('name', '=', name)] + args, limit=limit)
         if not recs:
-            recs = self.search([('name', operator, name)] + args, limit=limit)
+            recs = self.search(['|',('name', operator, name),('nik', operator, name)] + args, limit=limit)
         return recs.name_get()
 
-    api.multi
+    @api.multi
     def name_get(self):
         result = []
         for employee in self:

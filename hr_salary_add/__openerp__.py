@@ -72,7 +72,8 @@ HR Sicepat Ekspres
         "data/hr_overtime_sequence.xml",
         "data/hr_promotion_sequence.xml",
         "data/hr_salary_proposal_sequence.xml",
-        "views/hr_employee_view.xml"],
+        "views/hr_employee_view.xml",
+        "views/pengiriman_paket.xml"],
     # only loaded in demonstration mode
     'demo': [],
     'images': [],

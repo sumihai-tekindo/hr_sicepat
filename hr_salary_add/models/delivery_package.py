@@ -183,7 +183,7 @@ class HRPayslip(models.Model):
         if context is None:
             context = {}
             
-        res = super(HRPayslip, self).onchange_employee(cr, uid, ids, date_from=date_from, date_to=date_to, \
+        res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from=date_from, date_to=date_to, \
             employee_id=employee_id, contract_id=contract_id, context=context)
 
         if (not employee_id) or (not date_from) or (not date_to):
