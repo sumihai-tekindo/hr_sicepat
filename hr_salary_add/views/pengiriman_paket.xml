@@ -7,7 +7,7 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
-        <record model="ir.ui.view" id="target_paket_tree_view">
+        <record model="ir.ui.view" id="pengiriman_paket_tree_view">
             <field name="name">pengiriman_paket.tree</field>
             <field name="model">delivery.package.run</field>
             <field name="arch" type="xml">
@@ -19,7 +19,7 @@
                 </tree>
             </field>
         </record>
-        <record model="ir.ui.view" id="target_paket_form_view">
+        <record model="ir.ui.view" id="pengiriman_paket_form_view">
             <field name="name">pengiriman_paket.form</field>
             <field name="model">delivery.package.run</field>
             <field name="arch" type="xml">
