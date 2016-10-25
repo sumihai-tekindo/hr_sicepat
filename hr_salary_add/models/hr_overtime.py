@@ -126,8 +126,8 @@ class HROvertimeLine(models.Model):
         @param code: char field
         @return: returns amount based on code
         """
-        insentif_line = self.browse(cr, uid, ids, context)
-        return insentif_line[0][CODE2INPUT.get(code)]
+        overtime_line = self.browse(cr, uid, ids, context)
+        return overtime_line[0][CODE2INPUT.get(code)]
 
     def get_condition(self, cr, uid, code, context=None):
         """
