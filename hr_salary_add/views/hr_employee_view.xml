@@ -8,7 +8,6 @@
                 <data>
                     <xpath expr="//form/sheet/notebook/page[3]/group" position="inside">
                     	<group string="Other Information">
-                            <field name="sisa_pinjaman"/>
                             <field name="flag"/>
                             <field name="referensi"/>
                         </group>
@@ -18,7 +17,7 @@
         </record>
         
 <!--    PENAMBAHAN WORKING TIME, BANK    -->
-        <menuitem action="resource.action_resource_calendar_form" id="menu_resource_calendar" parent="hr.menu_open_view_attendance_reason_new_config"/>
+<!--        <menuitem action="resource.action_resource_calendar_form" id="menu_resource_calendar" parent="hr.menu_open_view_attendance_reason_new_config"/>-->
         <menuitem id="hr_sicepat_configuration_bank" name="Bank" 
         		  parent="hr.menu_hr_configuration"/>
         <menuitem action="base.action_res_partner_bank_account_form" id="menu_action_res_partner_bank_form_sicepat" 
