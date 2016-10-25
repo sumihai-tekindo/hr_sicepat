@@ -84,7 +84,7 @@
 									<tree string="Loan Line" editable="bottom">
 <!--										<button icon="gtk-no" attrs="{'invisible':[('paid','=',True)]}"/>-->
 <!--										<button icon="gtk-yes" attrs="{'invisible':[('paid','=',False)]}"/>-->
-										<field name="paid" invisible="0"/>
+										<field name="paid" invisible="1"/>
 										<field name="tanggal_angsuran" attrs="{'readonly':[('posted','=',True)]}"/>
 										<field name="nilai_angsuran" attrs="{'readonly':[('posted','=',True)]}"/>
 										<field name="keterangan" attrs="{'readonly':[('posted','=',True)]}"/>
