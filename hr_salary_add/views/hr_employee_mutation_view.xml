@@ -42,7 +42,7 @@
                     <group string="Detail">
                     	<group>
                     		<field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                		<field name="cabang_awal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                		<field name="cabang_awal"/>
 	                		<field name="cabang_baru" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	                		<field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
                     	</group>
