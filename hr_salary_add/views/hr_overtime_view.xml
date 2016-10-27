@@ -76,8 +76,9 @@
 		                		<field name="nilai"/>
 		                		<field name="alasan"/>
 		                		<field name="state"/>
-		                		<button name="action_cancel" states="draft,cancel" type="object" string="Reject Lemburan" icon="gtk-cancel" attrs="{'readonly': [('state','!=','draft')]}"/>
-	                            <button name="action_confirm" states="draft,confirmed" type="object" string="Confirm Lemburan" icon="gtk-apply" attrs="{'readonly': [('state','!=','draft')]}"/>
+		                		<field name="overtime_state" invisible="1"/>
+		                		<button name="action_cancel" states="draft,cancel" type="object" string="Reject Lemburan" icon="gtk-cancel" attrs="{'readonly': [('overtime_state','!=','submit')]}"/>
+	                            <button name="action_confirm" states="draft,confirmed" type="object" string="Confirm Lemburan" icon="gtk-apply" attrs="{'readonly': [('overtime_state','!=','submit')]}"/>
 	                		</tree>
 	                    </field>
 	            	</sheet>
