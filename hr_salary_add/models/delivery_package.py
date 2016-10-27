@@ -123,7 +123,7 @@ class DeliveryPackageRun(models.Model):
     
     employee_id = fields.Many2one('hr.employee', 'Karyawan', required=True)
     date_delivery = fields.Date('Tanggal pengiriman', required=True)
-    department_id = fields.Many2one('hr.department', string='Nama Cabang', required=True)
+    department_id = fields.Many2one('hr.department', string='Nama Cabang', related='employee_id.department_id', readonly=True)
     total_paket = fields.Integer(required=True)
 
     def get_delivery(self, cr, uid, employee, date_from, date_to, context=None):
