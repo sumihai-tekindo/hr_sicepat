@@ -38,14 +38,14 @@
 	            		<group string="Usulan Kenaikan Gaji">
 	                    	<field name="tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	                    	<field name="requestor" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}" readonly="1"/>
-	                    	<field name="nama_cabang" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	                    </group>
 	                    <group></group>
 	            	</group>
                     <group string="Detail">
                     	<group>
                     		<field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                    	<field name="jabatan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+	                    	<field name="jabatan"/>
+	                    	<field name="nama_cabang"/>
 	                		<field name="gaji_semula" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	                		<field name="kenaikan_gaji" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	                		<field name="gaji_usulan" readonly="1"/>
