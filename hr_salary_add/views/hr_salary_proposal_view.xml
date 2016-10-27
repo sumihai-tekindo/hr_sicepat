@@ -27,7 +27,7 @@
                 <form string="Salary Proposal Form">
                 	<header>
                 		<button name="action_submit" type="object"
-                                string="Submit" states="open" class="oe_highlight"/>
+                                string="Submit" states="draft" class="oe_highlight"/>
                         <button name="action_approve" type="object"
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
@@ -35,24 +35,27 @@
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
 	            	<group>
-	            		<group string="Usulan Kenaikan Gaji">
-	                    	<field name="tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                    	<field name="requestor" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}" readonly="1"/>
+	            		<group col="4" string="Usulan Kenaikan Gaji">
+	                    	<field name="tanggal"/>
+	                    	<field name="requestor"/>
 	                    </group>
-	                    <group></group>
 	            	</group>
                     <group string="Detail">
                     	<group>
-                    		<field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+                    		<field name="nama_karyawan"/>
 	                    	<field name="jabatan"/>
 	                    	<field name="nama_cabang"/>
-	                		<field name="gaji_semula" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                		<field name="kenaikan_gaji" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	                		<field name="gaji_usulan" readonly="1"/>
-	                		<field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
                     	</group>
-                    	<group></group>
+                    	<group>
+	                    	<field name="contract_id" invisible="1"/>
+	                    	<field name="wage" invisible="1"/>
+	                		<field name="gaji_semula"/>
+	                		<field name="kenaikan_gaji"/>
+	                		<field name="gaji_usulan"/>
+                    	</group>
                     </group>
+                    <label for="alasan"/>
+            		<field name="alasan"/>
                 </form>
             </field>
         </record>
