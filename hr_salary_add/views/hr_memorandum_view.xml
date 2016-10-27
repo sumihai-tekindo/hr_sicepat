@@ -38,8 +38,8 @@
 	            			<field name="tanggal" string="Tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 		                	<field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 		                	<field name="nama_atasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-		            		<field name="jabatan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-		            		<field name="nama_cabang" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+		            		<field name="jabatan"/>
+		            		<field name="nama_cabang"/>
 		            		<field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 		            		<field name="flag" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
 	            		</group>
