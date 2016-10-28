@@ -31,8 +31,6 @@ class HRInsentif(models.Model):
         default=lambda self: self.env.user)
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self), readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    department_id = fields.Many2one('hr.department', string='Nama Cabang', required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     nama_koordinator = fields.Many2one('hr.employee', string='Nama Koordinator Wilayah')
     state = fields.Selection([
         ('draft','Open'),
@@ -69,11 +67,12 @@ class HRInsentifLine(models.Model):
 
     insentif_id = fields.Many2one('hr.insentif', string='Insentif')
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True)
-    jabatan_id = fields.Many2one('hr.job', string='Jabatan', related='employee_id.job_id', readonly=True)
+    jabatan_id = fields.Many2one('hr.job', string='Jabatan', readonly=True)
     nilai_insentif = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Insentif', required=True)
     alasan = fields.Text()
     tanggal = fields.Date(related='insentif_id.tanggal', store=True)
-    department_id = fields.Many2one('hr.department', string='Nama Cabang', related='insentif_id.department_id')
+#     department_id = fields.Many2one('hr.department', string='Nama Cabang', related='insentif_id.department_id')
+    department_id = fields.Many2one('hr.department', string='Nama Cabang', readonly=True)
     state = fields.Selection(related='insentif_id.state', store=True, default='draft')
 
     def get_insentif_line(self, cr, uid, employee, date_from, date_to, context=None):
@@ -105,7 +104,29 @@ class HRInsentifLine(models.Model):
             if code in CODE2INPUT:
                 return True
         return False
-
+    
+    @api.onchange('employee_id')
+    def onchange_cabang_asal(self):
+        if(self.employee_id):
+            employee = self.env['hr.employee'].search([('id','=',self.employee_id.id)])
+            self.department_id = employee.department_id.id
+            self.jabatan_id = employee.job_id.id
+            
+    @api.model
+    def create(self, vals):
+        employee = self.env['hr.employee'].search([('id','=',vals['employee_id'])])
+        vals['department_id'] = employee.department_id.id
+        vals['jabatan_id'] = employee.job_id.id
+        return super(HRInsentifLine, self).create(vals)
+    
+    @api.multi
+    def write(self, vals):
+        employee = self.env['hr.employee'].search([('id','=',vals.get('employee_id'))])
+        if(employee):
+            vals['department_id'] = employee.department_id.id
+            vals['jabatan_id'] = employee.job_id.id
+        return super(HRInsentifLine, self).write(vals)
+    
 class HRPayslip(models.Model):
     _inherit = 'hr.payslip'
 

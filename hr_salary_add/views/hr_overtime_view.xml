@@ -14,7 +14,6 @@
                 <search string="Overtime Search">
                     <field name="name"/>
                     <field name="tanggal"/>
-                    <field name="department_id" operator="child_of"/>
                     <field name="request_id" string="Requestor"/>
                     <field name="state"/>
                     <separator/>
@@ -34,7 +33,6 @@
                 <tree colors="blue:state in ('draft','submit');black:state=='approved';red:state=='reject';gray:state=='proses'" string="Overtime" >
                     <field name="name"/>
                     <field name="tanggal"/>
-                    <field name="department_id"/>
                     <field name="request_id"/>
                     <field name="state"/>
                 </tree>
@@ -66,13 +64,13 @@
 		            		<group col="4">
 		                    	<field name="request_id"/>
 	                    		<field name="tanggal"/>
-		                    	<field name="department_id"/>
 		                    </group>
 		                </group>
 	                    <field name="overtime_line">
 	                    	<tree string="Detail" editable="bottom">
-		                    	<field name="employee_id" domain="[('department_id', '=', parent.department_id)]"/>
-	                    		<field name="jabatan_id"/>
+		                    	<field name="employee_id"/>
+	                    		<field name="department_id"/>
+		                    	<field name="jabatan_id"/>
 		                		<field name="nilai"/>
 		                		<field name="alasan"/>
 		                		<field name="state"/>

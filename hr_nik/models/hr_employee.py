@@ -72,5 +72,5 @@ class HrEmployee(models.Model):
     def name_get(self):
         result = []
         for employee in self:
-            result.append((employee.id, "%s %s" % (employee.nik or '', employee.name_related or '')))
+            result.append((employee.id, "[%s] %s" % (employee.nik or '', employee.name_related or '')))
         return result

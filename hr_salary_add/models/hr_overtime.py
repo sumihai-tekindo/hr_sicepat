@@ -33,8 +33,8 @@ class HROvertime(models.Model):
         default=lambda self: self.env.user)
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self), readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    department_id = fields.Many2one('hr.department', string='Nama Cabang', required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+#     department_id = fields.Many2one('hr.department', string='Nama Cabang', required=True, readonly=True,
+#         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     state = fields.Selection([
         ('draft','Open'),
         ('submit','Submit'),
@@ -98,7 +98,8 @@ class HROvertimeLine(models.Model):
         ('cancel','Cancel'),
         ], string='Status', default='draft')
     tanggal = fields.Date(related='overtime_id.tanggal', store=True)
-    department_id = fields.Many2one('hr.department', string='Nama Cabang', related='overtime_id.department_id')
+#     department_id = fields.Many2one('hr.department', string='Nama Cabang', related='overtime_id.department_id')
+    department_id = fields.Many2one('hr.department', string='Nama Cabang', readonly=True)
     overtime_state = fields.Selection(related='overtime_id.state', store=True, default='draft')
     
     @api.multi
@@ -138,7 +139,29 @@ class HROvertimeLine(models.Model):
             if code in CODE2INPUT:
                 return True
         return False
-
+    
+    @api.onchange('employee_id')
+    def onchange_cabang_asal(self):
+        if(self.employee_id):
+            employee = self.env['hr.employee'].search([('id','=',self.employee_id.id)])
+            self.department_id = employee.department_id.id
+            self.jabatan_id = employee.job_id.id
+            
+    @api.model
+    def create(self, vals):
+        employee = self.env['hr.employee'].search([('id','=',vals['employee_id'])])
+        vals['department_id'] = employee.department_id.id
+        vals['jabatan_id'] = employee.job_id.id
+        return super(HROvertimeLine, self).create(vals)
+    
+    @api.multi
+    def write(self, vals):
+        employee = self.env['hr.employee'].search([('id','=',vals.get('employee_id'))])
+        if(employee):
+            vals['department_id'] = employee.department_id.id
+            vals['jabatan_id'] = employee.job_id.id
+        return super(HROvertimeLine, self).write(vals)
+    
 class HRPayslip(models.Model):
     _inherit = 'hr.payslip'
 
