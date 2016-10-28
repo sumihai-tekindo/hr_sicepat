@@ -3,18 +3,42 @@
 <!--	START SALARY PROPOSAL	-->
 		<record model="ir.actions.act_window" id="salary_proposal_action">
             <field name="name">Usulan Kenaikan Gaji</field>
-            <field name="res_model">hr_salary_proposal</field>
+            <field name="res_model">hr.salary.proposal</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
+        <record model="ir.ui.view" id="salary_proposal_search_view">
+            <field name="name">salary_proposal.search</field>
+            <field name="model">hr.salary.proposal</field>
+            <field name="arch" type="xml">
+                <search string="Salary Proposal Search">
+                    <field name="name"/>
+                    <field name="tanggal"/>
+                    <field name="requestor" string="Requestor"/>
+                    <field name="nama_karyawan"/>
+                    <field name="jabatan"/>
+                    <field name="nama_cabang"/>
+                    <field name="state"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                    	<filter string="Jabatan" context="{'group_by':'jabatan'}"/>
+                        <filter string="Cabang" context="{'group_by':'nama_cabang'}"/>
+                        <filter string="Status" context="{'group_by':'state'}"/>
+                        <separator/>
+                    	<filter name="group_by_requestor" string="Requestor" context="{'group_by':'requestor'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record model="ir.ui.view" id="salary_proposal_tree_view">
             <field name="name">salary_proposal.tree</field>
-            <field name="model">hr_salary_proposal</field>
+            <field name="model">hr.salary.proposal</field>
             <field name="arch" type="xml">
                 <tree string="Salary Proposal Tree">
                     <field name="tanggal"/>
                     <field name="requestor"/>
                     <field name="nama_karyawan"/>
+                    <field name="jabatan"/>
                     <field name="nama_cabang"/>
                     <field name="state"/>
                 </tree>
@@ -22,7 +46,7 @@
         </record>
         <record model="ir.ui.view" id="salary_proposal_form_view">
             <field name="name">salary_proposal.form</field>
-            <field name="model">hr_salary_proposal</field>
+            <field name="model">hr.salary.proposal</field>
             <field name="arch" type="xml">
                 <form string="Salary Proposal Form">
                 	<header>
