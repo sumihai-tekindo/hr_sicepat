@@ -163,7 +163,7 @@ class DeliveryPackageRun(models.Model):
         clause_final =  [('employee_id', '=', employee.id)] + clause_1
         delivery_ids = self.search(cr, uid, clause_final, context=context)
         if delivery_ids:
-            for delivery in self.browse(delivery_ids):
+            for delivery in self.browse(cr, uid, delivery_ids):
                 total_delivery += delivery.total_paket 
         return total_delivery
 
