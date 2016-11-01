@@ -178,7 +178,7 @@ class HRPayslip(models.Model):
         
         for result in res:
             if overtime_line.get_condition(cr, uid, result.get('code'), context=context):
-                struct_line_ids = overtime_line.get_insentif_line(cr, uid, employee, date_from, date_to, context=context)
+                struct_line_ids = overtime_line.get_overtime_line(cr, uid, employee, date_from, date_to, context=context)
                 if struct_line_ids:
                     result['amount'] = overtime_line.get_amount(cr, uid, struct_line_ids, result['code'], context=context)
 
