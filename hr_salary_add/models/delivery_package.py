@@ -24,7 +24,8 @@
 
 
 # 2 :  imports of openerp
-from openerp import api, fields, models
+from openerp import models, fields, api, _
+from openerp.exceptions import AccessError, Warning
 
 # 3 :  imports from odoo modules
 import openerp.addons.decimal_precision as dp
@@ -77,7 +78,30 @@ class DeliveryPackage(models.Model):
             self.pertambahan_bonus_bulan_lalu = delivery_ids[0].pertambahan_bonus
             
     # Constraints and onchanges
+    @api.one
+    @api.constrains('date_start','date_end','department_id','state')
+    def _check_date(self):
+        for package_target in self:
+            if package_target.state != 'approved':
+                continue
+            where = []
+            if package_target.date_start:
+                where.append("((date_end>='%s') or (date_end is null))" % (package_target.date_start,))
+            if package_target.date_end:
+                where.append("((date_start<='%s') or (date_start is null))" % (package_target.date_end,))
 
+            self._cr.execute('SELECT id ' \
+                    'FROM delivery_package_target ' \
+                    'WHERE '+' and '.join(where) + (where and ' and ' or '')+
+                        'department_id=%s ' \
+                        'AND state=%s ' \
+                        'AND id <> %s', (
+                            package_target.department_id.id,
+                            'approved',
+                            package_target.id))
+            if self._cr.fetchall():
+                raise Warning(_('You cannot have 2 package target that overlap for each department!'))
+        return True
 
     # CRUD methods
     @api.model
