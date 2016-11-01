@@ -32,16 +32,19 @@ from openerp.tools.misc import DEFAULT_SERVER_DATE_FORMAT
 
 # 3 :  imports from odoo modules
 import openerp.addons.decimal_precision as dp
-from .hr_salary_structure_amt import CODE2INPUT
-CODE2INPUT['CLOAN']='nilai_pinjaman'
-CODE2INPUT['LOAN']='nilai_angsuran'
-
+# from .hr_salary_structure_amt import CODE2INPUT
+# CODE2INPUT['CLOAN']='nilai_pinjaman'
+# CODE2INPUT['LOAN']='nilai_angsuran'
+CODE2INPUT = {
+    'CLOAN': 'nilai_pinjaman',
+    'LOAN': 'nilai_angsuran',
+}
 
 class HRLoan(models.Model):
     # Private attributes
     _name = "hr.loan"
     _inherit = ['mail.thread']
-    _description= 'HR Loan Request'
+    _description= 'HR Loan'
     _order = "tanggal desc, id desc"
 
     # Default methods
@@ -74,8 +77,10 @@ class HRLoan(models.Model):
         ('bank', 'Bank Transfer'),
         ('cash', 'Tunai'),
         ('other', 'Lain-lain')
-        ], string='Payment method', default='bank')
-    bank_account_id = fields.Many2one('res.partner.bank', 'Rekening', domain="[('partner_id','=',address_home_id)]")
+        ], string='Payment method', default='bank',
+        readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+    bank_account_id = fields.Many2one('res.partner.bank', 'Rekening', domain="[('partner_id','=',address_home_id)]",
+        readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     state = fields.Selection([
         ('draft','Open'),
         ('submit','Submit'),
@@ -96,22 +101,30 @@ class HRLoan(models.Model):
     @api.one
     @api.depends('nilai_pinjaman','tenor_angsuran')
     def _compute_angsuran_per_bulan(self):
-        if((self.nilai_pinjaman!=0) and (self.tenor_angsuran!=0)):
-            self.nilai_angsuran = self.nilai_pinjaman/self.tenor_angsuran
+#         if((self.nilai_pinjaman!=0) and (self.tenor_angsuran!=0)):
+#             self.nilai_angsuran = self.nilai_pinjaman/self.tenor_angsuran
+        try:
+            nilai_angsuran = self.nilai_pinjaman/self.tenor_angsuran
+        except:
+            nilai_angsuran = 0.0
+        self.nilai_angsuran = nilai_angsuran
 
     @api.one
     @api.depends('nilai_pinjaman','loan_line.nilai_angsuran','loan_line.paid')
     def _compute_angsuran(self):
-        total_paid_amount = 0.00
-        for loan in self:
-            for line in loan.loan_line:
-                if line.paid == True:
-                    total_paid_amount += line.nilai_angsuran
-            
-            balance_amount = loan.nilai_pinjaman - total_paid_amount
-            self.total_angsuran = loan.nilai_pinjaman
-            self.sisa_angsuran = balance_amount
-            self.total_bayar_angsuran = total_paid_amount
+#         total_paid_amount = 0.00
+#         for loan in self:
+#             for line in loan.loan_line:
+#                 if line.paid == True:
+#                     total_paid_amount += line.nilai_angsuran
+#             
+#             balance_amount = loan.nilai_pinjaman - total_paid_amount
+#             self.total_angsuran = loan.nilai_pinjaman
+#             self.sisa_angsuran = balance_amount
+#             self.total_bayar_angsuran = total_paid_amount
+        self.total_angsuran = self.nilai_pinjaman
+        self.total_bayar_angsuran = sum(line.nilai_angsuran for line in self.loan_line if line.paid)
+        self.sisa_angsuran = self.total_angsuran - self.total_bayar_angsuran 
             
     # Constraints and onchanges
     @api.multi
@@ -229,7 +242,7 @@ class HRLoanLine(models.Model):
         @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal_angsuran', '<=', date_to),('tanggal_angsuran','>=', date_from)]
-        clause_final = [('employee_id','=',employee.id), ('posted','=',True)] + clause_1
+        clause_final = [('employee_id','=',employee.id), ('posted','=',True), ('paid','=',False)] + clause_1
         loan_line_ids = self.search(cr, uid, clause_final, order='tanggal_angsuran desc', context=context)
         return loan_line_ids
 
@@ -245,19 +258,21 @@ class HREmployee(models.Model):
     _inherit = 'hr.employee'
     
     sisa_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string="Sisa Angsuran", compute='_compute_pinjaman')
-    jumlah_pinjaman_x = fields.Integer(string="Pinjaman", compute = '_compute_pinjaman')
+    jumlah_pinjaman_x = fields.Integer(string="Pinjaman", compute='_compute_pinjaman')
     loan_ids = fields.One2many('hr.loan', 'employee_id')
 
     @api.one
     @api.depends('loan_ids.sisa_angsuran')
     def _compute_pinjaman(self):
-        sisa_pinjaman = 0.0
-        count = 0
-        for loan in self.env['hr.loan'].search([('employee_id','=',self.id)]):
-            sisa_pinjaman += loan.sisa_angsuran
-            count +=1
-        self.sisa_pinjaman = sisa_pinjaman
-        self.jumlah_pinjaman_x = count
+#         sisa_pinjaman = 0.0
+#         count = 0
+#         for loan in self.env['hr.loan'].search([('employee_id','=',self.id)]):
+#             sisa_pinjaman += loan.sisa_angsuran
+#             count +=1
+#         self.sisa_pinjaman = sisa_pinjaman
+#         self.jumlah_pinjaman_x = count
+        self.sisa_pinjaman = sum(loan.sisa_angsuran for loan in self.loan_ids if loan.state == 'approved')
+        self.jumlah_pinjaman_x = self.loan_ids and len(self.loan_ids) or 0
 
 class HRPayslip(models.Model):
     _inherit = 'hr.payslip'

@@ -80,8 +80,9 @@ class HROvertime(models.Model):
     def action_proses(self):
         self.state = 'proses'
 
-from .hr_salary_structure_amt import CODE2INPUT
-CODE2INPUT['OVERTIME']='nilai'
+# from .hr_salary_structure_amt import CODE2INPUT
+# CODE2INPUT['OVERTIME']='nilai'
+CODE2INPUT = {'OVERTIME': 'nilai'}
 
 class HROvertimeLine(models.Model):
     _name = 'hr.overtime.line'

@@ -80,7 +80,7 @@
 		            	</group>
 						<notebook>
 							<page string="Installments">
-								<field name="loan_line">
+								<field name="loan_line" attrs="{'readonly':[('state','=','reject')]}">
 									<tree string="Loan Line" editable="bottom">
 <!--										<button icon="gtk-no" attrs="{'invisible':[('paid','=',True)]}"/>-->
 <!--										<button icon="gtk-yes" attrs="{'invisible':[('paid','=',False)]}"/>-->

@@ -58,8 +58,9 @@ class HRInsentif(models.Model):
         vals['name'] = self.env['ir.sequence'].get('hr.insentif')
         return super(HRInsentif, self).create(vals)
 
-from .hr_salary_structure_amt import CODE2INPUT
-CODE2INPUT['INSENTIF']='nilai_insentif'
+# from .hr_salary_structure_amt import CODE2INPUT
+# CODE2INPUT['INSENTIF']='nilai_insentif'
+CODE2INPUT = {'INSENTIF': 'nilai_insentif'}
 
 class HRInsentifLine(models.Model):
     _name = 'hr.insentif.line'
