@@ -3,13 +3,32 @@
 <!--	START PROMOTION	-->
 		<record model="ir.actions.act_window" id="promotion_action">
             <field name="name">Usulan Kenaikan Jabatan</field>
-            <field name="res_model">hr_promotion</field>
+            <field name="res_model">hr.promotion</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
+        <record model="ir.ui.view" id="promotion_search_view">
+            <field name="name">promotion.search</field>
+            <field name="model">hr.promotion</field>
+            <field name="arch" type="xml">
+                <search string="Promotion Search">
+                    <field name="name"/>
+                    <field name="tanggal"/>
+                    <field name="requestor" string="Requestor"/>
+                    <field name="nama_karyawan"/>
+                    <field name="state"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Status" context="{'group_by':'state'}"/>
+                        <separator/>
+                    	<filter name="group_by_requestor" string="Requestor" context="{'group_by':'requestor'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record model="ir.ui.view" id="promotion_tree_view">
             <field name="name">promotion.tree</field>
-            <field name="model">hr_promotion</field>
+            <field name="model">hr.promotion</field>
             <field name="arch" type="xml">
                 <tree string="Promotion Tree">
                     <field name="tanggal"/>
@@ -21,7 +40,7 @@
         </record>
         <record model="ir.ui.view" id="promotion_form_view">
             <field name="name">promotion.form</field>
-            <field name="model">hr_promotion</field>
+            <field name="model">hr.promotion</field>
             <field name="arch" type="xml">
                 <form string="Promotion Form">
                 	<header>
