@@ -75,7 +75,7 @@
 <!--    END OF EMPLOYEE MUTASI    -->
         
 <!--    START MENU ITEM    -->
-        <menuitem id="promotion" name="Usulan Jabatan" 
+        <menuitem id="promotion" name="Mutasi / Usulan Jabatan" 
         		  parent="hr_sicepat_salary"
                   action="promotion_action" sequence="6"/>
 <!--    END OF MENU ITEM    	-->

@@ -56,9 +56,9 @@
 <!--    START MENU ITEM    -->
 		<menuitem id="hr_sicepat_salary" name="Sicepat"
                   parent="hr.menu_hr_root"/>
-        <menuitem id="employee_mutation" name="Mutasi Karyawan" 
-        		  parent="hr_sicepat_salary"
-                  action="employee_mutation_action" sequence="5"/>
+<!--        <menuitem id="employee_mutation" name="Mutasi Karyawan" -->
+<!--        		  parent="hr_sicepat_salary"-->
+<!--                  action="employee_mutation_action" sequence="5"/>-->
 <!--    END OF MENU ITEM    	-->
 	</data>
 </openerp>
