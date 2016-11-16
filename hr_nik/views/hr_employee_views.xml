@@ -10,6 +10,13 @@
                     <xpath expr="//form/sheet/notebook/page[1]/group/group[1]/field[1]" position="before">
                     	<field name="nik"/>
                     </xpath>
+                    <xpath expr="//form/sheet/notebook/page[2]/group/group[2]/field[@name='address_home_id']" position="after">
+                    	<field name="ktp_address_id"/>
+                	</xpath>
+                	<xpath expr="//form/sheet/div[1]/label[2]" position="before">
+                		<label for="tgl_masuk" class="oe_edit_only"/>
+                		<field name="tgl_masuk"/>
+                	</xpath>
                 </data>
             </field>
         </record>

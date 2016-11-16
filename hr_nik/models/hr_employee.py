@@ -24,6 +24,11 @@ class HrEmployee(models.Model):
         ('nik_uniq', 'unique(nik)',
          'The Employee Number must be unique across the company(s).'),
     ]
+    
+#   tambahan dari timotius untuk alamat ktp dan tanggal masuk  
+    ktp_address_id = fields.Many2one('res.partner', string='KTP Adress')
+    tgl_masuk = fields.Date(string='Tanggal Masuk', default=lambda self: fields.Date.context_today(self))
+#   end
 
     @api.model
     def _generate_nik(self):
@@ -31,7 +36,7 @@ class HrEmployee(models.Model):
         company = self.env.user.company_id
         employee_id = False
         if company.employee_id_gen_method == 'sequence':
-            employee_id = self.env['ir.sequence'].get_id(
+            employee_id = self.env['ir.sequence'].with_context(ir_sequence_date=self.tgl_masuk).get_id(
                 company.employee_id_sequence.id)
         elif company.employee_id_gen_method == 'random':
             employee_id_random_digits = company.employee_id_random_digits
