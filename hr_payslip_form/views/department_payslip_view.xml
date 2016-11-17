@@ -8,10 +8,15 @@
 			<field name="arch" type="xml">
 				<form string="Print/Export Department Payslip">
 					<group string="Filters">
-												<field name="start_date" placeholder="Start Date"/>
-												<field name="end_date" placeholder="End Date"/>
-												<field name="department_id"/>
-										</group>
+						<field name="start_date" placeholder="Start Date"/>
+						<field name="end_date" placeholder="End Date"/>
+						<field name="report_model"/>
+						<field name="department_id" attrs="{'invisible':[('report_model','in',('all','functional',False))],'required':[('report_model','=','department')]}"/>
+						<newline/>
+						<group colspan="4" attrs="{'invisible':[('report_model','in',('department',False))]}" string="Department(s)">
+							<field name="department_ids" nolabel="1" attrs="{'invisible':[('report_model','in',('department',False))],'required':[('report_model','in',('all','functional'))]}"/>
+						</group>
+					</group>
 					<footer>
 						<button icon="gtk-print" name="print_report" string="Print" type="object" class="oe_highlight" context="{'xls':1}"/> or 
 						<button string="Cancel" class="oe_link" special="cancel"/>
@@ -36,17 +41,5 @@
 			action="action_print_department_payslip"
 			id="menu_print_department_payslip"
 			icon="STOCK_PRINT"/>
-		
-
-		<record id="action_report_payslip_department_xls" model="ir.actions.report.xml">
-			<field name="name">Departments Payslip</field>
-			<field name="model">hr.payslip</field>
-			<field name="type">ir.actions.report.xml</field>
-			<field name="report_name">department.payslip.report.xls</field>
-			<field name="report_type">xls</field>
-			<field name="auto" eval="False"/>
-		</record>
-
-		
 	</data>
 </openerp>

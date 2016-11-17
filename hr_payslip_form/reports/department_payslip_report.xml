@@ -1,0 +1,28 @@
+<openerp>
+	<data>
+		<record id="action_report_payslip_department_xls" model="ir.actions.report.xml">
+			<field name="name">Department Payslip</field>
+			<field name="model">hr.payslip</field>
+			<field name="type">ir.actions.report.xml</field>
+			<field name="report_name">department.payslip.report.xls</field>
+			<field name="report_type">xls</field>
+			<field name="auto" eval="False"/>
+		</record>
+		<record id="action_all_payslip_xls" model="ir.actions.report.xml">
+			<field name="name">All Department Payslip</field>
+			<field name="model">hr.payslip</field>
+			<field name="type">ir.actions.report.xml</field>
+			<field name="report_name">all.payslip.report.xls</field>
+			<field name="report_type">xls</field>
+			<field name="auto" eval="False"/>
+		</record>
+		<record id="action_functional_payslip_xls" model="ir.actions.report.xml">
+			<field name="name">Functional Payslip</field>
+			<field name="model">hr.payslip</field>
+			<field name="type">ir.actions.report.xml</field>
+			<field name="report_name">functional.payslip.report.xls</field>
+			<field name="report_type">xls</field>
+			<field name="auto" eval="False"/>
+		</record>
+	</data>
+</openerp>
