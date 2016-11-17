@@ -328,7 +328,7 @@ class department_payslip_xls(report_xls):
 			ws.page_preview = False
 			ws.set_fit_width_to_pages(1)
 
-			ws.write_merge(0,0,0,19,"REKAPITULASI PAYSLIP DEPARTMENT",title_style_center)
+			ws.write_merge(0,0,0,19,"REKAPITULASI PAYSLIP PER JOB POSITION",title_style_center)
 			ws.write(3,0,"PERIODE",normal_bold_style_a)
 			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
 
