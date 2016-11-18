@@ -92,7 +92,7 @@ class HRLoan(models.Model):
     @api.one
     @api.depends('employee_id','state')
     def _compute_pinjaman_unpaid(self):
-        unpaid_amount = 0.00
+        unpaid_amount = 0.0
         for loan in self.search([('employee_id','=',self.employee_id.id),('state','=','approved')]):
             if loan.id != self.id:
                 unpaid_amount += loan.sisa_angsuran
@@ -145,26 +145,35 @@ class HRLoan(models.Model):
 
     @api.multi
     def action_approve(self):
+        for loan in self:
+            date_start_str = datetime.strptime(loan.tanggal_awal_angsuran, DEFAULT_SERVER_DATE_FORMAT)
+            for count in range(0, loan.tenor_angsuran):
+                self.env['hr.loan.line'].create({
+                    'tanggal_angsuran': date_start_str, 
+                    'nilai_angsuran': loan.nilai_angsuran,
+                    'loan_id': loan.id
+                })
+                date_start_str = date_start_str + relativedelta(months=1)
         self.state = 'approved'
         
     @api.multi
     def action_reject(self):
         self.state = 'reject'
         
-    @api.multi
-    def compute_loan_line(self):
-        loan_line = self.env['hr.loan.line']
-        loan_line.search([('loan_id','=',self.id)]).unlink()
-        for loan in self:
-            date_start_str = datetime.strptime(loan.tanggal_awal_angsuran, DEFAULT_SERVER_DATE_FORMAT)
-            for count in range(1, loan.tenor_angsuran + 1):
-                loan_line.create({
-                    'tanggal_angsuran': date_start_str, 
-                    'nilai_angsuran': loan.nilai_angsuran,
-                    'loan_id': loan.id
-                })
-                date_start_str = date_start_str + relativedelta(months=1)
-        return True
+#     @api.multi
+#     def compute_loan_line(self):
+#         loan_line = self.env['hr.loan.line']
+#         loan_line.search([('loan_id','=',self.id)]).unlink()
+#         for loan in self:
+#             date_start_str = datetime.strptime(loan.tanggal_awal_angsuran, DEFAULT_SERVER_DATE_FORMAT)
+#             for count in range(1, loan.tenor_angsuran + 1):
+#                 loan_line.create({
+#                     'tanggal_angsuran': date_start_str, 
+#                     'nilai_angsuran': loan.nilai_angsuran,
+#                     'loan_id': loan.id
+#                 })
+#                 date_start_str = date_start_str + relativedelta(months=1)
+#         return True
 
     # Business methods
     def get_loan(self, cr, uid, employee, date_from, date_to, context=None):
@@ -276,6 +285,8 @@ class HREmployee(models.Model):
 
 class HRPayslip(models.Model):
     _inherit = 'hr.payslip'
+    
+    loan_line_id = fields.Many2one('hr.loan.line', string='Loan Line')
 
     def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
         res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)

@@ -42,10 +42,10 @@
             <field name="arch" type="xml">
                 <form string="Loan Form">
                 	<header>
-						<button name="compute_loan_line" type="object"
-							string="Compute" states="draft" class="oe_highlight"/>
-						<button name="compute_loan_line" type="object"
-							string="Compute" states="submit"/>
+<!--						<button name="compute_loan_line" type="object"-->
+<!--							string="Compute" states="draft" class="oe_highlight"/>-->
+<!--						<button name="compute_loan_line" type="object"-->
+<!--							string="Compute" states="submit"/>-->
                 		<button name="action_submit" type="object"
                             string="Submit" states="draft" class="oe_highlight"/>
                         <button name="action_approve" type="object"
@@ -79,12 +79,11 @@
 		                    </group>
 		            	</group>
 						<notebook>
-							<page string="Installments">
-								<field name="loan_line" attrs="{'readonly':[('state','=','reject')]}">
+							<page string="Installments" attrs="{'invisible':[('state','!=','approved')]}">
+								<field name="loan_line" options="{'reload_on_button': true}">
 									<tree string="Loan Line" editable="bottom">
-<!--										<button icon="gtk-no" attrs="{'invisible':[('paid','=',True)]}"/>-->
-<!--										<button icon="gtk-yes" attrs="{'invisible':[('paid','=',False)]}"/>-->
-										<field name="paid" invisible="1"/>
+										<field name="loan_id" invisible="1"/>
+										<field name="paid"/>
 										<field name="tanggal_angsuran" attrs="{'readonly':[('posted','=',True)]}"/>
 										<field name="nilai_angsuran" attrs="{'readonly':[('posted','=',True)]}"/>
 										<field name="keterangan" attrs="{'readonly':[('posted','=',True)]}"/>

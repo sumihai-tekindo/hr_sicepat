@@ -3,6 +3,7 @@
 #
 #    Copyright (C) 2016 Sicepat Ekspres Indonesia (<http://www.sicepat.com>).
 #    @author: - Timotius Wigianto <https://github.com/timotiuswigianto/>
+#             - Dedi Sinaga <dedisinaga@gmail.com>
 #             - Pambudi Satria <pambudi.satria@yahoo.com>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -35,8 +36,9 @@ HR Sicepat Ekspres
     """,
 
     'author': 'Timotius Wigianto, '
+              'Dedi Sinaga, '
               'Pambudi Satria',
-    'website': "https://github.com/timotiuswigianto/",
+    'website': "https://github.com/sumihai-tekindo/",
 
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/master/openerp/addons/base/module/module_data.xml
