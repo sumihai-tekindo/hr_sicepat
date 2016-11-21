@@ -21,6 +21,7 @@
 ##############################################################################
 
 import xlwt
+from xlwt import Formula as fm
 from datetime import datetime
 from openerp.osv import orm
 from openerp.addons.report_xls.report_xls import report_xls
@@ -48,6 +49,8 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 			'datetime': datetime,
 			'get_by_dept':self._get_grouped_by_department,
 			'get_by_job':self._get_grouped_by_job,
+			'get_available_bank':self._get_available_bank,
+			'get_by_dept_bank':self._get_by_dept_bank,
 		})
 
 	def _get_grouped_by_department(self,data,objects):
@@ -64,7 +67,7 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 		for o in objects:
 			e_dept_id = o.employee_id and o.employee_id.department_id and o.employee_id.department_id.id or False
 			if e_dept_id:
-				columns = ["DEPT","CLASS","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF","TARGET","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN"]
+				columns = ["DEPT","CLASS","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF","TARGET","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN","TOTAL"]
 				dump_wd = {}
 				for wd in o.worked_days_line_ids:
 					dump_wd.update({
@@ -89,7 +92,7 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 				EMP_COUNT = curr.get('EMP_COUNT',0) + 1
 				CLASS = ''
 				WORKDAYS_SUM = curr.get('WORKDAYS_SUM',0.0) + (dump_wd.get('SISO',False) and dump_wd.get('SISO').get('number_of_days',0.0) or 0.0)
-				PACKAGES = curr.get('PACKAGES',0.0) + 0.0
+				PACKAGES = curr.get('PACKAGES',0.0) + (o.total_paket or 0.0)
 				BASIC = curr.get('BASIC',0.0) + (dump_sr.get('BASIC',False) and dump_sr.get('BASIC').get('total',0.0) or 0.0)
 				INSENTIF = curr.get('INSENTIF',0.0) + (dump_sr.get('INSENTIF',False) and dump_sr.get('INSENTIF').get('total',0.0) or 0.0)
 				TARGET = curr.get('TARGET',0.0) + (dump_sr.get('TARGET',False) and dump_sr.get('TARGET').get('total',0.0) or 0.0)
@@ -102,6 +105,7 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 				ALLOW = curr.get('ALLOW',0.0) + (dump_sr.get('ALLOW',False) and dump_sr.get('ALLOW').get('total',0.0) or 0.0)
 				OTHER_ALL = curr.get('OTHER_ALL',0.0) + 0.0
 				LOAN = curr.get('LOAN',0.0) + (dump_sr.get('LOAN',False) and dump_sr.get('LOAN').get('total',0.0) or 0.0)
+				TOTAL = curr.get('TOTAL',0.0) + (dump_sr.get('NET',False) and dump_sr.get('NET').get('total',0.0) or 0.0)
 				for col in columns:
 					curr.update({col:eval(col)})
 				value.update({e_dept_id:curr})
@@ -125,7 +129,7 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 		for o in objects:
 			e_job_id = o.employee_id and o.employee_id.job_id and o.employee_id.job_id.id or False
 			if e_job_id:
-				columns = ["JOB","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF_TYPE","INSENTIF","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN"]
+				columns = ["JOB","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF_TYPE","INSENTIF","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN","TOTAL"]
 				dump_wd = {}
 				for wd in o.worked_days_line_ids:
 					dump_wd.update({
@@ -150,7 +154,7 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 				JOB = o.employee_id.job_id and o.employee_id.job_id.name or ""
 				EMP_COUNT = curr.get('EMP_COUNT',0) + 1
 				WORKDAYS_SUM = curr.get('WORKDAYS_SUM',0.0) + (dump_wd.get('SISO',False) and dump_wd.get('SISO').get('number_of_days',0.0) or 0.0)
-				PACKAGES = curr.get('PACKAGES',0.0) + 0.0
+				PACKAGES = curr.get('PACKAGES',0.0) + (o.total_paket or 0.0)
 				BASIC = curr.get('BASIC',0.0) + (dump_sr.get('BASIC',False) and dump_sr.get('BASIC').get('total',0.0) or 0.0)
 				INSENTIF_TYPE = ''
 				INSENTIF = curr.get('INSENTIF',0.0) + (dump_sr.get('INSENTIF',False) and dump_sr.get('INSENTIF').get('total',0.0) or 0.0)
@@ -163,12 +167,72 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 				ALLOW = curr.get('ALLOW',0.0) + (dump_sr.get('ALLOW',False) and dump_sr.get('ALLOW').get('total',0.0) or 0.0)
 				OTHER_ALL = curr.get('OTHER_ALL',0.0) + 0.0
 				LOAN = curr.get('LOAN',0.0) + (dump_sr.get('LOAN',False) and dump_sr.get('LOAN').get('total',0.0) or 0.0)
+				DEDUCT = curr.get('DEDUCT',0.0) + (dump_sr.get('DEDUCT',False) and dump_sr.get('DEDUCT').get('total',0.0) or 0.0)
+				TOTAL= curr.get('TOTAL',0.0) + (dump_sr.get('NET',False) and dump_sr.get('NET').get('total',0.0) or 0.0)
 				for col in columns:
 					curr.update({col:eval(col)})
 				value.update({e_job_id:curr})
 			else:
 				continue
 		return jobs,value
+
+	def _get_available_bank(self,objects):
+		banks = {}
+		for o in objects:
+			if o.employee_id and o.employee_id.bank_account_id and o.employee_id.bank_account_id.bank and o.employee_id.bank_account_id.bank.id:
+				banks.update({o.employee_id.bank_account_id.bank.id:o.employee_id.bank_account_id.bank.name})
+		return banks
+
+	def _get_by_dept_bank(self,data,objects):
+		banks = self._get_available_bank(objects)
+		cr = self.cr
+		uid = self.uid
+		department_ids = self.pool.get('hr.department').search(cr,uid,[('id','in',data['department_ids'])],order="name asc")
+		department_idsx = self.pool.get('hr.department').browse(cr,uid,department_ids)
+		value = {}
+		columns = ["DEPT","TOTAL"]
+		for b in banks:
+			columns.append(str(b))
+		departments ={}
+		for d in department_idsx:
+			value.update({d.id:{}})
+			departments.update({d.id:d.name})
+		# iterate for every payslip
+		for o in objects:
+			e_dept_id = o.employee_id and o.employee_id.department_id and o.employee_id.department_id.id or False
+			e_bank_id = o.employee_id and o.employee_id.bank_account_id and o.employee_id.bank_account_id.bank and o.employee_id.bank_account_id.bank.id or False
+			if e_dept_id and e_bank_id:
+				dump_wd = {}
+				for wd in o.worked_days_line_ids:
+					dump_wd.update({
+						wd.code:{
+								'number_of_days':wd.number_of_days or 0.0,
+								'number_of_hours':wd.number_of_hours  or 0.0,
+								}
+								})
+				dump_sr ={}
+				for sr in o.line_ids:
+					dump_sr.update({
+						sr.code : {
+							'quantity':sr.quantity or 0.0,
+							'rate':sr.rate or 0.0,
+							'amount':sr.amount or 0.0,
+							'total':sr.total or 0.0,
+							}
+						})
+				curr = value.get(e_dept_id,{})
+				curr_bank = curr.get(e_bank_id,0.0)
+				O_NET = (dump_sr.get('NET',False) and dump_sr.get('NET').get('total',0.0) or 0.0)
+				TOTAL = curr.get('TOTAL',0.0) + O_NET
+				DEPT = o.employee_id and o.employee_id.department_id and o.employee_id.department_id.name or ''
+				for col in ["DEPT","TOTAL"]:
+					curr.update({col:eval(col)})
+				curr.update({e_bank_id:curr_bank + O_NET})
+				value.update({e_dept_id:curr})
+			else:
+				continue
+		return departments,value
+
 
 class department_payslip_xls(report_xls):
 
@@ -207,7 +271,7 @@ class department_payslip_xls(report_xls):
 		
 
 		if data['t_report']=='department':
-			ws = wb.add_sheet(data['department_name'])
+			ws = wb.add_sheet(data['department_name'].replace(" / ","_").replace(" - ","_"))
 			ws.panes_frozen = True
 			ws.remove_splits = True
 			ws.portrait = 0  # Landscape
@@ -223,16 +287,16 @@ class department_payslip_xls(report_xls):
 			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
 			ws.write(4,0,"WILAYAH",normal_bold_style_a)
 			ws.write_merge(4,4,1,4,": "+data['department_name'],normal_bold_style_a)
-			headers = ["NO","NAMA","POSISI","TGL.MASUK KERJA","HARI KERJA","PAKET","BASIC","MEAL","TRANSPORT","PERSISTANCE","TARGET","TBONUS","INSENTIF","OPER","ALLOW","BIKE","OVERTIME","LOAN"]
-			col_pos=0
+			headers = ["NO","NAMA","POSISI","TGL.MASUK KERJA","HARI KERJA","PAKET","GAJI POKOK","UANG MAKAN","UANG TRANSPORT","KERAJINAN","BONUS PAKET 1","BONUS PAKET 2","INSENTIF","TUNJANGAN OPERASIONAL","TUNJANGAN JABATAN","SERVICE MOTOR","LEMBURAN","POTONGAN","TOTAL"]
 			for head in headers :
+
 				ws.write(6,col_pos,head,th_top_style)
 				col_pos+=1
-
 			row_pos = 7
 			
-			columns = ["NO","NAMA","POS","TGL_MSK","WORKDAYS","PAKET","BASIC","MEAL","TRANSPORT","PERSISTANCE","TARGET","TBONUS","INSENTIF","OPER","ALLOW","BIKE","OVERTIME","LOAN"]
+			columns = ["NO","NAMA","POS","TGL_MSK","WORKDAYS","PAKET","BASIC","MEAL","TRANSPORT","PERSISTANCE","TARGET","TBONUS","INSENTIF","OPER","ALLOW","BIKE","OVERTIME","LOAN","TOTAL"]
 			counter=1
+			col_pos=0
 			for o in objects:
 				dump_wd = {}
 				for wd in o.worked_days_line_ids:
@@ -255,9 +319,9 @@ class department_payslip_xls(report_xls):
 				NO = str(counter)
 				NAMA = o.employee_id.name or 'Undefined'
 				POS = o.employee_id.job_id and o.employee_id.job_id.name or 'Undefined'
-				TGL_MSK = ''
+				TGL_MSK = o.employee_id and o.employee_id.tgl_masuk or ''
 				WORKDAYS = dump_wd.get('SISO',False) and dump_wd.get('SISO').get('number_of_days',0.0) or 0.0
-				PAKET = ''
+				PAKET = o.total_paket or 0.0
 				BASIC = dump_sr.get('BASIC',False) and dump_sr.get('BASIC').get('total',0.0) or 0.0
 				MEAL = dump_sr.get('MEAL',False) and dump_sr.get('MEAL').get('total',0.0) or 0.0
 				TRANSPORT = dump_sr.get('TRANSPORT',False) and dump_sr.get('TRANSPORT').get('total',0.0) or 0.0
@@ -270,15 +334,22 @@ class department_payslip_xls(report_xls):
 				BIKE = dump_sr.get('BIKE',False) and dump_sr.get('BIKE').get('total',0.0) or 0.0
 				OVERTIME = dump_sr.get('OVERTIME',False) and dump_sr.get('OVERTIME').get('total',0.0) or 0.0
 				LOAN = dump_sr.get('LOAN',False) and dump_sr.get('LOAN').get('total',0.0) or 0.0
+				TOTAL = dump_sr.get('NET',False) and dump_sr.get('NET').get('total',0.0) or 0.0
+				
 				col_pos = 0
 
 				for colx in columns:
 					ws.write(row_pos,col_pos,eval(colx),normal_style)
 					col_pos+=1
-				# ws.write(row_pos,0,eval(columns[0]),normal_style)
-				# ws.write(row_pos,1,eval(columns[1]),normal_style)
+
 				counter+=1
 				row_pos+=1
+			ws.write_merge(row_pos,row_pos,1,5,"TOTAL",title_style)
+			
+			for i in range(6,len(columns)):
+				chr_ord =chr(ord('A') + i)
+				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),title_style)
+
 		elif data['t_report']=='all':
 			ws = wb.add_sheet('REGIONAL BASED')
 			ws.panes_frozen = True
@@ -295,9 +366,10 @@ class department_payslip_xls(report_xls):
 			ws.write(3,0,"PERIODE",normal_bold_style_a)
 			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
 			headers = ["NO","DAERAH","KLASIFIKASI (CABANG/GERAI/TOKO)","JUMLAH KARYAWAN","JUMLAH HARI KERJA BULAN INI","JUMLAH PAKET","GAJI POKOK","INSENTIF","BONUS PAKET 1","BONUS PAKET 2","U.MAKAN","SERVICE MOTOR","U.KERAJINAN(all)","T.K MALAM","LEMBURAN","TUNJANGAN JABATAN","TUNJANGAN LAIN-LAIN","HUTANG PINJAMAN","POTONGAN","TOTAL"]		
-			columns = ["NO","DEPT","CLASS","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF","TARGET","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN"]
+			columns = ["NO","DEPT","CLASS","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF","TARGET","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN","DEDUCT","TOTAL"]
 			
 			departments,grouped_objects = _p.get_by_dept(data,objects)
+			# print "======grouped_objects=========",grouped_objects
 			col_pos=0
 			for head in headers :
 				ws.write(6,col_pos,head,th_top_style)
@@ -306,6 +378,7 @@ class department_payslip_xls(report_xls):
 			row_pos = 7 
 			NO = 1
 			for group in departments:
+				col_pos = 0
 				for colx in columns:
 					if col_pos == 0:
 						ws.write(row_pos,col_pos,int(eval(colx)),normal_style_center)
@@ -316,6 +389,58 @@ class department_payslip_xls(report_xls):
 					col_pos+=1
 				NO+=1
 				row_pos+=1
+			ws.write_merge(row_pos,row_pos,1,2,"TOTAL",title_style)
+			
+			for i in range(3,len(columns)):
+				chr_ord =chr(ord('A') + i)
+				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),title_style)
+		elif data['t_report']=='totalled':
+			ws = wb.add_sheet('TOTALLED PER BANK')
+			ws.panes_frozen = True
+			ws.remove_splits = True
+			ws.portrait = 0  # Landscape
+			ws.fit_width_to_pages = 1
+			ws.preview_magn = 100
+			ws.normal_magn = 100
+			ws.print_scaling=100
+			ws.page_preview = False
+			ws.set_fit_width_to_pages(1)
+
+			available_banks = _p.get_available_bank(objects)
+			headers = ["NO","WILAYAH","TOTAL"]		
+			columns = ["NO","DEPT","TOTAL"]
+			for b in available_banks:
+				headers.append(available_banks.get(b))
+				columns.append(b)
+			ws.write_merge(0,0,0,3+len(available_banks),"REKAPITULASI PAYSLIP PER DEPARTMENT PER BANK",title_style_center)
+			ws.write(3,0,"PERIODE",normal_bold_style_a)
+			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
+			dept,grouped_objects = _p.get_by_dept_bank(data,objects)
+
+			col_pos=0
+			for head in headers :
+				ws.write(6,col_pos,head,th_top_style)
+				col_pos+=1
+			col_pos = 0
+			row_pos = 7 
+			NO = 1
+			for group in dept:
+				col_pos = 0
+				for colx in columns:
+					if col_pos == 0:
+						ws.write(row_pos,col_pos,int(eval(colx)),normal_style_center)
+					else:
+						if grouped_objects.get(group,False):
+							if grouped_objects.get(group,False).get(colx,False):
+								ws.write(row_pos,col_pos,grouped_objects.get(group).get(colx),normal_style)
+					col_pos+=1
+				NO+=1
+				row_pos+=1
+			ws.write_merge(row_pos,row_pos,0,1,"TOTAL",title_style)
+			
+			for i in range(2,len(columns)):
+				chr_ord =chr(ord('A') + i)
+				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),title_style)
 		else:
 			ws = wb.add_sheet('JOB POSITION BASED')
 			ws.panes_frozen = True
@@ -333,31 +458,45 @@ class department_payslip_xls(report_xls):
 			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
 
 			headers = ["NO","POSISI / JABATAN","JUMLAH KARYAWAN","JUMLAH HARI KERJA BULAN INI","JUMLAH PAKET","GAJI POKOK","TIPE INSENTIF","NILAI INSENTIF","BONUS PAKET 2","U.MAKAN","SERVICE MOTOR","U.KERAJINAN(all)","T.K MALAM","LEMBURAN","TUNJANGAN JABATAN","TUNJANGAN LAIN-LAIN","HUTANG PINJAMAN","POTONGAN","TOTAL"]		
-			columns = ["NO","JOB","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF_TYPE","INSENTIF","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN"]
-			
+			columns = ["NO","JOB","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF_TYPE","INSENTIF","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN","DEDUCT","TOTAL"]
+						
 			jobs,grouped_objects = _p.get_by_job(data,objects)
 			col_pos=0
 			for head in headers :
 				ws.write(6,col_pos,head,th_top_style)
 				col_pos+=1
-			col_pos = 0
-			row_pos = 7 
 			NO = 1
+
+			row_pos = 7 
+
 			for group in jobs:
+				col_pos = 0
 				for colx in columns:
-					if col_pos == 0:
+					if col_pos == 0 and grouped_objects.get(group,False):
 						ws.write(row_pos,col_pos,int(eval(colx)),normal_style_center)
+						col_pos+=1
 					else:
 						if grouped_objects.get(group,False):
+							# print "=========>",colx,grouped_objects.get(group,False).get(colx,False)
 							if grouped_objects.get(group,False).get(colx,False):
 								ws.write(row_pos,col_pos,grouped_objects.get(group).get(colx),normal_style)
-					col_pos+=1
-				NO+=1
-				row_pos+=1
+						col_pos+=1
+				if grouped_objects.get(group,False):
+					NO+=1
+					row_pos+=1
+
+			ws.write_merge(row_pos,row_pos,0,1,"TOTAL",title_style)
+			
+			for i in range(2,len(columns)):
+				chr_ord =chr(ord('A') + i)
+				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),title_style)
+
 
 department_payslip_xls('report.department.payslip.report.xls', 'hr.payslip',
 					parser=department_payslip_xls_parser)
 department_payslip_xls('report.all.payslip.report.xls', 'hr.payslip',
 					parser=department_payslip_xls_parser)
 department_payslip_xls('report.functional.payslip.report.xls', 'hr.payslip',
+					parser=department_payslip_xls_parser)
+department_payslip_xls('report.totalled.payslip.report.xls', 'hr.payslip',
 					parser=department_payslip_xls_parser)

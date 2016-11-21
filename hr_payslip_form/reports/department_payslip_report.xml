@@ -24,5 +24,13 @@
 			<field name="report_type">xls</field>
 			<field name="auto" eval="False"/>
 		</record>
+		<record id="action_totalled_payslip_xls" model="ir.actions.report.xml">
+			<field name="name">Totalled Per Bank Payslip</field>
+			<field name="model">hr.payslip</field>
+			<field name="type">ir.actions.report.xml</field>
+			<field name="report_name">totalled.payslip.report.xls</field>
+			<field name="report_type">xls</field>
+			<field name="auto" eval="False"/>
+		</record>
 	</data>
 </openerp>

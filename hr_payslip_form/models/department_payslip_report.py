@@ -5,11 +5,17 @@ class department_payslip_report(models.TransientModel):
 	_name = "department.payslip.report"
 
 	# period_id = fields.Many2one("account.period","Period",required=True)
-	start_date = fields.Date(string="Start Date",required=True)
-	end_date = fields.Date(string="End Date",required=True)
-	report_model = fields.Selection([('department','Per Employee in a Region'),('all','Per Region in selected Region'),('functional','Per Job Position in selected Region')],"Report Type",required=True)
+	start_date = fields.Date(string="Start Date",required=True,default=lambda x:'2016-09-21')
+	end_date = fields.Date(string="End Date",required=True,default=lambda x:'2016-10-20')
+	report_model = fields.Selection(
+		[('department','Per Employee in a Region'),
+		('totalled','Totalled per Bank'),
+		('all','Per Region in selected Region'),
+		('functional','Per Job Position in selected Region')],
+		"Report Type",required=True)
 	department_id = fields.Many2one("hr.department","Region/Dept.",required=False)
-	department_ids = fields.Many2many("hr.department","payslip_report_department_rel","wiz_id","dept_id","Department(s)",help="Select Department(s) you want to print")
+	department_ids = fields.Many2many("hr.department","payslip_report_department_rel","wiz_id","dept_id","Department(s)",
+		help="Select Department(s) you want to print",default=lambda x:[315])
 
 	@api.multi
 	def print_report(self,):
@@ -20,7 +26,10 @@ class department_payslip_report(models.TransientModel):
 			employee_ids = [x.id for x in self.env['hr.employee'].search([('department_id','in',[x.id for x in self.department_ids])])]
 		else:
 			employee_ids = [x.id for x in self.env['hr.employee'].search([('department_id','in',[x.id for x in self.department_ids])])]
-		payslip_ids = self.env['hr.payslip'].search([('employee_id','in',employee_ids),('date_from','>=',self.start_date),('date_to','>=',self.end_date),('state','!=','cancel')])
+
+		payslip_ids = self.env['hr.payslip'].search([('employee_id','in',employee_ids),('date_from','>=',self.start_date),('date_to','<=',self.end_date),('state','!=','cancel')])
+
+
 		datas = {
             'model': 'hr.payslip',
             'start_date': self.start_date or False,
@@ -41,6 +50,12 @@ class department_payslip_report(models.TransientModel):
 			return {
 					'type': 'ir.actions.report.xml',
 					'report_name': 'all.payslip.report.xls',
+					'datas': datas
+					}
+		elif self.report_model=='totalled':
+			return {
+					'type': 'ir.actions.report.xml',
+					'report_name': 'totalled.payslip.report.xls',
 					'datas': datas
 					}
 		else:
