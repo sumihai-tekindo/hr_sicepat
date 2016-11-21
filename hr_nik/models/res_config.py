@@ -19,7 +19,7 @@ class HumanResourcesConfiguration(models.TransientModel):
             ('sequence', 'Sequence'),
         ],
         string="ID Generation Method",
-        default='random'
+        default='sequence'
     )
     employee_id_random_digits = fields.Integer(
         string='# of Digits',

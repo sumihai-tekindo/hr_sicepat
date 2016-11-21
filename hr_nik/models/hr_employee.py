@@ -17,7 +17,7 @@ class HrEmployee(models.Model):
     nik = fields.Char(
         string='NIK',
         copy=False,
-        readonly=True
+        readonly=False
     )
 
     _sql_constraints = [
@@ -59,8 +59,9 @@ class HrEmployee(models.Model):
 
     @api.model
     def create(self, vals):
-        eid = self._generate_nik()
-        vals['nik'] = eid
+        if not vals.get('nik'):
+            eid = self._generate_nik()
+            vals['nik'] = eid
         return super(HrEmployee, self).create(vals)
     
     @api.model
