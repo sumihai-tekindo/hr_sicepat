@@ -11,7 +11,10 @@
     'website': 'dedisinaga.blogspot.com',
     'depends': ['hr','hr_payroll','hr_payroll_account','hr_attendance_payslip'],
     'data': [
-    	'views/payslip_run_view.xml'
+        'views/payslip_run_view.xml',
+        'views/hr_payroll_workflow.xml',
+    	'views/hr_payslip_view.xml',
+        
     ],
     'installable': True,
 }

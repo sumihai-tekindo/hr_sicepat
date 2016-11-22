@@ -4,6 +4,22 @@ from dateutil.relativedelta import relativedelta
 from openerp.osv import fields, osv
 from openerp.exceptions import Warning as UserError
 
+class hr_payslip_employees(osv.osv_memory):
+	_inherit = "hr.payslip.employees"
+	_columns = {
+		'department_id': fields.many2one('hr.department',"Department")
+	}
+
+	def _get_default(self,cr,uid,context=None):
+		if context.get('active_id'):
+			wiz = self.pool.get('hr.payslip.run').browse(cr,uid,context.get('active_id'))
+			return wiz.department_id and wiz.department_id.id or False
+		return False
+
+	_defaults = {
+		'department_id':_get_default
+	}
+
 class hr_payslip_run_wizard(osv.osv_memory):
 	_name = "hr.payslip.run.wizard"
 	_columns = {
@@ -37,7 +53,7 @@ class hr_payslip_run_wizard(osv.osv_memory):
 			journal_id = wiz.journal_id and wiz.journal_id.id or False
 			for dept in wiz.department_ids:
 				value = {
-					"name": wiz.name + ' %s - %s'%(curr_start,curr_end), 
+					"name": wiz.name + ' ' + dept.name +' %s - %s'%(curr_start,curr_end), 
 					"date_start": wiz.date_start,
 					"date_end": wiz.date_end,
 					"department_id": dept and dept.id,
