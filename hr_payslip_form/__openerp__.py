@@ -14,6 +14,7 @@
     'data': [
         'views/department_payslip_view.xml',
         'reports/department_payslip_report.xml',
+        'reports/employee_payslip.xml',
     ],
     'installable': True,
 }

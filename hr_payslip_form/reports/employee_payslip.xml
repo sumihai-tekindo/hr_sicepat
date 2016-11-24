@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<template id="payslip_inherit_form" inherit_id="hr_payroll.report_payslip">
+			<xpath expr="//div[@class='page']/table[1]/tr[last()]" position="after">
+				<tr>
+					<td><strong>Department</strong></td>
+					<td><span t-field="o.department_id"/></td>
+				</tr>
+			</xpath>
+			<xpath expr="//div[@class='page']/table[2]/tbody" position="after">
+				<tfoot>
+					<tr style="border-top:1px solid black;">
+						<th colspan="4">Total Take Home Pay</th>
+						<th><span t-esc="formatLang(get_thp(o.line_ids), currency_obj=o.company_id.currency_id)"/></th>
+					</tr>
+				</tfoot>
+			</xpath>
+		</template>
+	</data>
+</openerp>
