@@ -3,7 +3,7 @@
 		<record id="hr_payroll.act_done" model="workflow.activity">
             <field name="wkf_id" ref="hr_payroll.wkf"/>
             <field name="name">done</field>
-            <field name="action">process_sheet(context={'grouped_slip':True})</field>
+            <field name="action">write({'state':'done'})</field>
             <field name="kind">function</field>
             <field name="flow_stop">True</field>
         </record>

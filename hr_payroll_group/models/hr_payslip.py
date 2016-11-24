@@ -27,6 +27,9 @@ class hr_payslip_confirm(osv.osv_memory):
 
 class hr_payslip(osv.osv):
 	_inherit = "hr.payslip"
+	_columns = {
+		"department_id": fields.related("employee_id","department_id",type="many2one",relation="hr.department",string="Department",store=True)
+	}
 
 	def inv_line_characteristic_hashcode(self, move_line):
 		"""Overridable hashcode generation for invoice lines. Lines having the same hashcode
@@ -161,6 +164,7 @@ class hr_payslip(osv.osv):
 		move_pool = self.pool.get('account.move')
 		mvl = {} # mvl = {dept_id:{job_id:[slip_ids]}}
 		oslip = []
+		released = []
 		for slip in self.browse(cr, uid, ids, context=context):
 			current_dept = slip.employee_id and slip.employee_id.department_id and slip.employee_id.department_id.id or 'Undefined'
 			current_job = slip.employee_id and slip.employee_id.job_id and slip.employee_id.job_id.id or 'Undefined'
@@ -170,6 +174,7 @@ class hr_payslip(osv.osv):
 			oslip.append(slip.id)
 			current_mvl_dept.update({current_job:oslip})
 			mvl.update({current_dept:current_mvl_dept})
+			released.append(slip.id)
 		slip_dict = []
 		
 		
@@ -206,7 +211,7 @@ class hr_payslip(osv.osv):
 		if slip.journal_id.entry_posted:
 			move_pool.post(cr, uid, [move_id], context=context)
 			
-		return True
+		return released
 
 	def process_sheet(self,cr,uid,ids,context=None):
 		if not context:
@@ -214,6 +219,8 @@ class hr_payslip(osv.osv):
 		if context.get('grouped_slip',False):
 			# print "idsssssssssssss=======>",ids
 			slips = self.pool.get('hr.payslip')._compute_grouped_slip(cr,uid,ids,context=context)
-			self.pool.get('hr.payslip').signal_workflow(cr, uid, [id_copy], 'hr_verify_sheet')
-			return False
-		return super(hr_payslip,self).process_sheet(cr,uid,ids,context=context)
+			print "--------------",slips
+			for o in slips:
+				self.pool.get('hr.payslip').signal_workflow(cr, uid, [o], 'hr_verify_sheet')
+			return True
+		return False
