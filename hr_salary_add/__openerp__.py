@@ -52,6 +52,7 @@ HR Sicepat Ekspres
         'account',
         'analytic',
         'hr_payroll',
+        'hr_payroll_account',
     ],
 
     # always loaded
