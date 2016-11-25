@@ -271,7 +271,7 @@ class department_payslip_xls(report_xls):
 		
 
 		if data['t_report']=='department':
-			ws = wb.add_sheet(data['department_name'].replace(" / ","_").replace(" - ","_"))
+			ws = wb.add_sheet("Payslip")
 			ws.panes_frozen = True
 			ws.remove_splits = True
 			ws.portrait = 0  # Landscape
@@ -288,6 +288,7 @@ class department_payslip_xls(report_xls):
 			ws.write(4,0,"WILAYAH",normal_bold_style_a)
 			ws.write_merge(4,4,1,4,": "+data['department_name'],normal_bold_style_a)
 			headers = ["NO","NAMA","POSISI","TGL.MASUK KERJA","HARI KERJA","PAKET","GAJI POKOK","UANG MAKAN","UANG TRANSPORT","KERAJINAN","BONUS PAKET 1","BONUS PAKET 2","INSENTIF","TUNJANGAN OPERASIONAL","TUNJANGAN JABATAN","SERVICE MOTOR","LEMBURAN","POTONGAN","TOTAL"]
+			col_pos = 0
 			for head in headers :
 
 				ws.write(6,col_pos,head,th_top_style)
