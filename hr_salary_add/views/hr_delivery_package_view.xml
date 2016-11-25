@@ -69,5 +69,23 @@
         		  parent="hr_sicepat_configuration"
                   action="target_paket_action" sequence="4"/>
 <!--    END OF MENU ITEM    	-->
+
+		<record id="hr_payslip_form_target" model="ir.ui.view">
+			<field name="name">hr.payslip.form.target</field>
+			<field name="model">hr.payslip</field>
+			<field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//notebook" position="inside" invisible="1">
+					<page string="Target">
+						<field name="total_paket"/>
+						<field name="target_paket"/>
+						<field name="nilai_target"/>
+						<field name="pertambahan_bonus"/>
+						<field name="nilai_bonus"/>
+					</page>
+				</xpath>
+			</field>
+		</record>
+		
 	</data>
 </openerp>

@@ -256,7 +256,7 @@ class HRPayslip(models.Model):
         for input_line in input_line_ids:
             if input_line.get('code') in ('TARGET', 'TBONUS'):
                 if input_line['code'] == 'TARGET':
-                    input_line['amount'] = target_paket * nilai_target
+                    input_line['amount'] = nilai_target
                 if input_line['code'] == 'TBONUS':
                     input_line['amount'] = int((total_paket - target_paket) / pertambahan_bonus) * nilai_bonus
         
