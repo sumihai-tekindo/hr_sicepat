@@ -271,7 +271,7 @@ class department_payslip_xls(report_xls):
 		
 
 		if data['t_report']=='department':
-			ws = wb.add_sheet(data['department_name'].replace(" / ","_").replace(" - ","_"))
+			ws = wb.add_sheet("Payslip")
 			ws.panes_frozen = True
 			ws.remove_splits = True
 			ws.portrait = 0  # Landscape
