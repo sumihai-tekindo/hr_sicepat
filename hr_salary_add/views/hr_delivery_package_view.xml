@@ -75,13 +75,15 @@
 			<field name="model">hr.payslip</field>
 			<field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
 			<field name="arch" type="xml">
-				<xpath expr="//notebook" position="inside" invisible="1">
-					<page string="Target">
-						<field name="total_paket"/>
-						<field name="target_paket"/>
-						<field name="nilai_target"/>
-						<field name="pertambahan_bonus"/>
-						<field name="nilai_bonus"/>
+				<xpath expr="//notebook" position="inside">
+					<page string="Target" invisible="1">
+						<group>
+							<field name="total_paket"/>
+							<field name="target_paket"/>
+							<field name="nilai_target"/>
+							<field name="pertambahan_bonus"/>
+							<field name="nilai_bonus"/>
+						</group>
 					</page>
 				</xpath>
 			</field>
