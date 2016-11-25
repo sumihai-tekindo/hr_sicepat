@@ -176,28 +176,55 @@ class HRPayslip(models.Model):
     pertambahan_bonus = fields.Integer()
     nilai_bonus = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Bonus')
      
-    def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
-        contract_obj = self.pool.get('hr.contract')
-
-        res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
- 
-        contract = contract_obj.browse(cr, uid, contract_ids, context=context)[0]
-        clause = [('employee_id','=', contract.employee_id.id), ('contract_id','=', contract.id), ('date_from','=',date_from), ('date_to','=',date_to)]
-        current_id = self.search(cr, uid, clause, limit=1, context=context)
-        
-        if not current_id:
-            return res
-        
-        current_obj = self.browse(cr, uid, current_id, context)
-         
-        for result in res:
-            if result.get('code') in ('TARGET', 'TBONUS'):
-                if result['code'] == 'TARGET':
-                    result['amount'] = current_obj.target_paket * current_obj.nilai_target
-                if result['code'] == 'TBONUS':
-                    result['amount'] = int((current_obj.total_paket - current_obj.target_paket) / current_obj.pertambahan_bonus) * current_obj.nilai_bonus
- 
-        return res
+#     def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
+#         contract_obj = self.pool.get('hr.contract')
+# 
+#         res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
+#  
+#         contract = contract_obj.browse(cr, uid, contract_ids, context=context)[0]
+#         clause = [('employee_id','=', contract.employee_id.id), ('contract_id','=', contract.id), ('date_from','=',date_from), ('date_to','=',date_to)]
+#         current_id = self.search(cr, uid, clause, limit=1, context=context)
+#         
+#         if not current_id:
+#             return res
+#         
+#         current_obj = self.browse(cr, uid, current_id, context)
+#          
+#         for result in res:
+#             if result.get('code') in ('TARGET', 'TBONUS'):
+#                 if result['code'] == 'TARGET':
+#                     result['amount'] = current_obj.target_paket * current_obj.nilai_target
+#                 if result['code'] == 'TBONUS':
+#                     result['amount'] = int((current_obj.total_paket - current_obj.target_paket) / current_obj.pertambahan_bonus) * current_obj.nilai_bonus
+#  
+#         return res
+# 
+#     def onchange_employee_id(self, cr, uid, ids, date_from, date_to, employee_id=False, contract_id=False, context=None):
+#         employee_obj = self.pool.get('hr.employee')
+#         target_obj = self.pool.get('delivery.package.target')
+#         delivery_obj = self.pool.get('delivery.package.run')
+#         
+#         if context is None:
+#             context = {}
+# 
+#         res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, employee_id=employee_id, contract_id=contract_id, context=context)
+# 
+# 
+#         if (not employee_id) or (not date_from) or (not date_to):
+#             return res
+#         
+#         employee_id = employee_obj.browse(cr, uid, employee_id, context=context)
+#         target_ids = target_obj.get_target(cr, uid, employee_id, date_from, date_to, context=context)
+#         if not target_ids:
+#             return res
+#         
+#         target = target_obj.browse(cr, uid, target_ids[0], context=context)
+#         res['value']['target_paket'] = target.target_paket
+#         res['value']['nilai_target'] = target.nilai_target
+#         res['value']['pertambahan_bonus'] = target.pertambahan_bonus
+#         res['value']['nilai_bonus'] = target.nilai_bonus
+#         res['value']['total_paket'] = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
+#         return res
 
     def onchange_employee_id(self, cr, uid, ids, date_from, date_to, employee_id=False, contract_id=False, context=None):
         employee_obj = self.pool.get('hr.employee')
@@ -206,9 +233,9 @@ class HRPayslip(models.Model):
         
         if context is None:
             context = {}
-
-        res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, employee_id=employee_id, contract_id=contract_id, context=context)
-
+            
+        res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from=date_from, date_to=date_to, \
+            employee_id=employee_id, contract_id=contract_id, context=context)
 
         if (not employee_id) or (not date_from) or (not date_to):
             return res
@@ -219,9 +246,23 @@ class HRPayslip(models.Model):
             return res
         
         target = target_obj.browse(cr, uid, target_ids[0], context=context)
-        res['value']['target_paket'] = target.target_paket
-        res['value']['nilai_target'] = target.nilai_target
-        res['value']['pertambahan_bonus'] = target.pertambahan_bonus
-        res['value']['nilai_bonus'] = target.nilai_bonus
-        res['value']['total_paket'] = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
+        target_paket = target.target_paket
+        nilai_target = target.nilai_target
+        pertambahan_bonus = target.pertambahan_bonus
+        nilai_bonus = target.nilai_bonus
+        total_paket = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
+
+        input_line_ids = res.get('value', {}) and res.get('value').get('input_line_ids', [])
+        for input_line in input_line_ids:
+            if input_line.get('code') in ('TARGET', 'TBONUS'):
+                if input_line['code'] == 'TARGET':
+                    input_line['amount'] = target_paket * nilai_target
+                if input_line['code'] == 'TBONUS':
+                    input_line['amount'] = int((total_paket - target_paket) / pertambahan_bonus) * nilai_bonus
+        
+        res['value']['target_paket'] = target_paket
+        res['value']['nilai_target'] = nilai_target
+        res['value']['pertambahan_bonus'] = pertambahan_bonus
+        res['value']['nilai_bonus'] = nilai_bonus
+        res['value']['total_paket'] = total_paket
         return res
