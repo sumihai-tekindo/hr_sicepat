@@ -233,7 +233,6 @@ class HRPayslip(models.Model):
         
         if context is None:
             context = {}
-            
         res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, \
             employee_id=employee_id, contract_id=contract_id, context=context)
 
