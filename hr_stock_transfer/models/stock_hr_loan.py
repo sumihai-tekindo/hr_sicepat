@@ -53,7 +53,8 @@ class stock_quant(osv.osv):
 			if loan_state:
 				raise osv.except_osv(_('Error!'),_("There is an existing loan in  for employee %s. You should remove that loan by rejecting or deleting the loan if it is possible."%(operation.product_id.name,operation.employee_id.name)))
 			else:
-				loan_id = loan_pool.create(cr,uid,loan_val,context=context)
+				loan_id = loan_pool.create(cr,SUPERUSER_ID,loan_val,context=context)
+				print "------------------",loan_id,quant_id
 				self.pool.get('stock.quant').write(cr,SUPERUSER_ID,quant_id,{'loan_id':loan_id})
 				
 		return res
