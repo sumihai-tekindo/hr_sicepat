@@ -36,7 +36,7 @@ class hr_payslip_run_wizard(osv.osv_memory):
 		"date_start"	: lambda *x: (date.today()+ relativedelta(months=-1)).strftime('%Y-%m-21'),
 		"date_end"		: lambda *x: date.today().strftime('%Y-%m-20'),
 		#"department_ids": lambda self,cr,uid,context: self.pool.get('hr.department').search(cr,uid,[])
-		"department_ids": lambda *x:[315]
+
 	}
 
 	def generate_payslip_run(self,cr,uid,ids,context=None):
