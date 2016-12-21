@@ -15,7 +15,7 @@ class department_payslip_report(models.TransientModel):
 		"Report Type",required=True)
 	department_id = fields.Many2one("hr.department","Region/Dept.",required=False)
 	department_ids = fields.Many2many("hr.department","payslip_report_department_rel","wiz_id","dept_id","Department(s)",
-		help="Select Department(s) you want to print",default=lambda x:[315])
+		help="Select Department(s) you want to print",)
 
 	@api.multi
 	def print_report(self,):
