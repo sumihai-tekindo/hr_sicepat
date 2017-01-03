@@ -8,3 +8,4 @@ import hr_memorandum
 import hr_promotion
 import hr_loan
 import hr_employee
+import hr_employee_resign
