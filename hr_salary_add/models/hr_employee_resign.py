@@ -9,7 +9,7 @@ class HREmployeeResign(models.Model):
         default=lambda self: self.env.user)
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self), readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', readonly=True,
+    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     job_id = fields.Many2one('hr.job', string='Jabatan', related='employee_id.job_id', readonly=True)
     department_id = fields.Many2one('hr.department', string='Cabang', related='employee_id.department_id', readonly=True)
