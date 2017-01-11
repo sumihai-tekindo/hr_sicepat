@@ -12,8 +12,10 @@ class HREmployeeResign(models.Model):
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     job_id = fields.Many2one('hr.job', string='Jabatan', related='employee_id.job_id', readonly=True)
-    department_id = fields.Many2one('hr.department', string='Cabang', related='employee_id.department_id', readonly=True)
-    alasan = fields.Text()
+    department_id = fields.Many2one('hr.department', string='Cabang', related='employee_id.department_id', 
+        readonly=True)
+    alasan = fields.Text(readonly=True,
+        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     state = fields.Selection([
         ('draft','Open'),
         ('submit','Submit'),
