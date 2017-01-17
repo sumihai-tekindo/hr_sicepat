@@ -68,6 +68,7 @@
 			                    <field name="department_id"/>
 			                    <field name="address_home_id" invisible="1"/>
 			                    <field name="pinjaman_unpaid"/>
+			                    <field name="type"/>
 		            		</group>
 		            		<group>
 		            			<field name="nilai_pinjaman"/>
