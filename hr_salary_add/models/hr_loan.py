@@ -199,7 +199,10 @@ class HRLoan(models.Model):
         @return: returns amount based on code
         """
         loan = self.browse(cr, uid, ids, context)
-        return loan[0][CODE2INPUT.get(code)]
+        amt = 0.0
+        for l in loan:
+            amt+=l[CODE2INPUT.get(code)]
+        return amt
 
     def get_condition(self, cr, uid, code, context=None):
         """
@@ -297,27 +300,27 @@ class HRPayslip(models.Model):
     
     loan_line_id = fields.Many2one('hr.loan.line', string='Loan Line')
 
-#     def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
-#         res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
-# 
-#         contract_obj = self.pool.get('hr.contract')
-#         employee_obj = self.pool.get('hr.employee')
-#         loan = self.pool.get('hr.loan')
-#         loan_line = self.pool.get('hr.loan.line')
-#         
-#         employee_id = contract_obj.browse(cr, uid, contract_ids, context=context)[0].employee_id.id
-#         employee = employee_obj.browse(cr, uid, employee_id, context=context)
-#         
-#         for result in res:
-#             if loan.get_condition(cr, uid, result.get('code'), context=context):
-#                 loan_ids = loan.get_loan(cr, uid, employee, date_from, date_to, context=context)
-#                 if loan_ids:
-#                     result['amount'] = loan.get_amount(cr, uid, loan_ids, result['code'], context=context)
-#                 loan_line_ids = loan_line.get_loan_line(cr, uid, employee, date_from, date_to, context=context)
-#                 if loan_line_ids:
-#                     result['amount'] = loan_line.get_amount(cr, uid, loan_line_ids, result['code'], context=context)
-# 
-#         return res
+    def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
+        res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
+
+        contract_obj = self.pool.get('hr.contract')
+        employee_obj = self.pool.get('hr.employee')
+        loan = self.pool.get('hr.loan')
+        loan_line = self.pool.get('hr.loan.line')
+        
+        employee_id = contract_obj.browse(cr, uid, contract_ids, context=context)[0].employee_id.id
+        employee = employee_obj.browse(cr, uid, employee_id, context=context)
+        
+        for result in res:
+            if loan.get_condition(cr, uid, result.get('code'), context=context):
+                loan_line_ids = loan_line.get_loan_line(cr, uid, employee, date_from, date_to, context=context)
+                loan_ids = [x.loan_id.id for x in loan_line.browse(cr,uid,loan_line_ids)]
+                if loan_ids:
+                    result['amount'] = loan.get_amount(cr, uid, loan_ids, result['code'], context=context)
+                if loan_line_ids:
+                    result['amount'] = loan_line.get_amount(cr, uid, loan_line_ids, result['code'], context=context)
+
+        return res
 
     def process_sheet(self, cr, uid, ids, context=None):
         loan_line_obj = self.pool.get('hr.loan.line')
