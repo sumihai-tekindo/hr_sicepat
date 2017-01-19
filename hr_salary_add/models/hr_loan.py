@@ -42,7 +42,7 @@ CODE2INPUT = {
 class HRLoanType(models.Model):
     _name="hr.loan.type"
     name = fields.Char(string='Number', readonly=False)
-    
+
 
 class HRLoan(models.Model):
     # Private attributes
@@ -56,6 +56,7 @@ class HRLoan(models.Model):
 
     # Fields declaration
     name = fields.Char(string='Number', readonly=True)
+    loan_type=fields.Many2one('hr.loan.type', 'Loan Type')
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self), readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     employee_id = fields.Many2one('hr.employee', 'Nama Karyawan', required=True, readonly=True,
