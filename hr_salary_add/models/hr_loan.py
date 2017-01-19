@@ -39,6 +39,10 @@ CODE2INPUT = {
     'CLOAN': 'nilai_pinjaman',
     'LOAN': 'nilai_angsuran',
 }
+class HRLoanType(models.Model):
+    _name="hr.loan.type"
+    name = fields.Char(string='Number', readonly=False)
+    
 
 class HRLoan(models.Model):
     # Private attributes
