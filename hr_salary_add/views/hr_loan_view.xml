@@ -69,7 +69,6 @@
                 <tree string="Loan" editable="bottom" create="false" delete="false">
                     <field name="loan_id"/>
                     <field name="employee_id"/>
-                    <field name="type"/>
                     <field name="nilai_pinjaman"/>
                     <field name="alasan_reject" required="True"/>
                 </tree>
