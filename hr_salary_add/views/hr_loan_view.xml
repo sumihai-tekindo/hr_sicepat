@@ -1,5 +1,98 @@
 <openerp>
     <data>
+        <record id="hr_loan_submit_view" model="ir.ui.view">
+            <field name="name">hr.loan.submit.form</field>
+            <field name="model">hr.loan.submit</field>
+            <field name="arch" type="xml">
+                <form string="Submit Loan">
+                    <p class="oe_grey">
+                        This wizard will submit the all the selected open loan.
+                    </p>
+                    <footer>
+                        <button string="Submit" name="loan_submit" type="object" default_focus="1" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <act_window id="loan_submit_action"
+            name="Submit"
+            src_model="hr.loan"
+            res_model="hr.loan.submit"
+            view_type="form" view_mode="form"
+            key2="client_action_multi" target="new"/>
+        
+        <record id="hr_loan_approve_view" model="ir.ui.view">
+            <field name="name">hr.loan.approve.form</field>
+            <field name="model">hr.loan.approve</field>
+            <field name="arch" type="xml">
+                <form string="Approve Loan">
+                    <p class="oe_grey">
+                        This wizard will approve the all the selected submit loan.
+                    </p>
+                    <footer>
+                        <button string="Approve" name="loan_approve" type="object" default_focus="1" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <act_window id="loan_approve_action"
+            name="Approve"
+            src_model="hr.loan"
+            res_model="hr.loan.approve"
+            view_type="form" view_mode="form"
+            key2="client_action_multi" target="new"/>
+
+
+        <record id="loan_reject_wizard_view" model="ir.ui.view">
+            <field name="name">Reject Loan</field>
+            <field name="model">hr.loan.reject_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reject Loan">
+                    <field name="loan_ids"/>
+                    <footer>
+                        <button string="Reject" name="reject_loan_button" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="loan_reject_wizard_tree_view" model="ir.ui.view">
+            <field name="name">Loan Reject View</field>
+            <field name="model">hr.loan.reject</field>
+            <field name="arch" type="xml">
+                <!-- the user list is editable, but one cannot add or delete rows -->
+                <tree string="Loan" editable="bottom" create="false" delete="false">
+                    <field name="loan_id"/>
+                    <field name="employee_id"/>
+                    <field name="type"/>
+                    <field name="nilai_pinjaman"/>
+                    <field name="alasan_reject" required="True"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="action_wizard_reject_loan" model="ir.actions.act_window">
+            <field name="name">Reject Loan</field>
+            <field name="res_model">hr.loan.reject_wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="hr_salary_add.loan_reject_wizard_view"/>
+            <field name="target">new</field>
+        </record>
+        <record model="ir.values" id="values_wizard_reject_loan">
+            <field name="model_id" ref="model_hr_loan" />
+            <field name="name">action_wizard_reject_loan</field>
+            <field name="key2">client_action_multi</field>
+            <field name="value" eval="'ir.actions.act_window,' + str(ref('hr_salary_add.action_wizard_reject_loan'))" />
+            <field name="key">action</field>
+            <field name="model">hr.loan</field>
+        </record>
+        
 <!--    START LOAN  -->
         <record model="ir.actions.act_window" id="loan_action">
             <field name="name">Pinjaman Karyawan</field>
@@ -17,6 +110,18 @@
                     <field name="jabatan_id"/>
                     <field name="department_id"/>
                     <field name="loan_type"/>
+                    <separator/>
+            		<filter name="open" string="Open" domain="[('state','=','draft')]"/>
+            		<filter name="submit" string="Submit" domain="[('state','=','submit')]"/>
+            		<filter name="reject" string="Reject" domain="[('state','=','reject')]"/>
+            		<filter name="approved" string="Approved" domain="[('state','=','approved')]"/>
+            		<separator/>
+            		<filter domain="[('state','=','draft')]" help="To Submit"/>
+            		<filter domain="[('state','=','submit')]" help="To Approve"/>
+                    <group expand="0" string="Group By">
+	                	<filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
+	                	<filter name="group_by_employee" string="Karyawan" context="{'group_by':'employee_id'}"/>
+                    </group>
                 </search>
             </field>
         </record>
@@ -52,7 +157,7 @@
                             string="Submit" states="draft" class="oe_highlight"/>
                         <button name="action_approve" type="object"
                             string="Approve" states="submit" class="oe_highlight"/>
-                        <button name="action_reject" type="object"
+                        <button name="%(action_wizard_reject_loan)d" type="action"
                             string="Reject" states="submit" class="oe_highlight"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,submit,approved"/>
                     </header>
@@ -71,7 +176,7 @@
                                 <field name="department_id"/>
                                 <field name="address_home_id" invisible="1"/>
                                 <field name="pinjaman_unpaid"/>
-                                <field name="type"/>
+<!--                                <field name="type"/>-->
                             </group>
                             <group>
                                 <field name="nilai_pinjaman"/>
@@ -108,15 +213,18 @@
                                     <field name="total_bayar_angsuran"/>
                                     <field name="sisa_angsuran" class="oe_subtotal_footer_separator"/>
                                 </group>
-                                <div class="oe_clear">
-                                    <label for="notes"/>
-                                </div>
-                                <field name="notes" class="oe_inline" placeholder="Additional notes..."/>
-                                <div class="oe_clear">
-                                    <label for="alasan_reject" attrs="{'invisible':[('state','!=','reject')]}"/>
-                                </div>
-                                <field name="alasan_reject" class="oe_inline" placeholder="Additional notes..." attrs="{'invisible':[('state','!=','reject')]}"/>
+                                <div class="oe_clear"/>
                             </page>
+							<page string="Notes">
+	                            <div class="oe_clear">
+	                                <label for="notes"/>
+	                            </div>
+	                            <field name="notes" class="oe_inline" placeholder="Additional notes..."/>
+	                            <div class="oe_clear">
+	                                <label for="alasan_reject" attrs="{'invisible':[('state','!=','reject')]}"/>
+	                            </div>
+	                            <field name="alasan_reject" class="oe_inline" placeholder="Additional notes..." attrs="{'invisible':[('state','!=','reject')]}"/>
+							</page>
                         </notebook>
                     </sheet>
                 </form>

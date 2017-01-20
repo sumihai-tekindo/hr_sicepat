@@ -65,11 +65,11 @@ class HRLoan(models.Model):
     department_id = fields.Many2one('hr.department', string='Nama Cabang', related='employee_id.department_id', readonly=True)
     address_home_id = fields.Many2one('res.partner', string='Home Address', related='employee_id.address_home_id', readonly=True)
     pinjaman_unpaid = fields.Float(digits=dp.get_precision('Payroll'), string="Pinjaman Sebelumnya", compute='_compute_pinjaman_unpaid')
-    type = fields.Selection([
-        ('loan', 'Pinjaman'),
-        ('expense', 'Biaya'),
-        ('phone', 'Handphone')
-        ], 'Tipe', default='loan', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+#     type = fields.Selection([
+#         ('loan', 'Pinjaman'),
+#         ('expense', 'Biaya'),
+#         ('phone', 'Handphone')
+#         ], 'Tipe', default='loan', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     nilai_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Pinjaman', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     tenor_angsuran = fields.Integer(string='Tenor', required=True, default=1, help="Lama angsuran dalam bulan", readonly=True,
@@ -279,6 +279,91 @@ class HRLoanLine(models.Model):
         for loan_line in self.browse(cr, uid, ids, context):
             amount += loan_line[CODE2INPUT.get(code)]
         return amount
+
+class HRLoanSubmit(models.TransientModel):
+    """
+    This wizard will submit the all the selected open loan
+    """
+
+    _name = "hr.loan.submit"
+    _description = "Submit the selected loan"
+
+    @api.multi
+    def loan_submit(self):
+        context = dict(self._context or {})
+        active_ids = context.get('active_ids', []) or []
+
+        for record in self.env['hr.loan'].browse(active_ids):
+            if record.state not in ('draft'):
+                raise Warning(_("Selected loan(s) cannot be submitted as they are not in 'Open' state."))
+            record.action_submit()
+            
+        return {'type': 'ir.actions.act_window_close'}
+
+class HRLoanApprove(models.TransientModel):
+    """
+    This wizard will approve the all the selected submit loan
+    """
+
+    _name = "hr.loan.approve"
+    _description = "Approve the selected loan"
+
+    @api.multi
+    def loan_approve(self):
+        context = dict(self._context or {})
+        active_ids = context.get('active_ids', []) or []
+
+        for record in self.env['hr.loan'].browse(active_ids):
+            if record.state not in ('submit'):
+                raise Warning(_("Selected loan(s) cannot be approved as they are not in 'Submit' state."))
+            record.action_approve()
+            
+        return {'type': 'ir.actions.act_window_close'}
+
+class HRLoanRejectWizard(models.TransientModel):
+    _name = "hr.loan.reject_wizard"
+    _description = "Loan Reject Wizard"
+    
+    @api.model
+    def _default_loan_ids(self):
+        context = dict(self._context or {})
+        loan_model = self.env['hr.loan']
+        loan_ids = context.get('active_model') == 'hr.loan' and context.get('active_ids') or []
+        return [
+            (0, 0, {'loan_id': loan.id, 'employee_id': loan.employee_id.id, 'nilai_pinjaman': loan.nilai_pinjaman})
+            for loan in loan_model.browse(loan_ids)
+        ]
+
+    loan_ids = fields.One2many('hr.loan.reject', 'wizard_id', string='Loan', default=_default_loan_ids)
+    
+    @api.multi
+    def reject_loan_button(self):
+        line_ids = []
+        for line in self.loan_ids:
+            if line.loan_id.state not in ('submit'):
+                raise Warning(_('You cannot reject loan which is not Submit. You should submit it instead.'))
+            line_ids.append(line.id)
+#         line_ids = [line.id for line in self.loan_ids]
+        self.pool('hr.loan.reject').reject_button(self._cr, self._uid, line_ids)
+        return {'type': 'ir.actions.act_window_close'}
+
+class HRLoanReject(models.TransientModel):
+    _name = "hr.loan.reject"
+    _description = "Loan Reject"
+    
+    wizard_id = fields.Many2one('hr.loan.reject_wizard', string='Wizard', required=True)
+    loan_id = fields.Many2one('hr.loan', string='Loan', required=True, readonly=True)
+    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True)
+    nilai_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Pinjaman', required=True, readonly=True)
+    alasan_reject = fields.Text('Alasan Reject')
+    
+    @api.multi
+    def reject_button(self):
+        for loan in self:
+            loan.loan_id.write({'alasan_reject': loan.alasan_reject})
+            loan.loan_id.action_reject()
+        # don't keep temporary notes in the database longer than necessary
+        self.write({'alasan_reject': False})
 
 class HREmployee(models.Model):
     _inherit = 'hr.employee'
