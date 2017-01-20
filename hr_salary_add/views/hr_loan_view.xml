@@ -120,6 +120,8 @@
                     <group expand="0" string="Group By">
 	                	<filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
 	                	<filter name="group_by_employee" string="Karyawan" context="{'group_by':'employee_id'}"/>
+	                	<filter name="group_by_jabatan" string="Jabatan" context="{'group_by':'jabatan_id'}"/>
+	                	<filter name="group_by_department" string="Cabang" context="{'group_by':'department_id'}"/>
                     </group>
                 </search>
             </field>
@@ -171,8 +173,10 @@
                                 <field name="loan_type"/>
                                 <field name="tanggal"/>
                                 <field name="employee_id"/>
-                                <field name="jabatan_id"/>
-                                <field name="department_id"/>
+                                <field name="jabatan_id" invisible="1"/>
+                                <field name="jabatan_id_view"/>
+                                <field name="department_id" invisible="1"/>
+                                <field name="department_id_view"/>
                                 <field name="address_home_id" invisible="1"/>
                                 <field name="pinjaman_unpaid"/>
 <!--                                <field name="type"/>-->

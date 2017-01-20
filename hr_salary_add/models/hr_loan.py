@@ -61,8 +61,10 @@ class HRLoan(models.Model):
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     employee_id = fields.Many2one('hr.employee', 'Nama Karyawan', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    jabatan_id = fields.Many2one('hr.job', string='Jabatan', related='employee_id.job_id', readonly=True)
-    department_id = fields.Many2one('hr.department', string='Nama Cabang', related='employee_id.department_id', readonly=True)
+    jabatan_id = fields.Many2one('hr.job', string='Jabatan')
+    department_id = fields.Many2one('hr.department', string='Nama Cabang')
+    jabatan_id_view = fields.Many2one('hr.job', string='Jabatan', compute='_compute_field_view', readonly=True)
+    department_id_view = fields.Many2one('hr.department', string='Nama Cabang', compute='_compute_field_view', readonly=True)
     address_home_id = fields.Many2one('res.partner', string='Home Address', related='employee_id.address_home_id', readonly=True)
     pinjaman_unpaid = fields.Float(digits=dp.get_precision('Payroll'), string="Pinjaman Sebelumnya", compute='_compute_pinjaman_unpaid')
 #     type = fields.Selection([
@@ -99,6 +101,12 @@ class HRLoan(models.Model):
         ], string='Status', default='draft', track_visibility='onchange', copy=False,)
     
     # compute and search fields, in the same order that fields declaration
+    @api.one
+    @api.depends('jabatan_id','department_id')
+    def _compute_field_view(self):
+        self.jabatan_id_view = self.jabatan_id.id
+        self.department_id_view = self.department_id.id
+        
     @api.one
     @api.depends('employee_id','state')
     def _compute_pinjaman_unpaid(self):
@@ -141,6 +149,11 @@ class HRLoan(models.Model):
     def payment_method_change(self, payment_method):
         if payment_method and payment_method != 'bank':
             return {'value': {'bank_account_id': False}}
+
+    @api.onchange('employee_id')
+    def onchange_employee(self):
+        self.jabatan_id = self.employee_id.job_id.id
+        self.department_id = self.employee_id.department_id.id
 
     # CRUD methods
     @api.model
@@ -344,7 +357,7 @@ class HRLoanRejectWizard(models.TransientModel):
                 raise Warning(_('You cannot reject loan which is not Submit. You should submit it instead.'))
             line_ids.append(line.id)
 #         line_ids = [line.id for line in self.loan_ids]
-        self.pool('hr.loan.reject').reject_button(self._cr, self._uid, line_ids)
+        self.env['hr.loan.reject'].reject_button(line_ids)
         return {'type': 'ir.actions.act_window_close'}
 
 class HRLoanReject(models.TransientModel):
