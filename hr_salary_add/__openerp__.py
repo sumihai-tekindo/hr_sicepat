@@ -58,6 +58,7 @@ HR Sicepat Ekspres
     # always loaded
     'data': [
         "views/hr_employee_view.xml",
+        "views/hr_payroll_view.xml",
         "views/hr_salary_structure_amt_view.xml",
         "views/hr_delivery_package_view.xml",
         "views/hr_overtime_view.xml",
@@ -85,4 +86,5 @@ HR Sicepat Ekspres
     'installable': True,
     'auto_install': False,
     'application': True,
+    'post_init_hook': 'populate_jabatan_department_loan',
 }
