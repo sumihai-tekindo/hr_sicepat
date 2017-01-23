@@ -26,22 +26,18 @@ from dateutil.relativedelta import relativedelta
 
 # 2 :  imports of openerp
 from openerp import models, fields, api
-from openerp.osv import osv
+from openerp.exceptions import Warning
 from openerp.tools.translate import _
 from openerp.tools.misc import DEFAULT_SERVER_DATE_FORMAT
 
 # 3 :  imports from odoo modules
 import openerp.addons.decimal_precision as dp
-# from .hr_salary_structure_amt import CODE2INPUT
-# CODE2INPUT['CLOAN']='nilai_pinjaman'
-# CODE2INPUT['LOAN']='nilai_angsuran'
-CODE2INPUT = {
-    'CLOAN': 'nilai_pinjaman',
-    'LOAN': 'nilai_angsuran',
-}
+
 class HRLoanType(models.Model):
     _name="hr.loan.type"
-    name = fields.Char(string='Number', readonly=False)
+        
+    name = fields.Char(string='Number', size=52, required=True)
+    desc = fields.Char(string='Description')
 
 
 class HRLoan(models.Model):
@@ -56,7 +52,8 @@ class HRLoan(models.Model):
 
     # Fields declaration
     name = fields.Char(string='Number', readonly=True)
-    loan_type=fields.Many2one('hr.loan.type', 'Loan Type')
+    loan_type=fields.Many2one('hr.loan.type', 'Loan Type', readonly=True,
+        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self), readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     employee_id = fields.Many2one('hr.employee', 'Nama Karyawan', required=True, readonly=True,
@@ -199,38 +196,7 @@ class HRLoan(models.Model):
 #         return True
 
     # Business methods
-    def get_loan(self, cr, uid, employee, date_from, date_to, context=None):
-        """
-        @param employee: browse record of employee
-        @param date_from: date field
-        @param date_to: date field
-        @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
-        """
-        clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
-        clause_final = [('employee_id','=',employee.id), ('state','=','approved')] + clause_1
-        loan_ids = self.search(cr, uid, clause_final, order='tanggal desc', context=context)
-        return loan_ids
 
-    def get_amount(self, cr, uid, ids, code, context=None):
-        """
-        @param code: char field
-        @return: returns amount based on code
-        """
-        loan = self.browse(cr, uid, ids, context)
-        amt = 0.0
-        for l in loan:
-            amt+=l[CODE2INPUT.get(code)]
-        return amt
-
-    def get_condition(self, cr, uid, code, context=None):
-        """
-        @param code: char field
-        @return: returns True or False
-        """
-        if code:
-            if code in CODE2INPUT:
-                return True
-        return False
 
 class HRLoanLine(models.Model):
     # Private attributes
@@ -247,6 +213,7 @@ class HRLoanLine(models.Model):
     total_nilai_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Total Nilai Angsuran')
     sisa_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Sisa Angsuran')
     keterangan = fields.Text(string='Notes')
+    loan_type = fields.Char(string='Loan Type', related='loan_id.loan_type.name', store=True)
     posted = fields.Boolean()
     paid = fields.Boolean()
 
@@ -269,7 +236,8 @@ class HRLoanLine(models.Model):
         self.posted = False
 
     # Business methods
-    def get_loan_line(self, cr, uid, employee, date_from, date_to, context=None):
+    @api.model
+    def get_loan_line(self, employee, date_from, date_to, code):
         """
         @param employee: browse record of employee
         @param date_from: date field
@@ -277,21 +245,31 @@ class HRLoanLine(models.Model):
         @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal_angsuran', '<=', date_to),('tanggal_angsuran','>=', date_from)]
-        clause_final = [('employee_id','=',employee.id), ('posted','=',True), ('paid','=',False)] + clause_1
-        loan_line_ids = self.search(cr, uid, clause_final, order='tanggal_angsuran desc', context=context)
+        clause_final = [('employee_id','=',employee.id), ('posted','=',True), ('paid','=',False), ('loan_type','=',code)] + clause_1
+        loan_line_ids = [l.id for l in self.search(clause_final, order='tanggal_angsuran desc')]
         return loan_line_ids
 
-    def get_amount(self, cr, uid, ids, code, context=None):
+    @api.multi
+    def get_amount(self):
         """
         @param code: char field
         @return: returns amount based on code
         """
-#         loan_line = self.browse(cr, uid, ids, context)
-#         return loan_line[0][CODE2INPUT.get(code)]
         amount = 0.0
-        for loan_line in self.browse(cr, uid, ids, context):
-            amount += loan_line[CODE2INPUT.get(code)]
+        for l in self:
+            amount += l.nilai_angsuran
         return amount
+
+    @api.model
+    def get_condition(self, code):
+        """
+        @param code: char field
+        @return: returns True or False
+        """
+        code_from_type = [t.name for t in self.env['hr.loan.type'].search([])]
+        if code and code in code_from_type:
+            return True
+        return False
 
 class HRLoanSubmit(models.TransientModel):
     """
@@ -351,13 +329,11 @@ class HRLoanRejectWizard(models.TransientModel):
     
     @api.multi
     def reject_loan_button(self):
-        line_ids = []
         for line in self.loan_ids:
             if line.loan_id.state not in ('submit'):
                 raise Warning(_('You cannot reject loan which is not Submit. You should submit it instead.'))
-            line_ids.append(line.id)
-#         line_ids = [line.id for line in self.loan_ids]
-        self.env['hr.loan.reject'].reject_button(line_ids)
+        line_ids = [line.id for line in self.loan_ids]
+        self.env['hr.loan.reject'].browse(line_ids).reject_button()
         return {'type': 'ir.actions.act_window_close'}
 
 class HRLoanReject(models.TransientModel):
@@ -401,60 +377,35 @@ class HREmployee(models.Model):
 class HRPayslip(models.Model):
     _inherit = 'hr.payslip'
     
-    loan_line_id = fields.Many2one('hr.loan.line', string='Loan Line')
-
     def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
-        res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
+        result = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
 
-        contract_obj = self.pool.get('hr.contract')
-        employee_obj = self.pool.get('hr.employee')
-        loan = self.pool.get('hr.loan')
-        loan_line = self.pool.get('hr.loan.line')
+        contract_obj = self.pool['hr.contract']
+        employee_obj = self.pool['hr.employee']
+        loan_line = self.pool['hr.loan.line']
         
         employee_id = contract_obj.browse(cr, uid, contract_ids, context=context)[0].employee_id.id
         employee = employee_obj.browse(cr, uid, employee_id, context=context)
         
-        for result in res:
-            if loan.get_condition(cr, uid, result.get('code'), context=context):
-                loan_line_ids = loan_line.get_loan_line(cr, uid, employee, date_from, date_to, context=context)
-                loan_ids = [x.loan_id.id for x in loan_line.browse(cr,uid,loan_line_ids)]
-                if loan_ids:
-                    result['amount'] = loan.get_amount(cr, uid, loan_ids, result['code'], context=context)
+        for res in result:
+            if loan_line.get_condition(cr, uid, res.get('code'), context=context):
+                loan_line_ids = loan_line.get_loan_line(cr, uid, employee, date_from, date_to, res['code'], context=context)
                 if loan_line_ids:
-                    result['amount'] = loan_line.get_amount(cr, uid, loan_line_ids, result['code'], context=context)
+                    res['amount'] = loan_line.get_amount(cr, uid, loan_line_ids, context=context)
+                    res['loan_line_ids'] = [(4, loan_line_ids)]
 
-        return res
+        return result
 
     def process_sheet(self, cr, uid, ids, context=None):
-        loan_line_obj = self.pool.get('hr.loan.line')
+        loan_line_obj = self.pool['hr.loan.line']
         for payslip in self.browse(cr, uid, ids, context=context):
-            if payslip.loan_line_id:
-                loan_line_obj.write(cr, uid, [payslip.loan_line_id.id], {'paid': True}, context=context)
-            
+            for input in payslip.input_line_ids:
+                if input.loan_line_ids:
+                    for l in input.loan_line_ids:
+                        loan_line_obj.write(cr, uid, [l.id], {'paid': True}, context=context)
         return super(HRPayslip, self).process_sheet(cr, uid, ids, context=context)
-    
-    def onchange_employee_id(self, cr, uid, ids, date_from, date_to, employee_id=False, contract_id=False, context=None):
-        employee_obj = self.pool.get('hr.employee')
-        loan_obj = self.pool.get('hr.loan')
-        loan_line_obj = self.pool.get('hr.loan.line')
-        
-        if context is None:
-            context = {}
-        res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, \
-            employee_id=employee_id, contract_id=contract_id, context=context)
 
-        if (not employee_id) or (not date_from) or (not date_to):
-            return res
-        
-        employee_id = employee_obj.browse(cr, uid, employee_id, context=context)
-        input_line_ids = res.get('value', {}) and res.get('value').get('input_line_ids', [])
-        for input_line in input_line_ids:
-            if loan_obj.get_condition(cr, uid, input_line.get('code'), context=context):
-                loan_line_ids = loan_line_obj.get_loan_line(cr, uid, employee_id, date_from, date_to, context=context)
-                if loan_line_ids:
-                    loan_line = loan_line_obj.browse(cr, uid, loan_line_ids, context)
-                    res['value']['loan_line_id'] = loan_line[0].id
-                    input_line['amount'] = loan_line_obj.get_amount(cr, uid, loan_line_ids, input_line['code'], context=context)
-        
-        return res
+class HRPayslipInput(models.Model):
+    _inherit = 'hr.payslip.input'
     
+    loan_line_ids = fields.Many2many('hr.loan.line', 'payslip_input_loan_line', 'payslip_input_id', 'loan_line_id', string='Loan Line')

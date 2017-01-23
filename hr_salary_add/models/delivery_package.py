@@ -264,5 +264,4 @@ class HRPayslip(models.Model):
         res['value']['pertambahan_bonus'] = pertambahan_bonus
         res['value']['nilai_bonus'] = nilai_bonus
         res['value']['total_paket'] = total_paket
-        print('res: %s' % res)
         return res

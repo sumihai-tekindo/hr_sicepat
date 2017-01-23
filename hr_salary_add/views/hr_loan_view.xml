@@ -1,5 +1,46 @@
 <openerp>
     <data>
+        <record model="ir.actions.act_window" id="action_loan_type">
+            <field name="name">Tipe Pinjaman</field>
+            <field name="res_model">hr.loan.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="loan_type_search_view">
+            <field name="name">loan.type.search</field>
+            <field name="model">hr.loan.type</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" filter_domain="['|', ('name','ilike',self), ('desc','ilike',self)]"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="loan_type_tree_view">
+            <field name="name">loan.type.tree</field>
+            <field name="model">hr.loan.type</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="desc"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="loan_type_form_view">
+            <field name="name">loan.type.form</field>
+            <field name="model">hr.loan.type</field>
+            <field name="arch" type="xml">
+                <form string="Loan Type Form">
+                    <group col="4">
+                        <field name="name"/>
+                        <field name="desc"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+    	
+        <menuitem id="menu_tipe_pinjaman" name="Tipe Pinjaman" 
+        		  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="action_loan_type"/>
+        
         <record id="hr_loan_submit_view" model="ir.ui.view">
             <field name="name">hr.loan.submit.form</field>
             <field name="model">hr.loan.submit</field>
