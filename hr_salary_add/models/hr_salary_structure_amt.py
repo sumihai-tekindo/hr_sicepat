@@ -93,7 +93,8 @@ class SalaryStructureLine(models.Model):
         @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
-        clause_final = [('department_id','=',employee.department_id.id), ('jabatan_id','=',employee.job_id.id), ('state','=','approved')] + clause_1
+        clause_2 = [('tanggal', '<=', date_to)]
+        clause_final = [('department_id','=',employee.department_id.id), ('jabatan_id','=',employee.job_id.id), ('state','=','approved'),'|'] + clause_1 + clause_2
         struc_line_ids = self.search(cr, uid, clause_final, order='tanggal desc', context=context)
         return struc_line_ids
 
