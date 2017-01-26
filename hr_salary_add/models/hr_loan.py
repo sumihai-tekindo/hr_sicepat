@@ -392,7 +392,7 @@ class HRPayslip(models.Model):
                 loan_line_ids = loan_line.get_loan_line(cr, uid, employee, date_from, date_to, res['code'], context=context)
                 if loan_line_ids:
                     res['amount'] = loan_line.get_amount(cr, uid, loan_line_ids, context=context)
-                    res['loan_line_ids'] = [(4, loan_line_ids)]
+                    res['loan_line_ids'] = [(6, 0, loan_line_ids)]
 
         return result
 
