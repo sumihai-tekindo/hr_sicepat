@@ -36,7 +36,7 @@ import openerp.addons.decimal_precision as dp
 class HRLoanType(models.Model):
     _name="hr.loan.type"
         
-    name = fields.Char(string='Number', size=52, required=True)
+    name = fields.Char(string='Name', size=52, required=True)
     desc = fields.Char(string='Description')
 
 

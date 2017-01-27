@@ -78,7 +78,9 @@ HR Sicepat Ekspres
         "data/hr_promotion_sequence.xml",
         "data/hr_salary_proposal_sequence.xml",
         "views/pengiriman_paket.xml",
-        "views/hr_employee_resign.xml"],
+        "views/hr_employee_resign.xml",
+        "views/res_company_view.xml",
+        ],
     # only loaded in demonstration mode
     'demo': [],
     'images': [],

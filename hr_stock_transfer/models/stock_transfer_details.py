@@ -88,6 +88,9 @@ class stock_transfer_details(models.TransientModel):
 				#write quant
 				quant = self.env['stock.quant'].search([('product_id','=',prod.product_id.id),('lot_id','=',prod.lot_id.id), \
 					('reservation_id','in',move_ids),('location_id','=',prod.sourceloc_id.id)])
+				if not quant and prod.lot_id.id:
+					quant = self.env['stock.quant'].search([('product_id','=',prod.product_id.id),('lot_id','=',prod.lot_id.id), \
+					('location_id','=',prod.sourceloc_id.id)])
 				if quant:
 					try:
 						quant=quant[0]

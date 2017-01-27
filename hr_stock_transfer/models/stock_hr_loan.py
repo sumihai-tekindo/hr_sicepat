@@ -42,6 +42,8 @@ class stock_quant(osv.osv):
 			date_install = int(current_date.strftime('%d'))>=20 and next_month or current_date.strftime('%Y-%m-20')
 			if context is None:
 				context = {}
+			employee = self.pool.get('hr.employee').browse(cr,uid,employee_id)
+			loan_type = employee and employee.company_id and employee.company_id.piutang_hp_loan_type_id and employee.company_id.piutang_hp_loan_type_id.id or False
 			loan_val = {
 				'employee_id'			: employee_id or False,
 				'nilai_pinjaman'		: cost,
@@ -49,12 +51,13 @@ class stock_quant(osv.osv):
 				'tenor_angsuran'		: 1, 
 				'tanggal_awal_angsuran'	: date_install,
 				'payment_method'		: 'other', 
+				'loan_type'				: loan_type,
 				}
 			if loan_state:
 				raise osv.except_osv(_('Error!'),_("There is an existing loan in  for employee %s. You should remove that loan by rejecting or deleting the loan if it is possible."%(operation.product_id.name,operation.employee_id.name)))
 			else:
 				loan_id = loan_pool.create(cr,SUPERUSER_ID,loan_val,context=context)
-				print "------------------",loan_id,quant_id
+				# print "------------------",loan_id,quant_id
 				self.pool.get('stock.quant').write(cr,SUPERUSER_ID,quant_id,{'loan_id':loan_id})
 				
 		return res
@@ -75,6 +78,7 @@ class stock_quant(osv.osv):
 											'loan_id': quant.loan_id or False,
 											'quant_id': quant.id or False,
 										}
+
 		move_obj = self.pool.get('account.move')
 		for cost, qty in quant_cost_qty.items():
 			if quant_analytic.get(cost,False):
@@ -85,6 +89,7 @@ class stock_quant(osv.osv):
 					'loan_id':quant_analytic.get(cost,False) and quant_analytic.get(cost).get('loan_id',False),
 					'quant_id':quant_analytic.get(cost,False) and quant_analytic.get(cost).get('quant_id',False),
 					})
+
 			move_lines = self._prepare_account_move_line(cr, uid, move, qty, cost, credit_account_id, debit_account_id, context=context)
 			period_id = context.get('force_period', self.pool.get('account.period').find(cr, uid, context=context)[0])
 
