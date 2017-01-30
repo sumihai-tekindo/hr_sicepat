@@ -11,3 +11,4 @@ import hr_loan
 import hr_employee
 import hr_employee_resign
 import res_company
+import hr_absence_summary

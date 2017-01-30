@@ -1,0 +1,45 @@
+<openerp>
+	<data>
+<!--	START SALARY PROPOSAL	-->
+		<record model="ir.actions.act_window" id="absence_summary_action">
+            <field name="name">Total Absensi</field>
+            <field name="res_model">hr.absence.summary</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="salary_proposal_tree_view">
+            <field name="name">absence_summary.tree</field>
+            <field name="model">hr.absence.summary</field>
+            <field name="arch" type="xml">
+                <tree string="Absence Summary Tree">
+                    <field name="employee_id"/>
+                    <field name="jumlah_kehadiran"/>
+                    <field name="periode"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="salary_proposal_form_view">
+            <field name="name">absence_summary.form</field>
+            <field name="model">hr.absence.summary</field>
+            <field name="arch" type="xml">
+                <form string="Absence Summary Form">
+                    <group>
+                    	<group>
+                    		<field name="employee_id"/>
+	                    	<field name="jumlah_kehadiran"/>
+	                    	<field name="periode"/>
+                    	</group>
+                    	<group></group>
+                    </group>
+                </form>
+            </field>
+        </record>
+<!--    END OF EMPLOYEE MUTASI    -->
+        
+<!--    START MENU ITEM    -->
+        <menuitem id="absence_summary" name="Total Absen" 
+        		  parent="hr_sicepat_salary"
+                  action="absence_summary_action" sequence="20"/>
+<!--    END OF MENU ITEM    	-->
+	</data>
+</openerp>
