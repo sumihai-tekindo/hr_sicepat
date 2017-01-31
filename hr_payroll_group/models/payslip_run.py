@@ -64,20 +64,31 @@ class hr_payslip_run_wizard(osv.osv_memory):
 				employee_ids = self.pool.get('hr.employee').search(cr,uid,[('department_id','=',dept.id)])
 				for emp in self.pool.get('hr.employee').browse(cr, uid, employee_ids, context=context):
 					slip_data = slip_pool.onchange_employee_id(cr, uid, [], from_date, to_date, emp.id, contract_id=False, context=context)
-					res = {
-						'employee_id': emp.id,
-						'name': slip_data['value'].get('name', False),
-						'struct_id': slip_data['value'].get('struct_id', False),
-						'contract_id': slip_data['value'].get('contract_id', False),
-						'payslip_run_id': run_id,
-						'input_line_ids': [(0, 0, x) for x in slip_data['value'].get('input_line_ids', False)],
-						'worked_days_line_ids': [(0, 0, x) for x in slip_data['value'].get('worked_days_line_ids', False)],
-						'date_from': from_date,
-						'date_to': to_date,
-						'credit_note': credit_note,
-						"journal_id" : slip_data['value'].get('journal_id',journal_id),
-					}
-					slip_ids.append(slip_pool.create(cr, uid, res, context=context))
+# 					res = {
+# 						'employee_id': emp.id,
+# 						'name': slip_data['value'].get('name', False),
+# 						'struct_id': slip_data['value'].get('struct_id', False),
+# 						'contract_id': slip_data['value'].get('contract_id', False),
+# 						'payslip_run_id': run_id,
+# 						'input_line_ids': [(0, 0, x) for x in slip_data['value'].get('input_line_ids', False)],
+# 						'worked_days_line_ids': [(0, 0, x) for x in slip_data['value'].get('worked_days_line_ids', False)],
+# 						'date_from': from_date,
+# 						'date_to': to_date,
+# 						'credit_note': credit_note,
+# 						"journal_id" : slip_data['value'].get('journal_id',journal_id),
+# 					}
+					vals = {}
+					vals['employee_id'] = emp.id
+					vals['payslip_run_id'] = run_id
+					vals['date_from'] = from_date
+					vals['date_to'] = to_date
+					vals['credit_note'] = credit_note
+					vals['journal_id'] = slip_data['value'].get('journal_id', journal_id)
+					for data in slip_data['value']:
+						vals[data] = slip_data['value'][data]
+						if data in ('input_line_ids', 'worked_days_line_ids'):
+							vals[data] = [(0, 0, x) for x in slip_data['value'][data]]
+					slip_ids.append(slip_pool.create(cr, uid, vals, context=context))
 			slip_pool.compute_sheet(cr, uid, slip_ids, context=context)
 		return {'type': 'ir.actions.act_window_close'}
 
