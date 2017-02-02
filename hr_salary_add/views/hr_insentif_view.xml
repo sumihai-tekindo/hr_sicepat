@@ -18,9 +18,7 @@
                     <field name="state"/>
                     <separator/>
                     <group expand="0" string="Group By">
-                        <filter string="Cabang" context="{'group_by':'department_id'}"/>
-                        <filter string="Status" context="{'group_by':'state'}"/>
-                        <separator/>
+                        <filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
                     	<filter name="group_by_request_id" string="Requestor" context="{'group_by':'request_id'}"/>
                     </group>
                 </search>
@@ -67,8 +65,8 @@
 		                <field name="insentif_line">
 		                    <tree string="Detail" editable="bottom">
 		                    	<field name="employee_id"/>
-		                    	<field name="department_id"/>
-		                		<field name="jabatan_id"/>
+		                		<field name="jabatan_id" options="{'no_open': True}"/>
+		                    	<field name="department_id" options="{'no_open': True}"/>
 		                		<field name="nilai_insentif"/>
 		                		<field name="alasan"/>
 		                    </tree>
