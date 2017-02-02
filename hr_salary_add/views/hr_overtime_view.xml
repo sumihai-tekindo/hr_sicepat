@@ -18,9 +18,7 @@
                     <field name="state"/>
                     <separator/>
                     <group expand="0" string="Group By">
-                        <filter string="Cabang" context="{'group_by':'department_id'}"/>
-                        <filter string="Status" context="{'group_by':'state'}"/>
-                        <separator/>
+                        <filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
                     	<filter name="group_by_request_id" string="Requestor" context="{'group_by':'request_id'}"/>
                     </group>
                 </search>
@@ -68,12 +66,13 @@
 		                </group>
 	                    <field name="overtime_line">
 	                    	<tree string="Detail" editable="bottom">
+		                    	<field name="overtime_id" invisible="1"/>
 		                    	<field name="employee_id"/>
-	                    		<field name="department_id"/>
-		                    	<field name="jabatan_id"/>
+		                    	<field name="jabatan_id" options="{'no_open': True}"/>
+		                    	<field name="department_id" options="{'no_open': True}"/>
 		                		<field name="nilai"/>
 		                		<field name="alasan"/>
-		                		<field name="state"/>
+		                		<field name="state" invisible="1"/>
 		                		<field name="overtime_state" invisible="1"/>
 		                		<button name="action_cancel" states="draft,cancel" type="object" string="Reject Lemburan" icon="gtk-cancel" attrs="{'readonly': [('overtime_state','!=','submit')]}"/>
 	                            <button name="action_confirm" states="draft,confirmed" type="object" string="Confirm Lemburan" icon="gtk-apply" attrs="{'readonly': [('overtime_state','!=','submit')]}"/>
