@@ -195,6 +195,7 @@
 	                	<filter name="group_by_employee" string="Karyawan" context="{'group_by':'employee_id'}"/>
 	                	<filter name="group_by_jabatan" string="Jabatan" context="{'group_by':'jabatan_id'}"/>
 	                	<filter name="group_by_department" string="Cabang" context="{'group_by':'department_id'}"/>
+	                	<filter name="group_by_loan_type" string="Loan Type" context="{'group_by':'loan_type'}"/>
                     </group>
                 </search>
             </field>
@@ -205,7 +206,7 @@
             <field name="arch" type="xml">
                 <tree string="Loan Tree">
                     <field name="name"/>
-                    <field name="loan_type" invisible="1"/>
+                    <field name="loan_type"/>
                     <field name="tanggal"/>
                     <field name="employee_id"/>
                     <field name="jabatan_id"/>

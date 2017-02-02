@@ -39,6 +39,16 @@ class HRLoanType(models.Model):
     name = fields.Char(string='Name', required=True)
     code = fields.Char(string='Code', size=52, required=True)
 
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        args = args or []
+        recs = self.browse()
+        if name:
+            recs = self.search([('code', '=', name)] + args, limit=limit)
+        if not recs:
+            recs = self.search([('name', operator, name)] + args, limit=limit)
+        return recs.name_get()
+
 
 class HRLoan(models.Model):
     # Private attributes
