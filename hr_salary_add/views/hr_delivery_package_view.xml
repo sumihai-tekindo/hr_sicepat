@@ -53,7 +53,7 @@
 		                    	<field name="target_paket_bulan_lalu"/>
 		                    </group>
 		            		<group>
-		                    	<field name="department_id"/>
+		                    	<field name="department_id" options="{'no_create_edit': True, 'no_open': True}"/>
 	                    		<field name="pertambahan_bonus"/>
 	                    		<field name="nilai_bonus"/>
 		                    	<field name="pertambahan_bonus_bulan_lalu"/>

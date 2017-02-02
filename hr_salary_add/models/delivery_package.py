@@ -123,12 +123,13 @@ class DeliveryPackage(models.Model):
         self.state = 'reject'
         
     # Business methods
-    def get_target(self, cr, uid, employee, date_from, date_to, context=None):
+    @api.model
+    def get_target(self, employee, date_from, date_to):
         """
         @param employee: browse record of employee
         @param date_from: date field
         @param date_to: date field
-        @return: returns the ids of all the delivery target for the given employee that need to be considered for the given dates
+        @return: returns records of all the delivery target for the given employee that need to be considered for the given dates
         """
         #a contract is valid if it ends between the given dates
         clause_1 = ['&',('date_end', '<=', date_to),('date_end','>=', date_from)]
@@ -137,7 +138,7 @@ class DeliveryPackage(models.Model):
         #OR if it starts before the date_from and finish after the date_end (or never finish)
         clause_3 = ['&',('date_start','<=', date_from),'|',('date_end', '=', False),('date_end','>=', date_to)]
         clause_final =  [('department_id', '=', employee.department_id.id),'|',('state','=','approved'),'|'] + clause_1 + clause_2 + clause_3
-        target_ids = self.search(cr, uid, clause_final, context=context)
+        target_ids = self.search(clause_final)
         return target_ids
 
 
@@ -147,10 +148,16 @@ class DeliveryPackageRun(models.Model):
     
     employee_id = fields.Many2one('hr.employee', 'Karyawan', required=True)
     date_delivery = fields.Date('Tanggal pengiriman', required=True)
-    department_id = fields.Many2one('hr.department', string='Nama Cabang', related='employee_id.department_id', readonly=True)
+    department_id = fields.Many2one('hr.department', string='Nama Cabang', compute='_get_employee', store=True, readonly=True)
     total_paket = fields.Integer(required=True)
 
-    def get_delivery(self, cr, uid, employee, date_from, date_to, context=None):
+    @api.one
+    @api.depends('employee_id')
+    def _get_employee(self):
+        self.department_id = self.employee_id.department_id.id
+        
+    @api.model
+    def get_delivery(self, employee, date_from, date_to):
         """
         @param employee: browse record of employee
         @param date_from: date field
@@ -161,9 +168,9 @@ class DeliveryPackageRun(models.Model):
         #a contract is valid if it ends between the given dates
         clause_1 = ['&',('date_delivery', '<=', date_to),('date_delivery','>=', date_from)]
         clause_final =  [('employee_id', '=', employee.id)] + clause_1
-        delivery_ids = self.search(cr, uid, clause_final, context=context)
+        delivery_ids = self.search(clause_final)
         if delivery_ids:
-            for delivery in self.browse(cr, uid, delivery_ids):
+            for delivery in delivery_ids:
                 total_delivery += delivery.total_paket 
         return total_delivery
 
@@ -235,29 +242,33 @@ class HRPayslip(models.Model):
             context = {}
         res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, \
             employee_id=employee_id, contract_id=contract_id, context=context)
+        res['value']['target_paket'] = 0
+        res['value']['nilai_target'] = 0.0
+        res['value']['pertambahan_bonus'] = 0
+        res['value']['nilai_bonus'] = 0.0
+        res['value']['total_paket'] = 0
 
         if (not employee_id) or (not date_from) or (not date_to):
             return res
         
         employee_id = employee_obj.browse(cr, uid, employee_id, context=context)
-        target_ids = target_obj.get_target(cr, uid, employee_id, date_from, date_to, context=context)
-        if not target_ids:
+        target = target_obj.get_target(cr, uid, employee_id, date_from, date_to, context=context)
+        if not target:
             return res
         
-        target = target_obj.browse(cr, uid, target_ids[0], context=context)
-        target_paket = target.target_paket
-        nilai_target = target.nilai_target
-        pertambahan_bonus = target.pertambahan_bonus
-        nilai_bonus = target.nilai_bonus
+        target_paket = target[0].target_paket
+        nilai_target = target[0].nilai_target
+        pertambahan_bonus = target[0].pertambahan_bonus
+        nilai_bonus = target[0].nilai_bonus
         total_paket = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
 
         input_line_ids = res.get('value', {}) and res.get('value').get('input_line_ids', [])
         for input_line in input_line_ids:
             if input_line.get('code') in ('TARGET', 'TBONUS'):
                 if input_line['code'] == 'TARGET':
-                    input_line['amount'] = nilai_target
+                    input_line['amount'] = total_paket and nilai_target or 0.0
                 if input_line['code'] == 'TBONUS':
-                    input_line['amount'] = int((total_paket - target_paket) / pertambahan_bonus) * nilai_bonus
+                    input_line['amount'] = total_paket and int((total_paket - target_paket) / pertambahan_bonus) * nilai_bonus or 0.0
         
         res['value']['target_paket'] = target_paket
         res['value']['nilai_target'] = nilai_target

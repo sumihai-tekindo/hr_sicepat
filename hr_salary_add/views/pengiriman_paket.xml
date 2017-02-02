@@ -34,7 +34,7 @@
 		            		<group>
 		                    	<field name="employee_id"/>
 			                    <field name="date_delivery"/>
-			                    <field name="department_id"/>
+			                    <field name="department_id" options="{'no_open': True}"/>
 			                    <field name="total_paket"/>
 		                    </group>
 		            		<group></group>
