@@ -25,6 +25,8 @@ import openerp.addons.decimal_precision as dp
 
 class SalaryStructure(models.Model):
     _name = 'hr.salary.structure'
+    _description= 'Sicepat Salary Structure'
+    _order = "tanggal desc, id desc"
     
     name = fields.Char(string='Number', readonly=True)
     request_id = fields.Many2one('res.users', string='Requestor', readonly=True,
@@ -42,6 +44,10 @@ class SalaryStructure(models.Model):
     structure_line = fields.One2many('salary.structure.line', 'structure_id', readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     
+    @api.multi
+    def action_draft(self):
+        self.state = 'draft'
+
     @api.multi
     def action_submit(self):
         self.state = 'submit'
@@ -73,7 +79,7 @@ class SalaryStructureLine(models.Model):
     _name = 'salary.structure.line'
     _rec_name = 'structure_id'
 
-    structure_id = fields.Many2one('hr.salary.structure', string='Salary Structure')
+    structure_id = fields.Many2one('hr.salary.structure', string='Salary Structure', ondelete='cascade', index=True)
     jabatan_id = fields.Many2one('hr.job', string='Jabatan', required=True)
     uang_makan = fields.Float(digits=dp.get_precision('Payroll'), string='Uang Makan')
     transport = fields.Float(digits=dp.get_precision('Payroll'), string='Transport')
@@ -82,10 +88,9 @@ class SalaryStructureLine(models.Model):
     tunj_jabatan = fields.Float(digits=dp.get_precision('Payroll'), string='Tunjangan Jabatan')
     service_motor = fields.Float(digits=dp.get_precision('Payroll'), string='Service Motor')
     tanggal = fields.Date(related='structure_id.tanggal', store=True)
-    department_id = fields.Many2one('hr.department', string='Nama Cabang', related='structure_id.department_id')
-    state = fields.Selection(related='structure_id.state', store=True, default='draft')
 
-    def get_structure_line(self, cr, uid, employee, date_from, date_to, context=None):
+    @api.model
+    def get_structure_line(self, employee, date_from, date_to):
         """
         @param employee: browse record of employee
         @param date_from: date field
@@ -94,26 +99,26 @@ class SalaryStructureLine(models.Model):
         """
         clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
         clause_2 = [('tanggal', '<=', date_to)]
-        clause_final = [('department_id','=',employee.department_id.id), ('jabatan_id','=',employee.job_id.id), ('state','=','approved'),'|'] + clause_1 + clause_2
-        struc_line_ids = self.search(cr, uid, clause_final, order='tanggal desc', context=context)
+        clause_final = [('structure_id.department_id','=',employee.department_id.id), ('jabatan_id','=',employee.job_id.id), ('structure_id.state','=','approved'),'|'] + clause_1 + clause_2
+        struc_line_ids = self.search(clause_final, order='tanggal desc')
         return struc_line_ids
 
-    def get_amount(self, cr, uid, ids, code, context=None):
+    @api.multi
+    def get_amount(self, code):
         """
         @param code: char field
         @return: returns amount based on code
         """
-        struct_line = self.browse(cr, uid, ids, context)
-        return struct_line[0][CODE2INPUT.get(code)]
+        return self[CODE2INPUT.get(code)]
 
-    def get_condition(self, cr, uid, code, context=None):
+    @api.model
+    def get_condition(self, code):
         """
         @param code: char field
         @return: returns True or False
         """
-        if code:
-            if code in CODE2INPUT:
-                return True
+        if code and code in CODE2INPUT:
+            return True
         return False
 
 class HRPayslip(models.Model):
@@ -133,6 +138,6 @@ class HRPayslip(models.Model):
             if struct_line.get_condition(cr, uid, result.get('code'), context=context):
                 struct_line_ids = struct_line.get_structure_line(cr, uid, employee, date_from, date_to, context=context)
                 if struct_line_ids:
-                    result['amount'] = struct_line.get_amount(cr, uid, struct_line_ids, result['code'], context=context)
+                    result['amount'] = struct_line_ids[0].get_amount(result['code'])
 
         return res

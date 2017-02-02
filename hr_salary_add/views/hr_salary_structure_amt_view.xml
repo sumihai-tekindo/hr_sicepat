@@ -18,8 +18,8 @@
                     <field name="state"/>
                     <separator/>
                     <group expand="0" string="Group By">
-                        <filter string="Cabang" context="{'group_by':'department_id'}"/>
-                        <filter string="Status" context="{'group_by':'state'}"/>
+                        <filter name="group_by_dept" string="Cabang" context="{'group_by':'department_id'}"/>
+                        <filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
                         <separator/>
                     	<filter name="group_by_request_id" string="Requestor" context="{'group_by':'request_id'}"/>
                     </group>
@@ -75,7 +75,7 @@
 			            		<field name="tunj_operasional"/>
 			            		<field name="tunj_jabatan"/>
 			            		<field name="service_motor"/>
-			            		<field name="state" invisible="1"/>
+<!--			            		<field name="state" invisible="1"/>-->
 			            	</tree>
 	                    </field>
 	            	</sheet>
