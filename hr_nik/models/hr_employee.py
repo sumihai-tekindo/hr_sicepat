@@ -36,31 +36,26 @@ class HrEmployee(models.Model):
         company = self.env.user.company_id
         employee_id = False
         if company.employee_id_gen_method == 'sequence':
-            employee_id = self.env['ir.sequence'].with_context(ir_sequence_date=self.tgl_masuk).get_id(
-                company.employee_id_sequence.id)
+            employee_id = self.env['ir.sequence'].get_id(company.employee_id_sequence.id)
         elif company.employee_id_gen_method == 'random':
             employee_id_random_digits = company.employee_id_random_digits
             tries = 0
             max_tries = 50
             while tries < max_tries:
                 rnd = random.SystemRandom()
-                employee_id = ''.join(rnd.choice(string.digits)
-                                      for _ in
-                                      xrange(employee_id_random_digits))
-                if not self.search_count([('nik',
-                                           '=',
-                                           employee_id)]):
+                employee_id = ''.join(rnd.choice(string.digits) for _ in xrange(employee_id_random_digits))
+                if not self.search_count([('nik', '=', employee_id)]):
                     break
                 tries += 1
             if tries == max_tries:
-                raise UserWarning(_('Unable to generate an Employee ID number that \
-                is unique.'))
+                raise UserWarning(_('Unable to generate an Employee ID number that is unique.'))
         return employee_id
 
     @api.model
     def create(self, vals):
         if not vals.get('nik'):
-            eid = self._generate_nik()
+            ctx = dict(self._context, ir_sequence_date=vals.get('tgl_masuk', fields.Date.context_today(self)))
+            eid = self.with_context(ctx)._generate_nik()
             vals['nik'] = eid
         return super(HrEmployee, self).create(vals)
     
@@ -71,7 +66,7 @@ class HrEmployee(models.Model):
         if name:
             recs = self.search(['|',('nik', '=', name),('name', '=', name)] + args, limit=limit)
         if not recs:
-            recs = self.search(['|',('name', operator, name),('nik', operator, name)] + args, limit=limit)
+            recs = self.search(['|',('nik', operator, name),('name', operator, name)] + args, limit=limit)
         return recs.name_get()
 
     @api.multi
@@ -79,7 +74,7 @@ class HrEmployee(models.Model):
         result = []
         for employee in self:
             name = employee.name_related or ''
-            if(employee.nik):
-                name="[%s] %s" % (employee.nik,name)
+            if employee.nik:
+                name = "[%s] %s" % (employee.nik, name)
             result.append((employee.id, name))
         return result
