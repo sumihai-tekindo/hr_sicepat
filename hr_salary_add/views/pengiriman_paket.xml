@@ -7,6 +7,22 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
+        <record model="ir.ui.view" id="pengiriman_paket_search_view">
+            <field name="name">pengiriman.paket.search</field>
+            <field name="model">delivery.package.run</field>
+            <field name="arch" type="xml">
+                <search string="Pengiriman Paket">
+                    <field name="employee_id"/>
+                    <field name="date_delivery"/>
+                    <field name="department_id"/>
+                    <group expand="0" string="Group By">
+	                	<filter name="group_by_employee" string="Karyawan" context="{'group_by':'employee_id'}"/>
+	                	<filter name="group_by_department" string="Cabang" context="{'group_by':'department_id'}"/>
+	                	<filter name="group_by_date" string="Tanggal" context="{'group_by':'date_delivery'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record model="ir.ui.view" id="pengiriman_paket_tree_view">
             <field name="name">pengiriman_paket.tree</field>
             <field name="model">delivery.package.run</field>
