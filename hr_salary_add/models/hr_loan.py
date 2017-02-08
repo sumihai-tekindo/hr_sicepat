@@ -82,7 +82,7 @@ class HRLoan(models.Model):
     sisa_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string="Sisa Angsuran", compute='_compute_angsuran')
     tanggal_awal_angsuran = fields.Date(string="Tanggal mulai angsuran", required=True, default=lambda *a: str(datetime.now() + relativedelta(day=20))[:10], readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    notes = fields.Text(readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+    notes = fields.Text(readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)], 'reject': [('readonly', False)], 'approved': [('readonly', False)]})
     loan_line = fields.One2many('hr.loan.line', 'loan_id', index=True)
     alasan_reject = fields.Text(readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     payment_method = fields.Selection([

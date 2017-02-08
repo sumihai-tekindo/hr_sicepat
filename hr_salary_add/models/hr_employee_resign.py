@@ -1,4 +1,6 @@
 from openerp import api, fields, models
+from openerp.exceptions import Warning
+from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
 
 class HREmployeeResign(models.Model):
@@ -25,7 +27,11 @@ class HREmployeeResign(models.Model):
     
     @api.multi
     def action_submit(self):
-        self.state = 'submit'
+        employee = self.env['hr.employee'].search([('id','=',self.employee_id.id)])
+        if(employee.sisa_pinjaman==0):
+            self.state = 'submit'
+        else:
+            raise Warning(_("Masih ada outstanding piutang karyawan. Silahkan di selesaikan terlebih dahulu, baru Submit pengajuan Karyawan Resign ini."))
 
     @api.multi
     def action_approve(self):
