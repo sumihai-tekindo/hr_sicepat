@@ -266,7 +266,7 @@
                         </group>
                         <notebook>
                             <page string="Installments" attrs="{'invisible':[('state','not in',('approved', 'close'))]}">
-                                <field name="loan_line" options="{'reload_on_button': true}" readonly="[('state','not in',('approved'))]">
+                                <field name="loan_line" options="{'reload_on_button': true}" attrs="{'readonly':[('state','!=','approved')]}">
                                     <tree string="Loan Line" editable="bottom">
                                         <field name="loan_id" invisible="1"/>
                                         <field name="paid" readonly="1"/>

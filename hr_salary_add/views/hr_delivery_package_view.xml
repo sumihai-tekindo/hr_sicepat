@@ -1,11 +1,74 @@
 <openerp>
 	<data>
+        <record model="ir.actions.act_window" id="action_delivery_zone">
+            <field name="name">Delivery Zone</field>
+            <field name="res_model">delivery.package.zone</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="delivery_zone_search_view">
+            <field name="name">delivery.zone.search</field>
+            <field name="model">delivery.package.zone</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" filter_domain="[('name','ilike',self)]"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="delivery_zone_tree_view">
+            <field name="name">delivery.zone.tree</field>
+            <field name="model">delivery.package.zone</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="delivery_zone_form_view">
+            <field name="name">delivery.zone.form</field>
+            <field name="model">delivery.package.zone</field>
+            <field name="arch" type="xml">
+                <form string="Delivery Zone">
+                    <group col="4">
+                        <field name="name"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+    	
+        <menuitem id="menu_delivery_zone" name="Delivery Zone" 
+        		  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="action_delivery_zone"/>
+        
 <!--	START TARGET PAKET	-->
 		<record model="ir.actions.act_window" id="target_paket_action">
             <field name="name">Target Paket</field>
             <field name="res_model">delivery.package.target</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="target_paket_search_view">
+            <field name="name">target.paket.search</field>
+            <field name="model">delivery.package.target</field>
+            <field name="arch" type="xml">
+                <search string="Target Paket">
+                    <field name="name"/>
+                    <field name="department_id"/>
+                    <field name="zone_id"/>
+                    <separator/>
+            		<filter name="open" string="Open" domain="[('state','=','draft')]"/>
+            		<filter name="submit" string="Submit" domain="[('state','=','submit')]"/>
+            		<filter name="reject" string="Reject" domain="[('state','=','reject')]"/>
+            		<filter name="approved" string="Approved" domain="[('state','=','approved')]"/>
+            		<separator/>
+            		<filter domain="[('state','=','draft')]" help="To Submit"/>
+            		<filter domain="[('state','=','submit')]" help="To Approve"/>
+                    <group expand="0" string="Group By">
+	                	<filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
+	                	<filter name="group_by_department" string="Cabang" context="{'group_by':'department_id'}"/>
+	                	<filter name="group_by_zone" string="Zone" context="{'group_by':'zone_id'}"/>
+                    </group>
+                </search>
+            </field>
         </record>
         <record model="ir.ui.view" id="target_paket_tree_view">
             <field name="name">target_paket.tree</field>
@@ -14,6 +77,7 @@
                 <tree string="Target Paket">
                     <field name="name"/>
                     <field name="department_id"/>
+                    <field name="zone_id"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
                     <field name="target_paket"/>
@@ -54,6 +118,7 @@
 		                    </group>
 		            		<group>
 		                    	<field name="department_id" options="{'no_create_edit': True, 'no_open': True}"/>
+		                    	<field name="zone_id" options="{'no_create_edit': True, 'no_open': True}"/>
 	                    		<field name="pertambahan_bonus"/>
 	                    		<field name="nilai_bonus"/>
 		                    	<field name="pertambahan_bonus_bulan_lalu"/>
@@ -70,6 +135,17 @@
                   action="target_paket_action" sequence="4"/>
 <!--    END OF MENU ITEM    	-->
 
+		<record id="view_employee_form_zone" model="ir.ui.view">
+			<field name="name">hr.employee.form.zone</field>
+			<field name="model">hr.employee</field>
+			<field name="inherit_id" ref="hr.view_employee_form"/>
+			<field name="arch" type="xml">
+				<field name="department_id" position="after">
+					<field name="zone_id"/>
+				</field>
+			</field>
+		</record>
+		
 		<record id="hr_payslip_form_target" model="ir.ui.view">
 			<field name="name">hr.payslip.form.target</field>
 			<field name="model">hr.payslip</field>

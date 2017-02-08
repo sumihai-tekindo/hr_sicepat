@@ -30,9 +30,16 @@ from openerp.exceptions import AccessError, Warning
 # 3 :  imports from odoo modules
 import openerp.addons.decimal_precision as dp
 
+class DeliveryPackageZone(models.Model):
+    _name = "delivery.package.zone"
+    
+    name = fields.Char('Zone Name', required=True)
+
+    
 class DeliveryPackage(models.Model):
     # Private attributes
     _name = "delivery.package.target"
+    _order = "date_end desc, id desc"
     
     # Default methods
 
@@ -61,6 +68,7 @@ class DeliveryPackage(models.Model):
             ('reject','Reject'),
             ('approved','Approved'),
         ], string='Status', default='draft')
+    zone_id = fields.Many2one('delivery.package.zone', 'Zone ID')
     
     # compute and search fields, in the same order that fields declaration
     @api.one
@@ -71,7 +79,7 @@ class DeliveryPackage(models.Model):
         clause_2 = ['&',('date_start', '<', self.date_end),('date_start','<', self.date_start)]
         #OR if it starts before the date_from and finish after the date_end (or never finish)
         clause_3 = ['&',('date_start','<', self.date_start),'|',('date_end', '=', False),('date_end','<', self.date_end)]
-        clause_final =  [('department_id', '=', self.department_id.id),('state','=','approved'),'|','|'] + clause_1 + clause_2 + clause_3
+        clause_final =  [('department_id', '=', self.department_id.id),self.zone_id and ('zone_id', '=', self.zone_id.id) or ('zone_id', '=', False),('state','=','approved'),'|','|'] + clause_1 + clause_2 + clause_3
         delivery_ids = self.search(clause_final, order='date_end desc')
         if delivery_ids:
             self.target_paket_bulan_lalu = delivery_ids[0].target_paket
@@ -85,6 +93,7 @@ class DeliveryPackage(models.Model):
             if package_target.state != 'approved':
                 continue
             where = []
+            where.append(package_target.zone_id and "(zone_id=%s)" % (package_target.zone_id.id,) or "(zone_id is null)")
             if package_target.date_start:
                 where.append("((date_end>='%s') or (date_end is null))" % (package_target.date_start,))
             if package_target.date_end:
@@ -131,13 +140,13 @@ class DeliveryPackage(models.Model):
         @param date_to: date field
         @return: returns records of all the delivery target for the given employee that need to be considered for the given dates
         """
-        #a contract is valid if it ends between the given dates
+        #a delivery target is valid if it ends between the given dates
         clause_1 = ['&',('date_end', '<=', date_to),('date_end','>=', date_from)]
         #OR if it starts between the given dates
         clause_2 = ['&',('date_start', '<=', date_to),('date_start','>=', date_from)]
         #OR if it starts before the date_from and finish after the date_end (or never finish)
         clause_3 = ['&',('date_start','<=', date_from),'|',('date_end', '=', False),('date_end','>=', date_to)]
-        clause_final =  [('department_id', '=', employee.department_id.id),'|',('state','=','approved'),'|'] + clause_1 + clause_2 + clause_3
+        clause_final =  [('department_id', '=', employee.department_id.id), employee.zone_id and ('zone_id', '=', employee.zone_id.id) or ('zone_id', '=', False),'|',('state','=','approved'),'|'] + clause_1 + clause_2 + clause_3
         target_ids = self.search(clause_final)
         return target_ids
 
@@ -173,6 +182,13 @@ class DeliveryPackageRun(models.Model):
             for delivery in delivery_ids:
                 total_delivery += delivery.total_paket 
         return total_delivery
+
+
+class HREmployee(models.Model):
+    _inherit = 'hr.employee'
+
+    zone_id = fields.Many2one('delivery.package.zone', 'Zone ID')
+
 
 class HRPayslip(models.Model):
     _inherit = 'hr.payslip'
