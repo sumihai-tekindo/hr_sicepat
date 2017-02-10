@@ -74,7 +74,7 @@ class HROvertime(models.Model):
 
 class HROvertimeLine(models.Model):
     _name = 'hr.overtime.line'
-    _rec_name = 'overtime_id'
+    _rec_name = 'employee_id'
     
     overtime_id = fields.Many2one('hr.overtime', string='Overtime')
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True)
