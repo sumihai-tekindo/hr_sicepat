@@ -63,7 +63,14 @@ class hr_payslip_run_wizard(osv.osv_memory):
 				run_id = self.pool.get("hr.payslip.run").create(cr,uid,value,context=context)
 				employee_ids = self.pool.get('hr.employee').search(cr,uid,[('department_id','=',dept.id)])
 				for emp in self.pool.get('hr.employee').browse(cr, uid, employee_ids, context=context):
-					slip_data = slip_pool.onchange_employee_id(cr, uid, [], from_date, to_date, emp.id, contract_id=False, context=context)
+					vals = {}
+					vals['employee_id'] = emp.id
+					vals['payslip_run_id'] = run_id
+					vals['date_from'] = from_date
+					vals['date_to'] = to_date
+					vals['credit_note'] = credit_note
+					vals['journal_id'] = journal_id
+					slip_data = slip_pool.onchange_employee_id(cr, uid, [], from_date, to_date, employee_id=emp.id, contract_id=False, context=context)
 # 					res = {
 # 						'employee_id': emp.id,
 # 						'name': slip_data['value'].get('name', False),
@@ -77,13 +84,10 @@ class hr_payslip_run_wizard(osv.osv_memory):
 # 						'credit_note': credit_note,
 # 						"journal_id" : slip_data['value'].get('journal_id',journal_id),
 # 					}
-					vals = {}
-					vals['employee_id'] = emp.id
-					vals['payslip_run_id'] = run_id
-					vals['date_from'] = from_date
-					vals['date_to'] = to_date
-					vals['credit_note'] = credit_note
-					vals['journal_id'] = slip_data['value'].get('journal_id', journal_id)
+# 					slip_ids.append(slip_pool.create(cr, uid, res, context=context))
+					if not slip_data['value'].get('contract_id', False):
+						continue
+					slip_data = slip_pool.onchange_contract_id(cr, uid, [], from_date, to_date, employee_id=emp.id, contract_id=slip_data['value']['contract_id'], context=context)
 					for data in slip_data['value']:
 						vals[data] = slip_data['value'][data]
 						if data in ('input_line_ids', 'worked_days_line_ids'):
