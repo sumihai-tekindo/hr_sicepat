@@ -176,8 +176,5 @@
                 </form>
             </field>
         </record>
-        <menuitem id="loan_line_wizard_menu" name="Search Unpaid Installment" 
-                  parent="sub_loan_menu"
-                  action="unpaid_loan_wizard_action" sequence="20"/>
     </data>
 </openerp>

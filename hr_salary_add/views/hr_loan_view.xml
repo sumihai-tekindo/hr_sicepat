@@ -273,6 +273,9 @@
         <menuitem id="loan_line_menu" name="Unpaid Installment" 
                   parent="sub_loan_menu"
                   action="unpaid_loan_action" sequence="15"/>
+        <menuitem id="loan_line_wizard_menu" name="Search Unpaid Installment" 
+                  parent="sub_loan_menu"
+                  action="unpaid_loan_wizard_action" sequence="20"/>
 <!--    END OF MENU ITEM        -->
                 
         <record id="act_hr_employee_loan_request" model="ir.actions.act_window">
