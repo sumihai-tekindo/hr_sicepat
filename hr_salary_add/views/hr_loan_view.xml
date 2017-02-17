@@ -41,130 +41,6 @@
         		  parent="hr_salary_add.hr_sicepat_configuration"
                   action="action_loan_type"/>
         
-        <record id="hr_loan_submit_view" model="ir.ui.view">
-            <field name="name">hr.loan.submit.form</field>
-            <field name="model">hr.loan.submit</field>
-            <field name="arch" type="xml">
-                <form string="Submit Loan">
-                    <p class="oe_grey">
-                        This wizard will submit the all the selected open loan.
-                    </p>
-                    <footer>
-                        <button string="Submit" name="loan_submit" type="object" default_focus="1" class="oe_highlight"/>
-                        or
-                        <button string="Cancel" class="oe_link" special="cancel"/>
-                    </footer>
-                </form>
-            </field>
-        </record>
-        <act_window id="loan_submit_action"
-            name="Submit"
-            src_model="hr.loan"
-            res_model="hr.loan.submit"
-            view_type="form" view_mode="form"
-            key2="client_action_multi" target="new"/>
-        
-        <record id="hr_loan_approve_view" model="ir.ui.view">
-            <field name="name">hr.loan.approve.form</field>
-            <field name="model">hr.loan.approve</field>
-            <field name="arch" type="xml">
-                <form string="Approve Loan">
-                    <p class="oe_grey">
-                        This wizard will approve the all the selected submit loan.
-                    </p>
-                    <footer>
-                        <button string="Approve" name="loan_approve" type="object" default_focus="1" class="oe_highlight"/>
-                        or
-                        <button string="Cancel" class="oe_link" special="cancel"/>
-                    </footer>
-                </form>
-            </field>
-        </record>
-        <act_window id="loan_approve_action"
-            name="Approve"
-            src_model="hr.loan"
-            res_model="hr.loan.approve"
-            view_type="form" view_mode="form"
-            key2="client_action_multi" target="new"/>
-
-
-        <record id="loan_reject_wizard_view" model="ir.ui.view">
-            <field name="name">Reject Loan</field>
-            <field name="model">hr.loan.reject_wizard</field>
-            <field name="arch" type="xml">
-                <form string="Reject Loan">
-                    <field name="loan_ids"/>
-                    <footer>
-                        <button string="Reject" name="reject_loan_button" type="object" class="oe_highlight"/>
-                        or
-                        <button string="Cancel" class="oe_link" special="cancel" />
-                    </footer>
-                </form>
-            </field>
-        </record>
-        <record id="loan_reject_wizard_tree_view" model="ir.ui.view">
-            <field name="name">Loan Reject View</field>
-            <field name="model">hr.loan.reject</field>
-            <field name="arch" type="xml">
-                <!-- the user list is editable, but one cannot add or delete rows -->
-                <tree string="Loan" editable="bottom" create="false" delete="false">
-                    <field name="loan_id"/>
-                    <field name="employee_id"/>
-                    <field name="nilai_pinjaman"/>
-                    <field name="alasan_reject" required="True"/>
-                </tree>
-            </field>
-        </record>
-        
-        <record id="action_wizard_reject_loan" model="ir.actions.act_window">
-            <field name="name">Reject Loan</field>
-            <field name="res_model">hr.loan.reject_wizard</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">form</field>
-            <field name="view_id" ref="hr_salary_add.loan_reject_wizard_view"/>
-            <field name="target">new</field>
-        </record>
-        <record model="ir.values" id="values_wizard_reject_loan">
-            <field name="model_id" ref="model_hr_loan" />
-            <field name="name">action_wizard_reject_loan</field>
-            <field name="key2">client_action_multi</field>
-            <field name="value" eval="'ir.actions.act_window,' + str(ref('hr_salary_add.action_wizard_reject_loan'))" />
-            <field name="key">action</field>
-            <field name="model">hr.loan</field>
-        </record>
-
-        <record id="hr_loan_close_view" model="ir.ui.view">
-            <field name="name">hr.loan.close.form</field>
-            <field name="model">hr.loan.close</field>
-            <field name="arch" type="xml">
-                <form string="Close Loan">
-                    <p class="oe_grey">
-                        This wizard will close the selected approve loan.
-                    </p>
-                    <group col="4">
-                    	<field name="loan_id"/>
-                    	<field name="loan_type"/>
-                    	<field name="employee_id"/>
-                    	<field name="nilai_pinjaman"/>
-                    </group>
-                    <label for="notes"/>
-                    <field name="notes"/>
-                    <footer>
-                        <button string="Close" name="close_button" type="object" default_focus="1" class="oe_highlight"/>
-                        or
-                        <button string="Cancel" class="oe_link" special="cancel"/>
-                    </footer>
-                </form>
-            </field>
-        </record>
-        <act_window id="loan_close_action"
-            name="Close"
-            src_model="hr.loan"
-            res_model="hr.loan.close"
-            view_type="form" view_mode="form"
-            key2="client_action_multi" target="new"/>
-        
-        
 <!--    START LOAN  -->
         <record model="ir.actions.act_window" id="loan_action">
             <field name="name">Pinjaman Karyawan</field>
@@ -307,12 +183,96 @@
                 </form>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="unpaid_loan_line_search_view">
+            <field name="name">unpaid.loan.line.search</field>
+            <field name="model">hr.loan.line</field>
+            <field name="arch" type="xml">
+                <search string="Unpaid Installment">
+                    <field name="loan_id"/>
+                    <field name="tanggal_angsuran"/>
+                    <field name="employee_id"/>
+                    <field name="jabatan_id"/>
+                    <field name="department_id"/>
+                    <field name="loan_type"/>
+                    <separator/>
+            		<filter name="posted" string="Posted" domain="[('posted','=',True)]"/>
+            		<filter name="unposted" string="Unposted" domain="[('posted','=',False)]"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="unpaid_loan_line_tree_view">
+            <field name="name">unpaid.loan.line.tree</field>
+            <field name="model">hr.loan.line</field>
+            <field name="arch" type="xml">
+                <tree string="Unpaid Installment" edit="false" create="false" delete="false">
+                    <field name="loan_id" invisible="1"/>
+                    <field name="paid"/>
+                    <field name="posted"/>
+                    <field name="loan_type"/>
+                    <field name="tanggal_angsuran"/>
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <field name="nilai_pinjaman"/>
+                    <field name="tenor_angsuran"/>
+                    <field name="nilai_angsuran"/>
+                    <field name="sisa_tenor"/>
+                    <field name="total_bayar_angsuran"/>
+                    <field name="sisa_angsuran"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="unpaid_loan_line_form_view">
+            <field name="name">unpaid.loan.line.form</field>
+            <field name="model">hr.loan.line</field>
+            <field name="arch" type="xml">
+                <form string="Unpaid Installment" create="false" delete="false">
+                	<header>
+                        <button name="action_post" type="object"
+                            string="Post" class="oe_highlight" attrs="{'invisible':[('posted','=',True)]}"/>
+                        <button name="action_undo_post" type="object"
+                            string="Unpost" attrs="{'invisible':['|',('posted','=',False),('paid','=',True)]}"/>
+                	</header>
+                	<group col="4">
+	                    <field name="loan_id" readonly="1"/>
+	                    <field name="tanggal_angsuran" readonly="1"/>
+	                    <field name="posted" readonly="1"/>
+	                    <field name="paid" readonly="1"/>
+	                    <field name="loan_type"/>
+	                    <field name="employee_id"/>
+	                    <field name="jabatan_id"/>
+	                    <field name="department_id"/>
+	                    <field name="nilai_pinjaman"/>
+	                    <field name="tenor_angsuran"/>
+	                    <field name="nilai_angsuran" attrs="{'readonly':[('posted','=',True)]}"/>
+	                    <field name="sisa_tenor"/>
+	                    <field name="total_bayar_angsuran"/>
+	                    <field name="sisa_angsuran"/>
+                	</group>
+                </form>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="unpaid_loan_action">
+            <field name="name">Unpaid Installment</field>
+            <field name="res_model">hr.loan.line</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+            <field name="domain">[('paid','=',False)]</field>
+            <field name="view_id" ref="unpaid_loan_line_tree_view"/>
+        </record>
 <!--    END OF LOAN    -->
     
 <!--    START MENU ITEM    -->
-        <menuitem id="loan_menu" name="Pinjaman" 
+        <menuitem id="sub_loan_menu" name="Pinjaman" 
                   parent="hr_sicepat_salary"
-                  action="loan_action" sequence="9"/>
+                  sequence="9"/>
+        <menuitem id="loan_menu" name="Pinjaman" 
+                  parent="sub_loan_menu"
+                  action="loan_action" sequence="10"/>
+        <menuitem id="loan_line_menu" name="Unpaid Installment" 
+                  parent="sub_loan_menu"
+                  action="unpaid_loan_action" sequence="15"/>
 <!--    END OF MENU ITEM        -->
                 
         <record id="act_hr_employee_loan_request" model="ir.actions.act_window">

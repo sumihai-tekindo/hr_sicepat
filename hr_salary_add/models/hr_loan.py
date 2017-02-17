@@ -82,7 +82,7 @@ class HRLoan(models.Model):
     sisa_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string="Sisa Angsuran", compute='_compute_angsuran')
     tanggal_awal_angsuran = fields.Date(string="Tanggal mulai angsuran", required=True, default=lambda *a: str(datetime.now() + relativedelta(day=20))[:10], readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    notes = fields.Text(readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)], 'reject': [('readonly', False)], 'approved': [('readonly', False)]})
+    notes = fields.Text(states={'close': [('readonly', True)]})
     loan_line = fields.One2many('hr.loan.line', 'loan_id', index=True)
     alasan_reject = fields.Text(readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     payment_method = fields.Selection([
@@ -212,6 +212,7 @@ class HRLoan(models.Model):
 class HRLoanLine(models.Model):
     # Private attributes
     _name = "hr.loan.line"
+    _order = "tanggal_angsuran, loan_id desc"
     
     # Default methods
     
@@ -220,15 +221,38 @@ class HRLoanLine(models.Model):
     loan_id = fields.Many2one('hr.loan', string="Loan #", ondelete='cascade')
     tanggal_angsuran = fields.Date(string='Tanggal Angsuran', required=True)
     nilai_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Angsuran')
-    total_nilai_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Total Nilai Angsuran')
-    sisa_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Sisa Angsuran')
+#     total_nilai_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Total Nilai Angsuran')
+#     sisa_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Sisa Angsuran')
     keterangan = fields.Text(string='Notes')
     posted = fields.Boolean()
     paid = fields.Boolean()
+    loan_type = fields.Many2one('hr.loan.type', 'Loan Type', related='loan_id.loan_type')
+    employee_id = fields.Many2one('hr.employee', 'Nama Karyawan', related='loan_id.employee_id')
+    jabatan_id = fields.Many2one('hr.job', string='Jabatan', related='loan_id.jabatan_id')
+    department_id = fields.Many2one('hr.department', string='Nama Cabang', related='loan_id.department_id')
+    nilai_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Pinjaman', related='loan_id.nilai_pinjaman')
+    tenor_angsuran = fields.Integer(string='Tenor', related='loan_id.tenor_angsuran')
+    nilai_tenor = fields.Float(digits=dp.get_precision('Payroll'), string="Angsuran Per Bulan", related='loan_id.nilai_angsuran')
+    sisa_tenor = fields.Integer(string="Sisa Tenor", compute='_get_info_loan_line')
+    total_bayar_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Total Bayar Angsuran', compute='_get_info_loan_line')
+    sisa_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string="Sisa Angsuran", compute='_get_info_loan_line')
 
     # compute and search fields, in the same order that fields declaration
-
-
+    @api.one
+    @api.depends('loan_id', 'tanggal_angsuran', 'nilai_angsuran', 'tenor_angsuran', 'nilai_pinjaman', 'paid')
+    def _get_info_loan_line(self):
+        self.total_bayar_angsuran = self.loan_id.total_bayar_angsuran
+        self.sisa_angsuran = self.loan_id.sisa_angsuran
+        total_nilai_angsuran = 0.0
+        x_paid = 0
+        for loan_line in self.search([('loan_id','=',self.loan_id.id),('paid','=',True),('tanggal_angsuran','<=',self.tanggal_angsuran)]):
+            if loan_line.id != self.id:
+                x_paid += 1
+                total_nilai_angsuran += loan_line.nilai_angsuran
+        self.sisa_tenor = self.tenor_angsuran - x_paid
+        self.total_bayar_angsuran = total_nilai_angsuran
+        self.sisa_angsuran = self.nilai_pinjaman - total_nilai_angsuran
+        
     # Constraints and onchanges
 
 
@@ -251,6 +275,7 @@ class HRLoanLine(models.Model):
         @param employee: browse record of employee
         @param date_from: date field
         @param date_to: date field
+        @param code: char field
         @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal_angsuran', '<=', date_to),('tanggal_angsuran','>=', date_from)]
@@ -261,8 +286,7 @@ class HRLoanLine(models.Model):
     @api.multi
     def get_amount(self):
         """
-        @param code: char field
-        @return: returns amount based on code
+        @return: returns total amount in records
         """
         amount = 0.0
         for l in self:
@@ -279,117 +303,6 @@ class HRLoanLine(models.Model):
         if code and code in code_from_type:
             return True
         return False
-
-class HRLoanSubmit(models.TransientModel):
-    """
-    This wizard will submit the all the selected open loan
-    """
-
-    _name = "hr.loan.submit"
-    _description = "Submit the selected loan"
-
-    @api.multi
-    def loan_submit(self):
-        context = dict(self._context or {})
-        active_ids = context.get('active_ids', []) or []
-
-        for record in self.env['hr.loan'].browse(active_ids):
-            if record.state not in ('draft'):
-                raise Warning(_("Selected loan(s) cannot be submitted as they are not in 'Open' state."))
-            record.action_submit()
-            
-        return {'type': 'ir.actions.act_window_close'}
-
-class HRLoanApprove(models.TransientModel):
-    """
-    This wizard will approve the all the selected submit loan
-    """
-
-    _name = "hr.loan.approve"
-    _description = "Approve the selected loan"
-
-    @api.multi
-    def loan_approve(self):
-        context = dict(self._context or {})
-        active_ids = context.get('active_ids', []) or []
-
-        for record in self.env['hr.loan'].browse(active_ids):
-            if record.state not in ('submit'):
-                raise Warning(_("Selected loan(s) cannot be approved as they are not in 'Submit' state."))
-            record.action_approve()
-            
-        return {'type': 'ir.actions.act_window_close'}
-
-class HRLoanRejectWizard(models.TransientModel):
-    _name = "hr.loan.reject_wizard"
-    _description = "Loan Reject Wizard"
-    
-    @api.model
-    def _default_loan_ids(self):
-        context = dict(self._context or {})
-        loan_model = self.env['hr.loan']
-        loan_ids = context.get('active_model') == 'hr.loan' and context.get('active_ids') or []
-        return [
-            (0, 0, {'loan_id': loan.id, 'employee_id': loan.employee_id.id, 'loan_type': loan.loan_type.id, 'nilai_pinjaman': loan.nilai_pinjaman})
-            for loan in loan_model.browse(loan_ids)
-        ]
-
-    loan_ids = fields.One2many('hr.loan.reject', 'wizard_id', string='Loan', default=_default_loan_ids)
-    
-    @api.multi
-    def reject_loan_button(self):
-        for line in self.loan_ids:
-            if line.loan_id.state not in ('submit'):
-                raise Warning(_('You cannot reject loan which is not Submit. You should submit it instead.'))
-        line_ids = [line.id for line in self.loan_ids]
-        self.env['hr.loan.reject'].browse(line_ids).reject_button()
-        return {'type': 'ir.actions.act_window_close'}
-
-class HRLoanReject(models.TransientModel):
-    _name = "hr.loan.reject"
-    _description = "Loan Reject"
-    
-    wizard_id = fields.Many2one('hr.loan.reject_wizard', string='Wizard', required=True)
-    loan_id = fields.Many2one('hr.loan', string='Loan', required=True, readonly=True)
-    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True)
-    loan_type = fields.Many2one('hr.loan.type', string='Loan Type', required=True, readonly=True)
-    nilai_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Pinjaman', required=True, readonly=True)
-    alasan_reject = fields.Text('Alasan Reject')
-    
-    @api.multi
-    def reject_button(self):
-        for loan in self:
-            loan.loan_id.write({'alasan_reject': loan.alasan_reject})
-            loan.loan_id.action_reject()
-        # don't keep temporary notes in the database longer than necessary
-        self.write({'alasan_reject': False})
-
-class HRLoanClose(models.TransientModel):
-    _name = "hr.loan.close"
-    _description = "Loan Close"
-    
-    @api.model
-    def default_get(self, fields_list):
-        context = dict(self._context or {})
-        result = super(HRLoanClose, self).default_get(fields_list)
-        loan_ids = context.get('active_model') == 'hr.loan' and context.get('active_ids') or []
-        loan = self.env['hr.loan'].browse(loan_ids)
-        result.update({'loan_id': loan.id, 'employee_id': loan.employee_id.id, 'loan_type': loan.loan_type.id, 'nilai_pinjaman': loan.nilai_pinjaman})
-        return result
-        
-    loan_id = fields.Many2one('hr.loan', string='Loan', required=True, readonly=True)
-    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True)
-    loan_type = fields.Many2one('hr.loan.type', string='Loan Type', required=True, readonly=True)
-    nilai_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Pinjaman', required=True, readonly=True)
-    notes = fields.Text('Notes')
-    
-    @api.multi
-    def close_button(self):
-        for loan in self:
-            loan.loan_id.write({'notes': loan.loan_id.notes + '\n' + loan.notes})
-            loan.loan_id.action_close()
-        # don't keep temporary notes in the database longer than necessary
-        self.write({'notes': False})
 
 class HREmployee(models.Model):
     _inherit = 'hr.employee'

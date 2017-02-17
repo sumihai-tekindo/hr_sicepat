@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import models
+import wizard
 
 def populate_jabatan_department_loan(cr, registry):
     cr.execute('UPDATE hr_loan '
