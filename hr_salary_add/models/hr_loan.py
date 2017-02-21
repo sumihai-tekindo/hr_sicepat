@@ -104,7 +104,7 @@ class HRLoan(models.Model):
     
     # compute and search fields, in the same order that fields declaration
     @api.one
-    @api.depends('employee_id')
+    @api.depends('employee_id','employee_id.department_id')
     def _get_employee(self):
         self.jabatan_id = self.employee_id.job_id.id
         self.department_id = self.employee_id.department_id.id
