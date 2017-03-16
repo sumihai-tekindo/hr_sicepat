@@ -69,7 +69,6 @@ class hr_payslip_run_wizard(osv.osv_memory):
 					vals['date_from'] = from_date
 					vals['date_to'] = to_date
 					vals['credit_note'] = credit_note
-					vals['journal_id'] = journal_id
 					slip_data = slip_pool.onchange_employee_id(cr, uid, [], from_date, to_date, employee_id=emp.id, contract_id=False, context=context)
 # 					res = {
 # 						'employee_id': emp.id,
@@ -92,6 +91,8 @@ class hr_payslip_run_wizard(osv.osv_memory):
 						vals[data] = slip_data['value'][data]
 						if data in ('input_line_ids', 'worked_days_line_ids'):
 							vals[data] = [(0, 0, x) for x in slip_data['value'][data]]
+					if not vals['journal_id']:
+						vals['journal_id'] = journal_id
 					slip_ids.append(slip_pool.create(cr, uid, vals, context=context))
 			slip_pool.compute_sheet(cr, uid, slip_ids, context=context)
 		return {'type': 'ir.actions.act_window_close'}

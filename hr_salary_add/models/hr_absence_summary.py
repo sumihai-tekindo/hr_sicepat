@@ -45,13 +45,26 @@ class HRPayslip(models.Model):
             return res
         
         employee_id = employee_obj.browse(cr, uid, employee_id, context=context)
-        if employee_id.summarized_attendances:
+        contract_id = res.get('value', {}) and res.get('value').get('contract_id', False)
+        if employee_id.company_id.summarized_attendances:
             attendances_summary = attendance_summary_obj.get_attendances_summary(cr, uid, employee_id, date_from, date_to, context=context)
             worked_days_line_ids = res.get('value', {}) and res.get('value').get('worked_days_line_ids', [])
+            siso = False
             for worked_days_line in worked_days_line_ids:
-                if worked_days_line.get('code') == ('SISO'):
+                if worked_days_line.get('code') == 'SISO':
+                    siso = True
                     worked_days_line['number_of_days'] = attendances_summary or 0.0
                     worked_days_line['number_of_hours'] = 0.0
+            
+            if not siso:
+                value = {
+                    'name': 'Sign in & Sign Out Attendances',
+                    'code': 'SISO',
+                    'number_of_days': attendances_summary or 0.0,
+                    'number_of_hours': 0.0,
+                    'contract_id': contract_id,
+                }
+                worked_days_line_ids.append(value)
 
         return res
 
