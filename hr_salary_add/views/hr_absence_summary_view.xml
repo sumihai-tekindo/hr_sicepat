@@ -41,5 +41,38 @@
         		  parent="hr_sicepat_salary"
                   action="absence_summary_action" sequence="20"/>
 <!--    END OF MENU ITEM    	-->
+
+        <record id="view_company_form_summarized_attendance" model="ir.ui.view">
+            <field name="name">res.company.summarized_attendance</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='account_grp']" position="after">
+                    <group name="summarized_attendance_grp" string="Summarized Attendance">
+                        <field name="summarized_attendances"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="view_hr_config_summarized_attendance" model="ir.ui.view">
+            <field name="name">hr.config.settings.summarized_attendance</field>
+            <field name="model">hr.config.settings</field>
+            <field name="inherit_id" ref="hr.view_human_resources_configuration"/>
+            <field name="arch" type="xml">
+                <group name="contract_grp" position="after">
+                    <group>
+                        <label for="id" string="Summarized Attendance"/>
+                        <div>
+                            <div name="summarized_attendance">
+                                <field name="summarized_attendances" class="oe_inline"/>
+                                <label for="summarized_attendances"/>
+                            </div>
+                        </div>
+                    </group>
+                </group>
+            </field>
+        </record>
+
 	</data>
 </openerp>

@@ -53,6 +53,8 @@ HR Sicepat Ekspres
         'analytic',
         'hr_payroll',
         'hr_payroll_account',
+        'hr_nik',
+        'hr_attendance_payslip',
     ],
 
     # always loaded
