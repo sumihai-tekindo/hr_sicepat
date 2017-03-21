@@ -11,3 +11,4 @@ class hr_employee(models.Model):
             ('koran','Koran'),
             ('karyawan','karyawan'),
         ], string='Referensi')
+    no_npwp = fields.Char(string="Nomor NPWP")

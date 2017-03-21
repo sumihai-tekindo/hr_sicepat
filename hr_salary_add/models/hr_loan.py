@@ -345,6 +345,17 @@ class HRPayslip(models.Model):
                     res['loan_line_ids'] = [(6, 0, [l.id for l in loan_line_ids])]
 
         return result
+    
+    def compute_sheet(self, cr, uid, ids, context=None):
+        result = super(HRPayslip, self).compute_sheet(cr, uid, ids, context=context)
+        for payslip in self.browse(cr, uid, ids, context=context):
+            for line_ids in payslip.line_ids:
+                for input in payslip.input_line_ids:
+                    if line_ids.code==input.code:
+                        self.pool.get('hr.payslip.line').write(cr, uid, [line_ids.id], {'note_pinjaman':input.note_pinjaman})
+                        break
+        return result
+        
 
     def process_sheet(self, cr, uid, ids, context=None):
         loan_line_obj = self.pool['hr.loan.line']
@@ -354,8 +365,21 @@ class HRPayslip(models.Model):
                     for l in input.loan_line_ids:
                         loan_line_obj.write(cr, uid, [l.id], {'paid': True}, context=context)
         return super(HRPayslip, self).process_sheet(cr, uid, ids, context=context)
+    
+class HRPayslipLine(models.Model):
+    _inherit = 'hr.payslip.line'
+    
+    note_pinjaman = fields.Text(string="Notes Pinjaman")
 
 class HRPayslipInput(models.Model):
     _inherit = 'hr.payslip.input'
     
-    loan_line_ids = fields.Many2many('hr.loan.line', 'payslip_input_loan_line', 'payslip_input_id', 'loan_line_id', string='Loan Line')
+    loan_line_ids = fields.Many2many('hr.loan.line', 'payslip_input_loan_line', 
+                                     'payslip_input_id', 'loan_line_id', 
+                                     string='Loan Line')
+    note_pinjaman = fields.Text(compute="get_notes_pinjaman", string="Notes Pinjaman", store=True)
+    
+    @api.one
+    @api.depends("loan_line_ids.loan_id.notes")
+    def get_notes_pinjaman(self):
+        self.note_pinjaman = '\n'.join(loan_line.loan_id.notes for loan_line in self.loan_line_ids)
