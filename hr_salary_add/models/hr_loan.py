@@ -343,7 +343,6 @@ class HRPayslip(models.Model):
                 if loan_line_ids:
                     res['amount'] = loan_line_ids.get_amount()
                     res['loan_line_ids'] = [(6, 0, [l.id for l in loan_line_ids])]
-
         return result
     
     def compute_sheet(self, cr, uid, ids, context=None):
@@ -382,4 +381,4 @@ class HRPayslipInput(models.Model):
     @api.one
     @api.depends("loan_line_ids.loan_id.notes")
     def get_notes_pinjaman(self):
-        self.note_pinjaman = '\n'.join(loan_line.loan_id.notes for loan_line in self.loan_line_ids)
+        self.note_pinjaman = '\n'.join(loan_line.loan_id.notes for loan_line in self.loan_line_ids if loan_line.loan_id.notes != False)

@@ -269,14 +269,17 @@ class HRPayslip(models.Model):
         
         employee_id = employee_obj.browse(cr, uid, employee_id, context=context)
         target = target_obj.get_target(cr, uid, employee_id, date_from, date_to, context=context)
-        if not target:
-            return res
         
-        target_paket = target[0].target_paket
-        nilai_target = target[0].nilai_target
-        pertambahan_bonus = target[0].pertambahan_bonus
-        nilai_bonus = target[0].nilai_bonus
+        target_paket = target and target[0].target_paket or 0
+        nilai_target = target and target[0].nilai_target or 0.0
+        pertambahan_bonus = target and target[0].pertambahan_bonus and 0
+        nilai_bonus = target and target[0].nilai_bonus or 0.0
         total_paket = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
+        
+        try:
+            t_bonus = int((total_paket - target_paket) / pertambahan_bonus)
+        except:
+            t_bonus = 0
 
         input_line_ids = res.get('value', {}) and res.get('value').get('input_line_ids', [])
         for input_line in input_line_ids:
@@ -284,7 +287,7 @@ class HRPayslip(models.Model):
                 if input_line['code'] == 'TARGET':
                     input_line['amount'] = total_paket and nilai_target or 0.0
                 if input_line['code'] == 'TBONUS':
-                    input_line['amount'] = total_paket and int((total_paket - target_paket) / pertambahan_bonus) * nilai_bonus or 0.0
+                    input_line['amount'] = total_paket and (t_bonus * nilai_bonus) or 0.0
         
         res['value']['target_paket'] = target_paket
         res['value']['nilai_target'] = nilai_target

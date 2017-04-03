@@ -287,9 +287,9 @@ class department_payslip_xls(report_xls):
 			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
 			ws.write(4,0,"WILAYAH",normal_bold_style_a)
 			ws.write_merge(4,4,1,4,": "+data['department_name'],normal_bold_style_a)
-			headers = ["NO","NAMA","BANK","NO REKENING","POSISI","TGL.MASUK KERJA","HARI KERJA","STATUS","PAKET","GAJI POKOK",
+			headers = ["NO","NAMA","BANK","NO REKENING","NPWP","POSISI","TGL.MASUK KERJA","HARI KERJA","STATUS","PAKET","GAJI POKOK",
 					"UANG MAKAN","UANG TRANSPORT","KERAJINAN","BONUS PAKET 1","BONUS PAKET 2","INSENTIF","TUNJANGAN OPERASIONAL",
-					"TUNJANGAN JABATAN","SERVICE MOTOR","LEMBURAN","PINJAMAN","POTONGAN HP","POTONGAN BARANG","TOTAL"]
+					"TUNJANGAN JABATAN","SERVICE MOTOR","LEMBURAN","PINJAMAN","POTONGAN HP","POTONGAN BARANG","TOTAL","KETERANGAN"]
 			col_pos = 0
 			for head in headers :
 
@@ -297,11 +297,11 @@ class department_payslip_xls(report_xls):
 				col_pos+=1
 			row_pos = 7
 			
-			columns = ["NO","NAMA","BANK","NO_REK","POS","TGL_MSK","WORKDAYS","MARITAL","PAKET","BASIC","MEAL","TRANSPORT",
-					"PERSISTANCE","TARGET","TBONUS","INSENTIF","OPER","ALLOW","BIKE","OVERTIME","LOAN","POTHP","POTBRG","TOTAL"]
+			columns = ["NO","NAMA","BANK","NO_REK","NPWP","POS","TGL_MSK","WORKDAYS","MARITAL","PAKET","BASIC","MEAL","TRANSPORT",
+					"PERSISTANCE","TARGET","TBONUS","INSENTIF","OPER","ALLOW","BIKE","OVERTIME","LOAN","POTHP","POTBRG","TOTAL","KETERANGAN"]
 			counter=1
 			col_pos=0
-			for o in objects:
+			for o in objects:								#hr.payslip
 				dump_wd = {}
 				for wd in o.worked_days_line_ids:
 					dump_wd.update({
@@ -310,7 +310,7 @@ class department_payslip_xls(report_xls):
 								'number_of_hours':wd.number_of_hours  or 0.0,
 								}
 								})
-				dump_sr ={}										#DATA GAMAU MUNCUL ABIS HAPUS DATABASE
+				dump_sr ={}										
 				for sr in o.line_ids:
 					dump_sr.update({
 						sr.code : {
@@ -318,12 +318,19 @@ class department_payslip_xls(report_xls):
 							'rate':sr.rate or 0.0,
 							'amount':sr.amount or 0.0,
 							'total':sr.total or 0.0,
+							'keterangan':sr.note_pinjaman,
 							}
-						})
+						})	
+				
+				
+				
+				
+				
 				NO = str(counter)
 				NAMA = o.employee_id.name or 'Undefined'
 				BANK = o.employee_id.bank_account_id.bank_name or 'Undefined'
 				NO_REK = o.employee_id.bank_account_id.acc_number or 'Undefined'
+				NPWP = o.employee_id.no_npwp or 'Undefined'
 				POS = o.employee_id.job_id and o.employee_id.job_id.name or 'Undefined'
 				TGL_MSK = o.employee_id and o.employee_id.tgl_masuk or ''
 				WORKDAYS = dump_wd.get('SISO',False) and dump_wd.get('SISO').get('number_of_days',0.0) or 0.0
@@ -344,6 +351,11 @@ class department_payslip_xls(report_xls):
 				POTHP = dump_sr.get('POTHP',False) and dump_sr.get('POTHP').get('total',0.0) or 0.0
 				POTBRG = dump_sr.get('POTBRG',False) and dump_sr.get('POTBRG').get('total',0.0) or 0.0
 				TOTAL = dump_sr.get('NET',False) and dump_sr.get('NET').get('total',0.0) or 0.0
+ 				
+				KETERANGAN = ""
+ 				KETERANGAN += (dump_sr.get('LOAN',False) and dump_sr.get('LOAN').get('keterangan',False)) or ""
+ 				KETERANGAN += (dump_sr.get('POTHP',False) and dump_sr.get('POTHP').get('keterangan',False)) or ""
+ 				KETERANGAN += (dump_sr.get('POTBRG',False) and dump_sr.get('POTBRG').get('keterangan',False)) or ""
 				
 				col_pos = 0
 
