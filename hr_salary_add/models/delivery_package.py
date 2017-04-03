@@ -272,7 +272,7 @@ class HRPayslip(models.Model):
         
         target_paket = target and target[0].target_paket or 0
         nilai_target = target and target[0].nilai_target or 0.0
-        pertambahan_bonus = target and target[0].pertambahan_bonus and 0
+        pertambahan_bonus = target and target[0].pertambahan_bonus or 0
         nilai_bonus = target and target[0].nilai_bonus or 0.0
         total_paket = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
         
