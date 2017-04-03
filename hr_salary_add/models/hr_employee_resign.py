@@ -23,6 +23,7 @@ class HREmployeeResign(models.Model):
         ('submit','Submit'),
         ('reject','Reject'),
         ('approved','Approved'),
+        ('terminate','Terminate'),
         ], string='Status', default='draft')
     
     @api.multi
@@ -36,12 +37,18 @@ class HREmployeeResign(models.Model):
     @api.multi
     def action_approve(self):
         self.state = 'approved'
-        employee = self.env['hr.employee'].search([('id','=',self.employee_id.id)])
-        employee.write({'active':False})
+#         employee = self.env['hr.employee'].search([('id','=',self.employee_id.id)])
+#         employee.write({'active':False})
         contract = self.env['hr.contract'].search([('employee_id','=',self.employee_id.id)])
         contract.write({'date_end':self.tanggal})
         
     @api.multi
     def action_reject(self):
         self.state = 'reject'
+        
+    @api.multi
+    def action_terminate(self):
+        self.state = 'terminate'
+        employee = self.env['hr.employee'].search([('id','=',self.employee_id.id)])
+        employee.write({'active':False})
 

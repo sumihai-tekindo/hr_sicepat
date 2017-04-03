@@ -42,7 +42,9 @@
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit" class="oe_highlight"/>
-	            		<field name="state" widget="statusbar" statusbar_visible="draft,submit,approved"/>
+                        <button name="action_terminate" type="object"
+                                string="Terminate" states="approved" class="oe_highlight"/>
+	            		<field name="state" widget="statusbar" statusbar_visible="draft,submit,approved,terminate"/>
 	            	</header>
 	            	<sheet>
 	            		<group>
