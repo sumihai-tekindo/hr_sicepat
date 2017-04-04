@@ -277,7 +277,7 @@ class HRPayslip(models.Model):
         total_paket = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
         
         try:
-            t_bonus = int((total_paket - target_paket) > 0 and (total_paket - target_paket) or 0 / pertambahan_bonus)
+            t_bonus = ((total_paket - target_paket) > 0 and (total_paket - target_paket) or 0) / pertambahan_bonus
         except:
             t_bonus = 0
 
