@@ -269,6 +269,7 @@ class department_payslip_xls(report_xls):
 		total_style2					= xlwt.easyxf('font: name Times New Roman, colour_index black, bold on; align: wrap on, vert centre, horiz right;pattern: pattern solid, fore_color gray25; borders: top thin, bottom thin;',num_format_str='#,##0.00;(#,##0.00)')
 		subtittle_top_and_bottom_style  = xlwt.easyxf('font: height 240, name Times New Roman, colour_index black, bold off, italic on; align: wrap on, vert centre, horiz left; pattern: pattern solid, fore_color white;')
 		
+		normal_style_float_round_total 	= xlwt.easyxf('font: height 180, name Calibri, colour_index black, bold on; align: wrap on, vert centre, horiz right; borders: top thin, bottom thin;',num_format_str='#,##0')
 
 		if data['t_report']=='department':
 			ws = wb.add_sheet("Payslip")
@@ -360,7 +361,7 @@ class department_payslip_xls(report_xls):
 				col_pos = 0
 
 				for colx in columns:
-					ws.write(row_pos,col_pos,eval(colx),normal_style)
+					ws.write(row_pos,col_pos,eval(colx),normal_style_float_round)
 					col_pos+=1
 
 				counter+=1
@@ -369,7 +370,7 @@ class department_payslip_xls(report_xls):
 			
 			for i in range(6,len(columns)):
 				chr_ord =chr(ord('A') + i)
-				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),title_style)
+				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),normal_style_float_round_total)
 
 		elif data['t_report']=='all':
 			ws = wb.add_sheet('REGIONAL BASED')
