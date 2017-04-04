@@ -51,6 +51,8 @@
                         	string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                         	string="Reject" states="submit" class="oe_highlight"/>
+                		<button name="action_draft" type="object"
+                			string="set to Draft" states="approved"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
 	            	<sheet string="Komponen Gaji">
