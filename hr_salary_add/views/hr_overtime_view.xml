@@ -83,11 +83,98 @@
             </field>
         </record>
 <!--    END OF LEMBURAN    -->
-	
+		<record model="ir.actions.act_window" id="overtime_line_action">
+            <field name="name">Lemburan Detail</field>
+            <field name="res_model">hr.overtime.line</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="overtime_line_search_view">
+            <field name="name">overtime.line.search</field>
+            <field name="model">hr.overtime.line</field>
+            <field name="arch" type="xml">
+                <search string="Overtime Line Search">
+                    <field name="overtime_id"/>
+                    <field name="employee_id"/>
+                    <field name="jabatan_id"/>
+                    <field name="department_id"/>
+                    <field name="tanggal"/>
+                    <field name="state"/>
+                    <field name="overtime_state"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_overtime" string="Overtime" context="{'group_by':'overtime_id'}"/>
+                        <filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
+                    	<filter name="group_by_jabatan_id" string="Jabatan" context="{'group_by':'jabatan_id'}"/>
+                    	<filter name="group_by_department_id" string="Cabang" context="{'group_by':'department_id'}"/>
+                        <filter name="group_by_overtime_state" string="Status Overtime" context="{'group_by':'overtime_state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="overtime_line_tree_view">
+            <field name="name">overtime.line.tree</field>
+            <field name="model">hr.overtime.line</field>
+            <field name="arch" type="xml">
+                <tree create="false" colors="blue:state=='draft';black:state=='confirmed';red:state=='cancel'" string="Lemburan Detail" >
+                    <field name="overtime_id"/>
+                    <field name="tanggal"/>
+                    <field name="employee_id"/>
+                    <field name="jabatan_id"/>
+                    <field name="department_id"/>
+                    <field name="nilai"/>
+                    <field name="state"/>
+                    <field name="overtime_state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="overtime_line_form_view">
+            <field name="name">overtime.line.form</field>
+            <field name="model">hr.overtime.line</field>
+            <field name="arch" type="xml">
+                <form string="Lemburan Detail Form" create="false">
+                	<header>
+                		<button name="action_confirm" type="object"
+                                string="Confirm Lemburan" states="draft" class="oe_highlight"/>
+                        <button name="action_cancel" type="object"
+                                string="Reject Lemburan" states="draft"/>
+	            		<field name="state" widget="statusbar"/>
+	            	</header>
+	            	<sheet string="Lemburan Detail">
+	                    <div class="oe_title">
+	                        <h1>
+	                            <field name="overtime_id"/>
+	                        </h1>
+	                    </div>
+		            	<group>
+		            		<group col="4">
+	                    		<field name="tanggal"/>
+		                    	<field name="employee_id"/>
+		                    	<field name="jabatan_id" options="{'no_open': True}"/>
+		                    	<field name="department_id" options="{'no_open': True}"/>
+		                    	<field name="nilai"/>
+		                    	<field name="overtime_state"/>
+		                    </group>
+		                </group>
+		                <notebook>
+		                	<page string="Alasan">
+		                		<field name="alasan"/>
+		                	</page>
+		                </notebook>
+	            	</sheet>
+                </form>
+            </field>
+        </record>
 <!--    START MENU ITEM    -->
-        <menuitem id="lemburan_menu" name="Lemburan" 
+        <menuitem id="lemburan_sub_menu" name="Lemburan" 
         		  parent="hr_sicepat_configuration"
-                  action="overtime_action" sequence="3"/>
+                  sequence="3"/>
+        <menuitem id="lemburan_menu" name="Lemburan" 
+        		  parent="lemburan_sub_menu"
+                  action="overtime_action" sequence="1"/>
+        <menuitem id="detail_lemburan_menu" name="Lemburan Detail" 
+        		  parent="lemburan_sub_menu"
+                  action="overtime_line_action" sequence="2"/>
 <!--    END OF MENU ITEM    	-->
 
 	</data>

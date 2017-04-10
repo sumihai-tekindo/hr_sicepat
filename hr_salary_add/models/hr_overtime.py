@@ -75,20 +75,23 @@ class HROvertime(models.Model):
 class HROvertimeLine(models.Model):
     _name = 'hr.overtime.line'
     _rec_name = 'employee_id'
+    _order = 'tanggal desc, employee_id'
     
-    overtime_id = fields.Many2one('hr.overtime', string='Overtime')
-    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True)
+    overtime_id = fields.Many2one('hr.overtime', string='Overtime', readonly=True)
+    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True,
+        states={'draft': [('readonly', False)]})
     jabatan_id = fields.Many2one('hr.job', string='Jabatan', compute='_get_employee', store=True, readonly=True)
     department_id = fields.Many2one('hr.department', string='Nama Cabang', compute='_get_employee', store=True, readonly=True)
-    nilai = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Lemburan', required=True)
-    alasan = fields.Text()
+    nilai = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Lemburan', required=True, readonly=True,
+        states={'draft': [('readonly', False)]})
+    alasan = fields.Text(readonly=True, states={'draft': [('readonly', False)]})
     state = fields.Selection([
         ('draft','Draft'),
         ('confirmed','Confirmed'),
         ('cancel','Cancel'),
         ], string='Status', default='draft')
-    tanggal = fields.Date(related='overtime_id.tanggal', store=True)
-    overtime_state = fields.Selection(related='overtime_id.state', store=True, default='draft')
+    tanggal = fields.Date(related='overtime_id.tanggal', store=True, readonly=True)
+    overtime_state = fields.Selection(related='overtime_id.state', string='Status Overtime', store=True, default='draft', readonly=True)
     
     @api.multi
     def action_confirm(self):
