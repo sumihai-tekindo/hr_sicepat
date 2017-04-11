@@ -177,16 +177,30 @@ class DeliveryPackageRun(models.Model):
         #a contract is valid if it ends between the given dates
         clause_1 = ['&',('date_delivery', '<=', date_to),('date_delivery','>=', date_from)]
         clause_final =  [('employee_id', '=', employee.id)] + clause_1
+        if employee.as_head:
+            clause_final =  [('department_id', '=', employee.department_id.id), ('employee_id', '!=', employee.id)] + clause_1
         delivery_ids = self.search(clause_final)
         if delivery_ids:
             for delivery in delivery_ids:
-                total_delivery += delivery.total_paket 
+                if employee.as_head:
+                    target = self.env['delivery.package.target'].get_target(delivery.employee_id, date_from, date_to)
+                    target_paket = target and target[0].target_paket or 0
+                    target = self.env['delivery.package.target'].get_target(employee, date_from, date_to)
+                    pertambahan_bonus = target and target[0].pertambahan_bonus or 0
+                    try:
+                        t_bonus = int(((delivery.total_paket - target_paket) > 0 and (delivery.total_paket - target_paket) or 0) / pertambahan_bonus)
+                    except:
+                        t_bonus = 0
+                    total_delivery += t_bonus * pertambahan_bonus
+                else:
+                    total_delivery += delivery.total_paket
         return total_delivery
 
 
 class HREmployee(models.Model):
     _inherit = 'hr.employee'
 
+    as_head = fields.Boolean('As Head')
     zone_id = fields.Many2one('delivery.package.zone', 'Zone ID')
 
 
@@ -277,7 +291,7 @@ class HRPayslip(models.Model):
         total_paket = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
         
         try:
-            t_bonus = ((total_paket - target_paket) > 0 and (total_paket - target_paket) or 0) / pertambahan_bonus
+            t_bonus = int(((total_paket - target_paket) > 0 and (total_paket - target_paket) or 0) / pertambahan_bonus)
         except:
             t_bonus = 0
 

@@ -135,14 +135,17 @@
                   action="target_paket_action" sequence="4"/>
 <!--    END OF MENU ITEM    	-->
 
-		<record id="view_employee_form_zone" model="ir.ui.view">
-			<field name="name">hr.employee.form.zone</field>
+		<record id="view_employee_form_target" model="ir.ui.view">
+			<field name="name">hr.employee.form.target</field>
 			<field name="model">hr.employee</field>
 			<field name="inherit_id" ref="hr.view_employee_form"/>
 			<field name="arch" type="xml">
-				<field name="department_id" position="after">
-					<field name="zone_id"/>
-				</field>
+				<xpath expr="//form/sheet/notebook/page[@string='HR Settings']/group/group[@name='active_group']" position="after">
+					<group string="Target Paket" name="target_group">
+						<field name="as_head"/>
+						<field name="zone_id"/>
+					</group>
+				</xpath>
 			</field>
 		</record>
 		
