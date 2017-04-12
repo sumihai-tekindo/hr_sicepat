@@ -7,6 +7,19 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
+        <record model="ir.ui.view" id="absence_summary_search_view">
+            <field name="name">absence.summary.search</field>
+            <field name="model">hr.absence.summary</field>
+            <field name="arch" type="xml">
+                <search string="Absence Summary">
+                    <field name="employee_id"/>
+                    <field name="periode"/>
+                    <group expand="0" string="Group By">
+	                	<filter name="group_by_employee" string="Karyawan" context="{'group_by':'employee_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record model="ir.ui.view" id="salary_proposal_tree_view">
             <field name="name">absence_summary.tree</field>
             <field name="model">hr.absence.summary</field>
