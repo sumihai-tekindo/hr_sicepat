@@ -83,7 +83,8 @@ HR Sicepat Ekspres
         "views/pengiriman_paket.xml",
         "views/hr_employee_resign.xml",
         "views/res_company_view.xml",
-        "views/hr_absence_summary_view.xml"
+        "views/hr_absence_summary_view.xml",
+        "wizard/absence_summary_search.xml"
         ],
     # only loaded in demonstration mode
     'demo': [],

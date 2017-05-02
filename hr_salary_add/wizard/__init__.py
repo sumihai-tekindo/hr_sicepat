@@ -21,3 +21,4 @@
 ##############################################################################
 
 from . import hr_loan_state
+from . import absence_summary_search

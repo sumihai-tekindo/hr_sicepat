@@ -8,9 +8,15 @@ class AbsenceSummary(models.Model):
     _name = "hr.absence.summary"
     
     employee_id = fields.Many2one("hr.employee", string="Nama Karyawan", required=True)
+    department_id = fields.Many2one('hr.department', string='Nama Cabang', compute='_get_employee', store=True, readonly=True)
     jumlah_kehadiran = fields.Float(string="Jumlah Hari Kerja", required=True)
     periode = fields.Date(string="Tanggal", required=True, help="Tanggal ini akan diambil ke dalam perhitungan Periode sesuai dengan rules Periode dalam perhitungan Gaji")
 
+    @api.one
+    @api.depends('employee_id','employee_id.department_id')
+    def _get_employee(self):
+        self.department_id = self.employee_id.department_id.id
+        
     @api.model
     def get_attendances_summary(self, employee, date_from, date_to):
         """

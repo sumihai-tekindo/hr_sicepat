@@ -13,8 +13,10 @@
             <field name="arch" type="xml">
                 <search string="Absence Summary">
                     <field name="employee_id"/>
+                    <field name="department_id"/>
                     <field name="periode"/>
                     <group expand="0" string="Group By">
+	                	<filter name="group_by_department" string="Nama Cabang" context="{'group_by':'department_id'}"/>
 	                	<filter name="group_by_employee" string="Karyawan" context="{'group_by':'employee_id'}"/>
                     </group>
                 </search>
@@ -26,6 +28,7 @@
             <field name="arch" type="xml">
                 <tree string="Absence Summary Tree">
                     <field name="employee_id"/>
+                    <field name="department_id"/>
                     <field name="jumlah_kehadiran"/>
                     <field name="periode"/>
                 </tree>
@@ -36,13 +39,15 @@
             <field name="model">hr.absence.summary</field>
             <field name="arch" type="xml">
                 <form string="Absence Summary Form">
-                    <group>
-                    	<group>
-                    		<field name="employee_id"/>
-	                    	<field name="jumlah_kehadiran"/>
-	                    	<field name="periode"/>
-                    	</group>
-                    	<group></group>
+                    <group col="4">
+                		<field name="employee_id"/>
+                		<field name="department_id"/>
+                    	<field name="jumlah_kehadiran"/>
+                    	<field name="periode"/>
+                    	<field name="create_uid" readonly="1"/>
+                    	<field name="create_date" readonly="1"/>
+                    	<field name="write_uid" readonly="1"/>
+                    	<field name="write_date" readonly="1"/>
                     </group>
                 </form>
             </field>
@@ -50,9 +55,11 @@
 <!--    END OF EMPLOYEE MUTASI    -->
         
 <!--    START MENU ITEM    -->
+        <menuitem id="sub_menu_absence_summary" name="Total Absen" 
+        		  parent="hr_sicepat_salary" sequence="20"/>
         <menuitem id="absence_summary" name="Total Absen" 
-        		  parent="hr_sicepat_salary"
-                  action="absence_summary_action" sequence="20"/>
+        		  parent="sub_menu_absence_summary"
+                  action="absence_summary_action" sequence="10"/>
 <!--    END OF MENU ITEM    	-->
 
         <record id="view_company_form_summarized_attendance" model="ir.ui.view">
