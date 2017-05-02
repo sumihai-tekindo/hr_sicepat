@@ -179,8 +179,8 @@ class HRLoanLineUnpaidWizard(models.TransientModel):
     @api.multi
     def search_loan_line(self):
         self.ensure_one()
-        context = dict(self._context or {})
-        mod_obj = self.env['ir.model.data']
+#         context = dict(self._context or {})
+#         mod_obj = self.env['ir.model.data']
         for record in self:
             department_ids = [dept.id for dept in record.department_ids] or [dept.id for dept in self.env['hr.department'].search([])]
             loan_domain = [('department_id', 'in', department_ids)]
@@ -188,20 +188,25 @@ class HRLoanLineUnpaidWizard(models.TransientModel):
             loan_line_domain_1 = [('loan_id', 'in', loan_ids), ('paid', '=', False)]
             loan_line_domain_2 = [('tanggal_angsuran', '>=', record.date_start), ('tanggal_angsuran', '<=', record.date_end)]
             loan_line_ids = self.env['hr.loan.line'].search(loan_line_domain_1 + loan_line_domain_2)
-        form_id = mod_obj.get_object_reference('hr_salary_add', 'unpaid_loan_line_form_view')
-        form_res = form_id and form_id[1] or False
-        tree_id = mod_obj.get_object_reference('hr_salary_add', 'unpaid_loan_line_tree_view')
-        tree_res = tree_id and tree_id[1] or False
-        return {
-            'name':_("Unpaid Installment"),
-            'view_mode': 'tree, form',
-            'view_id': False,
-            'view_type': 'form',
-            'res_model': 'hr.loan.line',
-            'type': 'ir.actions.act_window',
-            'nodestroy': True,
-            'target': 'current',
-            'domain': "[('id', 'in', %s)]" % [l.id for l in loan_line_ids],
-            'views': [(tree_res, 'tree'), (form_res, 'form')],
-            'context': context,
-        }
+        action = self.env['ir.model.data'].get_object_reference('hr_salary_add', 'unpaid_loan_action')
+        act_id = action and action[1] or False
+        result = self.env['ir.actions.act_window'].browse([act_id]).read()[0]
+        result['domain'] = str([('id', 'in', [l.id for l in loan_line_ids])])
+        return result
+#         form_id = mod_obj.get_object_reference('hr_salary_add', 'unpaid_loan_line_form_view')
+#         form_res = form_id and form_id[1] or False
+#         tree_id = mod_obj.get_object_reference('hr_salary_add', 'unpaid_loan_line_tree_view')
+#         tree_res = tree_id and tree_id[1] or False
+#         return {
+#             'name':_("Unpaid Installment"),
+#             'view_mode': 'tree, form',
+#             'view_id': False,
+#             'view_type': 'form',
+#             'res_model': 'hr.loan.line',
+#             'type': 'ir.actions.act_window',
+#             'nodestroy': True,
+#             'target': 'current',
+#             'domain': "[('id', 'in', %s)]" % [l.id for l in loan_line_ids],
+#             'views': [(tree_res, 'tree'), (form_res, 'form')],
+#             'context': context,
+#         }
