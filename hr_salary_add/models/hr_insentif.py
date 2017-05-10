@@ -63,7 +63,7 @@ class HRInsentif(models.Model):
 
 class HRInsentifLine(models.Model):
     _name = 'hr.insentif.line'
-    _rec_name = 'insentif_id'
+    _rec_name = 'employee_id'
 
     insentif_id = fields.Many2one('hr.insentif', string='Insentif')
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True)
