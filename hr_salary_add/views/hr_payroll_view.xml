@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="hr_payroll.hr_payslip_run_tree"/>
             <field name="arch" type="xml">
                 <field name="date_end" position="after">
-                	<field name="net_amount" sum="Total Net Amount"/>
+                	<field name="total_amount" sum="Total Net Amount"/>
                 </field>
             </field>
         </record>
