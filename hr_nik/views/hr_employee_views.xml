@@ -29,6 +29,9 @@
                     <field name="name" position="before">
                         <field name="nik"/>
                     </field>
+                    <field name="name" position="after">
+                        <field name="tgl_masuk"/>
+                    </field>
                 </data>
             </field>
         </record>
