@@ -19,6 +19,26 @@
                 </data>
             </field>
         </record>
+		<record id="view_employee_tree_contract_count" model="ir.ui.view">
+            <field name="name">hr.employee.tree.contract_count</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_tree"/>
+            <field name="arch" type="xml">
+                <field name="coach_id" position="before">
+                    <field name="contract_ids" invisible="1"/>
+                </field>
+            </field>
+        </record>
+        <record id="view_employee_filter_contract" model="ir.ui.view">
+            <field name="name">Employees Contracts</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_filter"/>
+            <field name="arch" type="xml">
+				<field name="department_id" position="after">
+					<filter string="No Contracts" name="nocontract" domain="[('contract_ids','=',False)]"/>
+				</field>
+             </field>
+         </record>
         
 <!--    PENAMBAHAN WORKING TIME, BANK    -->
 <!--        <menuitem action="resource.action_resource_calendar_form" id="menu_resource_calendar" parent="hr.menu_open_view_attendance_reason_new_config"/>-->
