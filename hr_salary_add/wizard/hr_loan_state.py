@@ -117,6 +117,30 @@ class HRLoanReject(models.TransientModel):
         # don't keep temporary notes in the database longer than necessary
         self.write({'alasan_reject': False})
 
+class HRLoanCloseWizard(models.TransientModel):
+    _name = "hr.loan.close_wizard"
+    _description = "Loan Close Wizard"
+    
+    @api.model
+    def default_get(self, fields_list):
+        context = dict(self._context or {})
+        result = super(HRLoanCloseWizard, self).default_get(fields_list)
+        loan_model = self.env['hr.loan']
+        loan_ids = context.get('active_model') == 'hr.loan' and context.get('active_ids') or []
+        result.update({'loan_ids':
+            [(0, 0, {'loan_id': loan.id, 'employee_id': loan.employee_id.id, 'loan_type': loan.loan_type.id, 'nilai_pinjaman': loan.nilai_pinjaman})
+            for loan in loan_model.browse(loan_ids)]
+        })
+        return result
+
+    loan_ids = fields.One2many('hr.loan.close', 'wizard_id', string='Loan')
+    
+    @api.multi
+    def close_loan_button(self):
+        line_ids = [line.id for line in self.loan_ids]
+        self.env['hr.loan.close'].browse(line_ids).close_button()
+        return {'type': 'ir.actions.act_window_close'}
+
 class HRLoanClose(models.TransientModel):
     _name = "hr.loan.close"
     _description = "Loan Close"
@@ -130,6 +154,7 @@ class HRLoanClose(models.TransientModel):
         result.update({'loan_id': loan.id, 'employee_id': loan.employee_id.id, 'loan_type': loan.loan_type.id, 'nilai_pinjaman': loan.nilai_pinjaman})
         return result
         
+    wizard_id = fields.Many2one('hr.loan.close_wizard', string='Wizard', required=True)
     loan_id = fields.Many2one('hr.loan', string='Loan', required=True, readonly=True)
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True)
     loan_type = fields.Many2one('hr.loan.type', string='Loan Type', required=True, readonly=True)
@@ -139,7 +164,7 @@ class HRLoanClose(models.TransientModel):
     @api.multi
     def close_button(self):
         for loan in self:
-            loan.loan_id.write({'notes': loan.loan_id.notes + '\n' + loan.notes})
+            loan.loan_id.write({'notes': loan.loan_id.notes and loan.loan_id.notes + '\n' + loan.notes or loan.notes})
             loan.loan_id.action_close()
         # don't keep temporary notes in the database longer than necessary
         self.write({'notes': False})
@@ -161,6 +186,28 @@ class HRLoanLinePost(models.TransientModel):
             if record.posted:
                 raise Warning(_("Selected loan line(s) cannot be post as they are already 'Posted'."))
             record.action_post()
+            
+        return {'type': 'ir.actions.act_window_close'}
+
+class HRLoanLinePaid(models.TransientModel):
+    """
+    This wizard will paid the all the selected loan line
+    """
+
+    _name = "hr.loan.line.paid"
+    _description = "Paid the selected loan line"
+
+    @api.multi
+    def loan_line_paid(self):
+        context = dict(self._context or {})
+        active_ids = context.get('active_ids', []) or []
+
+        for record in self.env['hr.loan.line'].browse(active_ids):
+            if record.paid:
+                raise Warning(_("Selected loan line(s) cannot be paid as they are already 'Paid'."))
+            if not record.posted:
+                record.action_post()
+            record.action_paid()
             
         return {'type': 'ir.actions.act_window_close'}
 

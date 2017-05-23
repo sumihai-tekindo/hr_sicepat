@@ -92,32 +92,39 @@
         </record>
 
         <record id="hr_loan_close_view" model="ir.ui.view">
-            <field name="name">hr.loan.close.form</field>
-            <field name="model">hr.loan.close</field>
+            <field name="name">Close Loan</field>
+            <field name="model">hr.loan.close_wizard</field>
             <field name="arch" type="xml">
                 <form string="Close Loan">
                     <p class="oe_grey">
                         This wizard will close the selected approve loan.
                     </p>
-                    <group col="4">
-                    	<field name="loan_id"/>
-                    	<field name="loan_type"/>
-                    	<field name="employee_id"/>
-                    	<field name="nilai_pinjaman"/>
-                    </group>
-                    <label for="notes"/>
-                    <field name="notes"/>
+                    <field name="loan_ids"/>
                     <footer>
-                        <button string="Close" name="close_button" type="object" default_focus="1" class="oe_highlight"/>
+                        <button string="Close" name="close_loan_button" type="object" default_focus="1" class="oe_highlight"/>
                         or
                         <button string="Cancel" class="oe_link" special="cancel"/>
                     </footer>
                 </form>
             </field>
         </record>
+        <record id="loan_close_wizard_tree_view" model="ir.ui.view">
+            <field name="name">Loan Close View</field>
+            <field name="model">hr.loan.close</field>
+            <field name="arch" type="xml">
+                <!-- the user list is editable, but one cannot add or delete rows -->
+                <tree string="Loan" editable="bottom" create="false" delete="false">
+                    <field name="loan_id"/>
+                    <field name="employee_id"/>
+                    <field name="nilai_pinjaman"/>
+                    <field name="notes" required="True"/>
+                </tree>
+            </field>
+        </record>
+        
         <record id="loan_close_action" model="ir.actions.act_window">
             <field name="name">Close Loan</field>
-            <field name="res_model">hr.loan.close</field>
+            <field name="res_model">hr.loan.close_wizard</field>
             <field name="view_type">form</field>
             <field name="view_mode">form</field>
             <field name="view_id" ref="hr_salary_add.hr_loan_close_view"/>
@@ -144,6 +151,29 @@
             name="Post"
             src_model="hr.loan.line"
             res_model="hr.loan.line.post"
+            view_type="form" view_mode="form"
+            key2="client_action_multi" target="new"/>
+
+        <record id="hr_loan_line_paid_view" model="ir.ui.view">
+            <field name="name">hr.loan.line.paid.form</field>
+            <field name="model">hr.loan.line.paid</field>
+            <field name="arch" type="xml">
+                <form string="Paid Loan Line">
+                    <p class="oe_grey">
+                        This wizard will paid the all the selected loan line.
+                    </p>
+                    <footer>
+                        <button string="Paid" name="loan_line_paid" type="object" default_focus="1" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <act_window id="loan_line_paid_action"
+            name="Paid Manually"
+            src_model="hr.loan.line"
+            res_model="hr.loan.line.paid"
             view_type="form" view_mode="form"
             key2="client_action_multi" target="new"/>
         

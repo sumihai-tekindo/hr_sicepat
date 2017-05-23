@@ -103,5 +103,8 @@ class HRPayslip(models.Model):
     # CRUD methods
 
     # Action methods
+    @api.multi
+    def hr_verify_sheet(self):
+        self.state = 'verify'
 
     # Business methods

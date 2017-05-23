@@ -16,6 +16,7 @@
                     <field name="tanggal"/>
                     <field name="request_id" string="Requestor"/>
                     <field name="state"/>
+                    <field name="insentif_line"/>
                     <separator/>
                     <group expand="0" string="Group By">
                         <filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>

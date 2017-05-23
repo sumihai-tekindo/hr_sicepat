@@ -268,6 +268,14 @@ class HRLoanLine(models.Model):
     def action_undo_post(self):
         self.posted = False
 
+    @api.multi
+    def action_paid(self):
+        self.paid = True
+        
+    @api.multi
+    def action_undo_paid(self):
+        self.paid = False
+
     # Business methods
     @api.model
     def get_loan_line(self, employee, date_from, date_to, code):
