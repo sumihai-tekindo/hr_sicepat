@@ -189,6 +189,28 @@ class HRLoanLinePost(models.TransientModel):
             
         return {'type': 'ir.actions.act_window_close'}
 
+class HRLoanLinePaid(models.TransientModel):
+    """
+    This wizard will paid the all the selected loan line
+    """
+
+    _name = "hr.loan.line.paid"
+    _description = "Paid the selected loan line"
+
+    @api.multi
+    def loan_line_paid(self):
+        context = dict(self._context or {})
+        active_ids = context.get('active_ids', []) or []
+
+        for record in self.env['hr.loan.line'].browse(active_ids):
+            if record.paid:
+                raise Warning(_("Selected loan line(s) cannot be paid as they are already 'Paid'."))
+            if not record.posted:
+                record.action_post()
+            record.action_paid()
+            
+        return {'type': 'ir.actions.act_window_close'}
+
 class HRLoanLineUnpaidWizard(models.TransientModel):
     """
     This wizard will show all unpaid loan line based on date and department given
