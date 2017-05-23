@@ -12,3 +12,4 @@ class hr_employee(models.Model):
             ('karyawan','karyawan'),
         ], string='Referensi')
     no_npwp = fields.Char(string="Nomor NPWP")
+    active = fields.Boolean(track_visibility="onchange")
