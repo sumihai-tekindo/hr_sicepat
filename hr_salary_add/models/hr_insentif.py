@@ -72,6 +72,7 @@ class HRInsentifLine(models.Model):
     nilai_insentif = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Insentif', required=True)
     alasan = fields.Text()
     tanggal = fields.Date(related='insentif_id.tanggal', store=True)
+    insentif_state = fields.Selection(related='insentif_id.state', string='Status Insentif', store=True, default='draft', readonly=True)
 
     @api.model
     def get_insentif_line(self, employee, date_from, date_to):
@@ -82,7 +83,8 @@ class HRInsentifLine(models.Model):
         @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
-        clause_final = [('employee_id','=',employee.id), ('insentif_id.state','=','approved')] + clause_1
+        clause_2 = [('tanggal', '<=', date_to)]
+        clause_final = [('employee_id','=',employee.id), ('insentif_id.state','=','approved'),'|'] + clause_1 + clause_2
         insentif_line_ids = self.search(clause_final, order='tanggal desc')
         return insentif_line_ids
 

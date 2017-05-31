@@ -78,10 +78,89 @@
         </record>
 <!--    END OF TUNJANGAN LAIN-LAIN    -->
 
+		<record model="ir.actions.act_window" id="insentif_line_action">
+            <field name="name">Insentif Detail</field>
+            <field name="res_model">hr.insentif.line</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="insentif_line_search_view">
+            <field name="name">insentif.line.search</field>
+            <field name="model">hr.insentif.line</field>
+            <field name="arch" type="xml">
+                <search string="Insentif Line Search">
+                    <field name="insentif_id"/>
+                    <field name="employee_id"/>
+                    <field name="jabatan_id"/>
+                    <field name="department_id"/>
+                    <field name="tanggal"/>
+                    <field name="insentif_state"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_insentif" string="Insentif" context="{'group_by':'insentif_id'}"/>
+                    	<filter name="group_by_jabatan_id" string="Jabatan" context="{'group_by':'jabatan_id'}"/>
+                    	<filter name="group_by_department_id" string="Cabang" context="{'group_by':'department_id'}"/>
+                        <filter name="group_by_insentif_state" string="Status Insentif" context="{'group_by':'insentif_state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="insentif_line_tree_view">
+            <field name="name">insentif.line.tree</field>
+            <field name="model">hr.insentif.line</field>
+            <field name="arch" type="xml">
+                <tree create="false" colors="blue:insentif_state=='draft';black:insentif_state=='approved';red:insentif_state=='reject'" string="Insentif Detail">
+                    <field name="insentif_id"/>
+                    <field name="tanggal"/>
+                    <field name="employee_id"/>
+                    <field name="jabatan_id"/>
+                    <field name="department_id"/>
+                    <field name="nilai_insentif"/>
+                    <field name="insentif_state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="insentif_line_form_view">
+            <field name="name">insentif.line.form</field>
+            <field name="model">hr.insentif.line</field>
+            <field name="arch" type="xml">
+                <form string="Insentif Detail Form" create="false">
+	            	<sheet string="Insentif Detail">
+	                    <div class="oe_title">
+	                        <h1>
+	                            <field name="insentif_id"/>
+	                        </h1>
+	                    </div>
+		            	<group>
+		            		<group col="4">
+	                    		<field name="tanggal"/>
+		                    	<field name="employee_id"/>
+		                    	<field name="jabatan_id" options="{'no_open': True}"/>
+		                    	<field name="department_id" options="{'no_open': True}"/>
+		                    	<field name="nilai_insentif"/>
+		                    	<field name="insentif_state"/>
+		                    </group>
+		                </group>
+		                <notebook>
+		                	<page string="Alasan">
+		                		<field name="alasan"/>
+		                	</page>
+		                </notebook>
+	            	</sheet>
+                </form>
+            </field>
+        </record>
+	
 <!--    START MENU ITEM    -->
-        <menuitem id="insentif_menu" name="Insentif" 
+        <menuitem id="insentif_sub_menu" name="Insentif" 
         		  parent="hr_sicepat_configuration"
-                  action="insentif_action" sequence="2"/>
+                  sequence="2"/>
+        <menuitem id="insentif_menu" name="Insentif" 
+        		  parent="insentif_sub_menu"
+                  action="insentif_action" sequence="1"/>
+        <menuitem id="detail_insentif_menu" name="Insentif Detail" 
+        		  parent="insentif_sub_menu"
+                  action="insentif_line_action" sequence="2"/>
 <!--    END OF MENU ITEM    	-->
 	
 	</data>
