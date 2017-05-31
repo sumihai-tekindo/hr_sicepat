@@ -56,23 +56,24 @@ class DeliveryPackage(models.Model):
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     nilai_target = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Target', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    target_paket_bulan_lalu = fields.Integer(compute='compute_target_bulan_lalu', readonly=True)
+    target_paket_bulan_lalu = fields.Integer(string="Target Bulan Lalu", compute='compute_target_bulan_lalu', readonly=True)
     pertambahan_bonus = fields.Integer(required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     nilai_bonus = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Bonus', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    pertambahan_bonus_bulan_lalu = fields.Integer(compute='compute_target_bulan_lalu', readonly=True)
+    pertambahan_bonus_bulan_lalu = fields.Integer(string="Bonus Bulan Lalu", compute='compute_target_bulan_lalu', readonly=True)
     state = fields.Selection([
             ('draft','Open'),
             ('submit','Submit'),
             ('reject','Reject'),
             ('approved','Approved'),
         ], string='Status', default='draft')
-    zone_id = fields.Many2one('delivery.package.zone', 'Zone ID')
+    zone_id = fields.Many2one('delivery.package.zone', 'Zone ID', readonly=True,
+        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     
     # compute and search fields, in the same order that fields declaration
     @api.one
-    @api.depends('department_id','date_start','date_end')
+    @api.depends('department_id','date_start','date_end','zone_id')
     def compute_target_bulan_lalu(self):
         clause_1 = ['&',('date_end', '<', self.date_end),('date_end','<', self.date_start)]
         #OR if it starts between the given dates
@@ -87,7 +88,7 @@ class DeliveryPackage(models.Model):
             
     # Constraints and onchanges
     @api.one
-    @api.constrains('date_start','date_end','department_id','state')
+    @api.constrains('date_start','date_end','department_id','state','zone_id')
     def _check_date(self):
         for package_target in self:
             if package_target.state != 'approved':

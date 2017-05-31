@@ -112,13 +112,17 @@
                         		<div>
                             		<field name="date_start" class="oe_inline"/> - <field name="date_end" class="oe_inline"/>
                         		</div>
+		                    </group>
+		            		<group>
+		                    	<field name="department_id" options="{'no_create_edit': True, 'no_open': True}"/>
+		                    	<field name="zone_id" options="{'no_create_edit': True, 'no_open': True}"/>
+		                    </group>
+		            		<group>
 		                    	<field name="target_paket"/>
 		                    	<field name="nilai_target"/>
 		                    	<field name="target_paket_bulan_lalu"/>
 		                    </group>
 		            		<group>
-		                    	<field name="department_id" options="{'no_create_edit': True, 'no_open': True}"/>
-		                    	<field name="zone_id" options="{'no_create_edit': True, 'no_open': True}"/>
 	                    		<field name="pertambahan_bonus"/>
 	                    		<field name="nilai_bonus"/>
 		                    	<field name="pertambahan_bonus_bulan_lalu"/>
@@ -155,13 +159,17 @@
 			<field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
 			<field name="arch" type="xml">
 				<xpath expr="//notebook" position="inside">
-					<page string="Target" invisible="1">
+					<page string="Target" groups="base.group_hr_manager">
 						<group>
-							<field name="total_paket"/>
-							<field name="target_paket"/>
-							<field name="nilai_target"/>
-							<field name="pertambahan_bonus"/>
-							<field name="nilai_bonus"/>
+							<group string="Pengiriman">
+								<field name="total_paket"/>
+							</group>
+							<group string="Target">
+								<field name="target_paket"/>
+								<field name="nilai_target"/>
+								<field name="pertambahan_bonus"/>
+								<field name="nilai_bonus"/>
+							</group>
 						</group>
 					</page>
 				</xpath>
