@@ -85,12 +85,13 @@
                     <field name="loan_type"/>
                     <field name="tanggal"/>
                     <field name="employee_id"/>
-                    <field name="jabatan_id"/>
+                    <field name="jabatan_id" invisible="1"/>
                     <field name="department_id"/>
                     <field name="total_angsuran" sum="Total Pinjaman"/>
                     <field name="total_bayar_angsuran" sum="Total Pembayaran Angsuran"/>
                     <field name="sisa_angsuran" sum="Sisa Angsuran"/>
                     <field name="state"/>
+                    <field name="notes"/>
                 </tree>
             </field>
         </record>
