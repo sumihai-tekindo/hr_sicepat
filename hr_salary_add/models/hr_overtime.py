@@ -28,6 +28,7 @@ import openerp.addons.decimal_precision as dp
 
 class HROvertime(models.Model):
     _name = 'hr.overtime'
+    _order = "tanggal desc, id desc"
     
     name = fields.Char(string='Number', readonly=True)
     request_id = fields.Many2one('res.users', string='Requestor', readonly=True,
@@ -75,7 +76,7 @@ class HROvertime(models.Model):
 class HROvertimeLine(models.Model):
     _name = 'hr.overtime.line'
     _rec_name = 'employee_id'
-    _order = 'tanggal desc, employee_id'
+    _order = 'tanggal desc, department_id, nilai desc'
     
     overtime_id = fields.Many2one('hr.overtime', string='Overtime', readonly=True)
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True,
