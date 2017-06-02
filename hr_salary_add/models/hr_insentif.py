@@ -39,6 +39,7 @@ class HRInsentif(models.Model):
         ('submit','Submit'),
         ('reject','Reject'),
         ('approved','Approved'),
+        ('cancel','Cancel'),
         ], string='State', readonly=True, default='draft')
     insentif_line = fields.One2many('hr.insentif.line', 'insentif_id', readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
@@ -55,6 +56,10 @@ class HRInsentif(models.Model):
     def action_reject(self):
         self.state = 'reject'
 
+    @api.multi
+    def action_cancel(self):
+        self.state = 'cancel'
+        
     @api.model
     def create(self, vals):
         vals['name'] = self.env['ir.sequence'].get('hr.insentif')
@@ -64,6 +69,7 @@ class HRInsentif(models.Model):
 class HRInsentifLine(models.Model):
     _name = 'hr.insentif.line'
     _rec_name = 'employee_id'
+    _order = 'tanggal desc, department_id, nilai_insentif desc'
 
     insentif_id = fields.Many2one('hr.insentif', string='Insentif')
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True)
