@@ -80,8 +80,8 @@
                     <field name="zone_id"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
-                    <field name="target_paket"/>
-                    <field name="pertambahan_bonus"/>
+<!--                    <field name="target_paket"/>-->
+<!--                    <field name="pertambahan_bonus"/>-->
                     <field name="state"/>
                 </tree>
             </field>
@@ -117,16 +117,54 @@
 		                    	<field name="department_id" options="{'no_create_edit': True, 'no_open': True}"/>
 		                    	<field name="zone_id" options="{'no_create_edit': True, 'no_open': True}"/>
 		                    </group>
-		            		<group>
-		                    	<field name="target_paket"/>
-		                    	<field name="nilai_target"/>
-		                    	<field name="target_paket_bulan_lalu"/>
+		            		<group string="Target Paket">
+		                    	<separator string="Conditions"/><newline/>
+		                    	<field name="target_condition_select" attrs="{'required': 1}"/><newline/>
+		                    	<field name="target_condition_python" attrs="{'required': [('target_condition_select','=','python')], 'invisible': [('target_condition_select','!=','python')]}"/><newline/>
+		                    	<separator string="Computation"/><newline/>
+		                    	<field name="target_amount_select" attrs="{'required': 1}"/><newline/>
+                                <field name="target_quantity" attrs="{'required':[('target_amount_select','!=','code')], 'invisible':[('target_amount_select','=','code')]}"/><newline/>
+                                <field name="target_amount_fix"  attrs="{'required':[('target_amount_select','=','fix')], 'invisible':[('target_amount_select','!=','fix')]}"/><newline/>
+                                <field name="target_amount_python_compute" attrs="{'required':[('target_amount_select','=','code')], 'invisible':[('target_amount_select','!=','code')]}"/>
 		                    </group>
-		            		<group>
-	                    		<field name="pertambahan_bonus"/>
-	                    		<field name="nilai_bonus"/>
-		                    	<field name="pertambahan_bonus_bulan_lalu"/>
+		            		<group string="Bonus Paket">
+		                    	<separator string="Conditions"/><newline/>
+		                    	<field name="bonus_condition_select" attrs="{'required': 1}"/><newline/>
+		                    	<field name="bonus_condition_python" attrs="{'required': [('bonus_condition_select','=','python')], 'invisible': [('bonus_condition_select','!=','python')]}"/><newline/>
+		                    	<separator string="Computation"/><newline/>
+		                    	<field name="bonus_amount_select" attrs="{'required': 1}"/><newline/>
+                                <field name="bonus_quantity" attrs="{'required':[('bonus_amount_select','!=','code')], 'invisible':[('bonus_amount_select','=','code')]}"/><newline/>
+                                <field name="bonus_amount_fix"  attrs="{'required':[('bonus_amount_select','=','fix')], 'invisible':[('bonus_amount_select','!=','fix')]}"/><newline/>
+                                <field name="bonus_amount_python_compute" attrs="{'required':[('bonus_amount_select','=','code')], 'invisible':[('bonus_amount_select','!=','code')]}"/>
 		                    </group>
+<!--		            		<group string="Target Paket">-->
+<!--		            			<field name="target_manual"/>-->
+<!--		                    	<field name="target_paket" attrs="{'required': [('target_manual','=',True)], 'invisible': [('target_manual','=',False)]}"/>-->
+<!--		                    	<field name="nilai_target" attrs="{'required': [('target_manual','=',True)], 'invisible': [('target_manual','=',False)]}"/>-->
+<!--		                    	<field name="target_paket_bulan_lalu" attrs="{'invisible': [('target_manual','=',False)]}"/>-->
+<!--		                    	<separator string="Conditions" attrs="{'invisible': [('target_manual','=',True)]}"/><newline/>-->
+<!--		                    	<field name="target_condition_select" attrs="{'required': [('target_manual','=',False)], 'invisible': [('target_manual','=',True)]}"/><newline/>-->
+<!--		                    	<field name="target_condition_python" attrs="{'required': [('target_condition_select','=','python')], 'invisible': ['|',('target_condition_select','!=','python'),('target_manual','=',True)]}"/><newline/>-->
+<!--		                    	<separator string="Computation" attrs="{'invisible': [('target_manual','=',True)]}"/><newline/>-->
+<!--		                    	<field name="target_amount_select" attrs="{'required': [('target_manual','=',False)], 'invisible': [('target_manual','=',True)]}"/><newline/>-->
+<!--                                <field name="target_quantity" attrs="{'required':[('target_amount_select','!=','code')], 'invisible':['|',('target_amount_select','=','code'),('target_manual','=',True)]}"/><newline/>-->
+<!--                                <field name="target_amount_fix"  attrs="{'required':[('target_amount_select','=','fix')], 'invisible':['|',('target_amount_select','!=','fix'),('target_manual','=',True)]}"/><newline/>-->
+<!--                                <field name="target_amount_python_compute" attrs="{'required':[('target_amount_select','=','code')], 'invisible':['|',('target_amount_select','!=','code'),('target_manual','=',True)]}"/>-->
+<!--		                    </group>-->
+<!--		            		<group string="Bonus Paket">-->
+<!--		            			<field name="bonus_manual"/>-->
+<!--	                    		<field name="pertambahan_bonus" attrs="{'required': [('bonus_manual','=',True)], 'invisible': [('bonus_manual','=',False)]}"/>-->
+<!--	                    		<field name="nilai_bonus" attrs="{'required': [('bonus_manual','=',True)], 'invisible': [('bonus_manual','=',False)]}"/>-->
+<!--		                    	<field name="pertambahan_bonus_bulan_lalu" attrs="{'invisible': [('bonus_manual','=',False)]}"/>-->
+<!--		                    	<separator string="Conditions" attrs="{'invisible': [('bonus_manual','=',True)]}"/><newline/>-->
+<!--		                    	<field name="bonus_condition_select" attrs="{'required': [('bonus_manual','=',False)], 'invisible': [('bonus_manual','=',True)]}"/><newline/>-->
+<!--		                    	<field name="bonus_condition_python" attrs="{'required': [('bonus_condition_select','=','python')], 'invisible': ['|',('bonus_condition_select','!=','python'),('bonus_manual','=',True)]}"/><newline/>-->
+<!--		                    	<separator string="Computation" attrs="{'invisible': [('bonus_manual','=',True)]}"/><newline/>-->
+<!--		                    	<field name="bonus_amount_select" attrs="{'required': [('bonus_manual','=',False)], 'invisible': [('bonus_manual','=',True)]}"/><newline/>-->
+<!--                                <field name="bonus_quantity" attrs="{'required':[('bonus_amount_select','!=','code')], 'invisible':['|',('bonus_amount_select','=','code'),('bonus_manual','=',True)]}"/><newline/>-->
+<!--                                <field name="bonus_amount_fix"  attrs="{'required':[('bonus_amount_select','=','fix')], 'invisible':['|',('bonus_amount_select','!=','fix'),('bonus_manual','=',True)]}"/><newline/>-->
+<!--                                <field name="bonus_amount_python_compute" attrs="{'required':[('bonus_amount_select','=','code')], 'invisible':['|',('bonus_amount_select','!=','code'),('bonus_manual','=',True)]}"/>-->
+<!--		                    </group>-->
 		            	</group>
 	            	</sheet>
                 </form>

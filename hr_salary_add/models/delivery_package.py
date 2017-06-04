@@ -25,7 +25,8 @@
 
 # 2 :  imports of openerp
 from openerp import models, fields, api, _
-from openerp.exceptions import AccessError, Warning
+from openerp.exceptions import ValidationError, Warning
+from openerp.tools.safe_eval import safe_eval as eval
 
 # 3 :  imports from odoo modules
 import openerp.addons.decimal_precision as dp
@@ -52,16 +53,80 @@ class DeliveryPackage(models.Model):
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     department_id = fields.Many2one('hr.department', string='Nama Cabang', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    target_paket = fields.Integer(required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    nilai_target = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Target', required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    target_paket_bulan_lalu = fields.Integer(string="Target Bulan Lalu", compute='compute_target_bulan_lalu', readonly=True)
-    pertambahan_bonus = fields.Integer(required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    nilai_bonus = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Bonus', required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    pertambahan_bonus_bulan_lalu = fields.Integer(string="Bonus Bulan Lalu", compute='compute_target_bulan_lalu', readonly=True)
+#     target_paket = fields.Integer(string='Target Paket', readonly=True,
+#         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+#     nilai_target = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Target', readonly=True,
+#         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+#     target_paket_bulan_lalu = fields.Integer(string="Target Bulan Lalu", compute='compute_target_bulan_lalu', readonly=True)
+#     pertambahan_bonus = fields.Integer(string='Pertambahan Bonus', readonly=True,
+#         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+#     nilai_bonus = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Bonus', readonly=True,
+#         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+#     pertambahan_bonus_bulan_lalu = fields.Integer(string="Bonus Bulan Lalu", compute='compute_target_bulan_lalu', readonly=True)
+#     target_manual = fields.Boolean(string='Manual Calculation ?', default=True)
+    target_condition_select = fields.Selection([('none', 'Always True'),('python', 'Python Expression')], "Condition Based on", default='none')
+    target_condition_python = fields.Text('Python Condition', help='Applied this for calculation if condition is true. You can specify condition like total_consigment > 1000.',
+        default='''
+# Available variables:
+#----------------------
+# employee: hr.employee object
+# contract: hr.contract object
+# total_consignment: total of consignment delivered
+# total_courier: total of courier
+
+# Note: returned value have to be set in the variable 'result'
+
+result = total_consignment > 1500''')
+    target_amount_select = fields.Selection([
+        ('fix','Fixed Amount'),
+        ('code','Python Code'),
+    ],'Amount Type', select=True, help="The computation method for the target amount.", default='fix')
+    target_quantity = fields.Char('Quantity', help="It is used in computation for percentage and fixed amount." \
+        "For e.g. A target having fixed amount of Rp 500 per target can have its quantity defined in expression like total_consigment.", default="1.0")
+    target_amount_fix = fields.Float('Fixed Amount', digits=dp.get_precision('Payroll'), default=0.0)
+    target_amount_python_compute = fields.Text('Python Code', default='''
+# Available variables:
+#----------------------
+# employee: hr.employee object
+# contract: hr.contract object
+# total_consignment: total of consignment delivered
+# total_courier: total of courier
+
+# Note: returned value have to be set in the variable 'result'
+
+result = total_consignment * 500''')
+#     bonus_manual = fields.Boolean(string='Manual Calculation ?', default=True)
+    bonus_condition_select = fields.Selection([('none', 'Always True'),('python', 'Python Expression')], "Condition Based on", default='none')
+    bonus_condition_python = fields.Text('Python Condition', help='Applied this for calculation if condition is true. You can specify condition like total_consigment > 1000.',
+        default='''
+# Available variables:
+#----------------------
+# employee: hr.employee object
+# contract: hr.contract object
+# total_consignment: total of consignment delivered
+# total_courier: total of courier
+
+# Note: returned value have to be set in the variable 'result'
+
+result = total_consignment > 1500''')
+    bonus_amount_select = fields.Selection([
+        ('fix','Fixed Amount'),
+        ('code','Python Code'),
+    ],'Amount Type', select=True, help="The computation method for the target amount.", default='fix')
+    bonus_quantity = fields.Char('Quantity', help="It is used in computation for percentage and fixed amount." \
+        "For e.g. A target having fixed amount of Rp 500 per target can have its quantity defined in expression like total_consigment.", default="1.0")
+    bonus_amount_fix = fields.Float('Fixed Amount', digits=dp.get_precision('Payroll'), default=0.0)
+    bonus_amount_python_compute = fields.Text('Python Code', default='''
+# Available variables:
+#----------------------
+# employee: hr.employee object
+# contract: hr.contract object
+# total_consignment: total of consignment delivered
+# total_courier: total of courier
+
+# Note: returned value have to be set in the variable 'result'
+
+result = total_consignment * 500''')
     state = fields.Selection([
             ('draft','Open'),
             ('submit','Submit'),
@@ -89,7 +154,7 @@ class DeliveryPackage(models.Model):
     # Constraints and onchanges
     @api.one
     @api.constrains('date_start','date_end','department_id','state','zone_id')
-    def _check_date(self):
+    def _check_constraint_target(self):
         for package_target in self:
             if package_target.state != 'approved':
                 continue
@@ -139,7 +204,7 @@ class DeliveryPackage(models.Model):
         @param employee: browse record of employee
         @param date_from: date field
         @param date_to: date field
-        @return: returns records of all the delivery target for the given employee that need to be considered for the given dates
+        @return: returns records of the delivery target for the given employee that need to be considered for the given dates
         """
         #a delivery target is valid if it ends between the given dates
         clause_1 = ['&',('date_end', '<=', date_to),('date_end','>=', date_from)]
@@ -148,13 +213,88 @@ class DeliveryPackage(models.Model):
         #OR if it starts before the date_from and finish after the date_end (or never finish)
         clause_3 = ['&',('date_start','<=', date_from),'|',('date_end', '=', False),('date_end','>=', date_to)]
         clause_final =  [('department_id', '=', employee.department_id.id), employee.zone_id and ('zone_id', '=', employee.zone_id.id) or ('zone_id', '=', False),'|',('state','=','approved'),'|'] + clause_1 + clause_2 + clause_3
-        target_ids = self.search(clause_final)
-        return target_ids
+        target = self.search(clause_final, order='date_end desc', limit=1)
+        return target
+
+    @api.multi
+    def compute_target(self, localdict):
+        """
+        :param localdict: dictionary containing the environment in which to compute the target
+        :return: returns a tuple build as the base/amount computed and the quantity
+        :rtype: (float, float)
+        """
+        self.ensure_one()
+        if self.target_amount_select == 'fix':
+            try:
+                return self.target_amount_fix, float(eval(self.target_quantity, localdict))
+            except:
+                raise ValidationError(_('Wrong quantity defined for target %s (%s - %s).')% (self.name, self.date_start, self.date_end))
+        elif self.target_amount_select == 'code':
+            try:
+                eval(self.target_amount_python_compute, localdict, mode='exec', nocopy=True)
+                return float(localdict['result']), 'result_qty' in localdict and localdict['result_qty'] or 1.0
+            except:
+                raise ValidationError(_('Wrong python code defined for target %s (%s - %s).')% (self.name, self.date_start, self.date_end))
+
+    @api.multi
+    def compute_bonus(self, localdict):
+        """
+        :param localdict: dictionary containing the environment in which to compute the bonus
+        :return: returns a tuple build as the base/amount computed and the quantity
+        :rtype: (float, float)
+        """
+        self.ensure_one()
+        if self.bonus_amount_select == 'fix':
+            try:
+                return self.bonus_amount_fix, float(eval(self.bonus_quantity, localdict))
+            except:
+                raise ValidationError(_('Wrong quantity defined for target %s (%s - %s).')% (self.name, self.date_start, self.date_end))
+        elif self.bonus_amount_select == 'code':
+            try:
+                eval(self.bonus_amount_python_compute, localdict, mode='exec', nocopy=True)
+                return float(localdict['result']), 'result_qty' in localdict and localdict['result_qty'] or 1.0
+            except:
+                raise ValidationError(_('Wrong python code defined for target %s (%s - %s).')% (self.name, self.date_start, self.date_end))
+
+    @api.multi
+    def target_condition(self, localdict):
+        """
+        :param localdict: dictionary containing the environment in which to compute the target
+        @return: returns True if the given rule match the condition for the given localdict. Return False otherwise.
+        """
+        self.ensure_one()
+
+        if self.target_condition_select == 'none':
+            return True
+        elif self.target_condition_select == 'python':
+            try:
+                eval(self.target_condition_python, localdict, mode='exec', nocopy=True)
+                return 'result' in localdict and localdict['result'] or False
+            except:
+                raise ValidationError(_('Wrong python condition defined for target %s (%s - %s).')% (self.name, self.date_start, self.date_end))
+
+    @api.multi
+    def bonus_condition(self, localdict):
+        """
+        :param localdict: dictionary containing the environment in which to compute the bonus
+        @return: returns True if the given rule match the condition for the given localdict. Return False otherwise.
+        """
+        self.ensure_one()
+
+        if self.bonus_condition_select == 'none':
+            return True
+        elif self.bonus_condition_select == 'python':
+            try:
+                eval(self.bonus_condition_python, localdict, mode='exec', nocopy=True)
+                return 'result' in localdict and localdict['result'] or False
+            except:
+                raise ValidationError(_('Wrong python condition defined for target %s (%s - %s).')% (self.name, self.date_start, self.date_end))
 
 
 class DeliveryPackageRun(models.Model):
     _name = "delivery.package.run"
     _rec_name = 'employee_id'
+    _order = "date_delivery desc, department_id, total_paket desc"
     
     employee_id = fields.Many2one('hr.employee', 'Karyawan', required=True)
     date_delivery = fields.Date('Tanggal pengiriman', required=True)
@@ -177,9 +317,9 @@ class DeliveryPackageRun(models.Model):
         total_delivery = 0
         #a contract is valid if it ends between the given dates
         clause_1 = ['&',('date_delivery', '<=', date_to),('date_delivery','>=', date_from)]
-        clause_final =  [('employee_id', '=', employee.id)] + clause_1
+        clause_final = [('employee_id', '=', employee.id)] + clause_1
         if employee.as_head:
-            clause_final =  [('department_id', '=', employee.department_id.id), ('employee_id', '!=', employee.id)] + clause_1
+            clause_final = [('department_id', '=', employee.department_id.id), ('employee_id', '!=', employee.id)] + clause_1
         delivery_ids = self.search(clause_final)
         if delivery_ids:
             for delivery in delivery_ids:
@@ -196,6 +336,43 @@ class DeliveryPackageRun(models.Model):
                 else:
                     total_delivery += delivery.total_paket
         return total_delivery
+
+    @api.model
+    def get_deliveries(self, employee, date_from, date_to):
+        """
+        @param employee: browse record of employee
+        @param date_from: date field
+        @param date_to: date field
+        @return: returns delivery records for the given employee that need to be considered for the given dates
+        """
+        clause_1 = ['&',('date_delivery', '<=', date_to),('date_delivery','>=', date_from)]
+        clause_final = [('employee_id', '=', employee.id)] + clause_1
+        if employee.as_head:
+            clause_final = [('department_id', '=', employee.department_id.id), ('employee_id', '!=', employee.id)] + clause_1
+        deliveries = self.search(clause_final, order='employee_id, date_delivery')
+        return deliveries
+
+    @api.multi
+    def get_total_consignment(self):
+        total_paket = 0
+        for delivery in self:
+            total_paket += delivery.total_paket
+        return total_paket
+
+    @api.multi
+    def get_total_courier(self):
+        delivery_dict = {}
+        for delivery in self:
+            key = delivery.employee_id.id
+            if delivery_dict.get(key):
+                delivery_dict[key]['lines'] += delivery
+                delivery_dict[key]['total_paket'] += delivery.total_paket
+            else:
+                delivery_dict[key] = {
+                        'lines': delivery,
+                        'total_paket': delivery.total_paket,
+                    }
+        return len(delivery_dict)
 
 
 class HREmployee(models.Model):
@@ -266,6 +443,7 @@ class HRPayslip(models.Model):
 
     def onchange_employee_id(self, cr, uid, ids, date_from, date_to, employee_id=False, contract_id=False, context=None):
         employee_obj = self.pool.get('hr.employee')
+        contract_obj = self.pool.get('hr.contract')
         target_obj = self.pool.get('delivery.package.target')
         delivery_obj = self.pool.get('delivery.package.run')
         
@@ -273,40 +451,57 @@ class HRPayslip(models.Model):
             context = {}
         res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, \
             employee_id=employee_id, contract_id=contract_id, context=context)
-        res['value']['target_paket'] = 0
-        res['value']['nilai_target'] = 0.0
-        res['value']['pertambahan_bonus'] = 0
-        res['value']['nilai_bonus'] = 0.0
+#         res['value']['target_paket'] = 0
+#         res['value']['nilai_target'] = 0.0
+#         res['value']['pertambahan_bonus'] = 0
+#         res['value']['nilai_bonus'] = 0.0
         res['value']['total_paket'] = 0
 
         if (not employee_id) or (not date_from) or (not date_to):
             return res
         
-        employee_id = employee_obj.browse(cr, uid, employee_id, context=context)
-        target = target_obj.get_target(cr, uid, employee_id, date_from, date_to, context=context)
+        employee = employee_obj.browse(cr, uid, employee_id, context=context)
+        contract = contract_obj.browse(cr, uid, res['value'].get('contract_id', False), context=context)
+        target = target_obj.get_target(cr, uid, employee, date_from, date_to, context=context)
+        deliveries = delivery_obj.get_deliveries(cr, uid, employee, date_from, date_to, context=context)
+        total_consignment = deliveries.get_total_consignment()
+        total_courier = deliveries.get_total_courier()
+        target_amount = 0.0
+        bonus_amount = 0.0
+        localdict = dict(result=None, total_consignment=total_consignment, total_courier=total_courier, employee=employee, contract=contract)
         
-        target_paket = target and target[0].target_paket or 0
-        nilai_target = target and target[0].nilai_target or 0.0
-        pertambahan_bonus = target and target[0].pertambahan_bonus or 0
-        nilai_bonus = target and target[0].nilai_bonus or 0.0
-        total_paket = delivery_obj.get_delivery(cr, uid, employee_id, date_from, date_to, context=context)
+        if target.target_condition(localdict):
+            amount, qty = target.compute_target(localdict)
+            target_amount = amount * qty
+            
+        if target.bonus_condition(localdict):
+            amount, qty = target.compute_bonus(localdict)
+            bonus_amount = amount * qty
         
-        try:
-            t_bonus = int(((total_paket - target_paket) > 0 and (total_paket - target_paket) or 0) / pertambahan_bonus)
-        except:
-            t_bonus = 0
+#         target_paket = target and target.target_paket or 0
+#         nilai_target = target and target.nilai_target or 0.0
+#         pertambahan_bonus = target and target.pertambahan_bonus or 0
+#         nilai_bonus = target and target.nilai_bonus or 0.0
+#         total_paket = delivery_obj.get_delivery(cr, uid, employee, date_from, date_to, context=context)
+#         
+#         try:
+#             t_bonus = int(((total_paket - target_paket) > 0 and (total_paket - target_paket) or 0) / pertambahan_bonus)
+#         except:
+#             t_bonus = 0
 
         input_line_ids = res.get('value', {}) and res.get('value').get('input_line_ids', [])
         for input_line in input_line_ids:
             if input_line.get('code') in ('TARGET', 'TBONUS'):
                 if input_line['code'] == 'TARGET':
-                    input_line['amount'] = total_paket and nilai_target or 0.0
+#                     input_line['amount'] = total_paket and nilai_target or 0.0
+                    input_line['amount'] = target_amount
                 if input_line['code'] == 'TBONUS':
-                    input_line['amount'] = total_paket and (t_bonus * nilai_bonus) or 0.0
+#                     input_line['amount'] = total_paket and (t_bonus * nilai_bonus) or 0.0
+                    input_line['amount'] = bonus_amount
         
-        res['value']['target_paket'] = target_paket
-        res['value']['nilai_target'] = nilai_target
-        res['value']['pertambahan_bonus'] = pertambahan_bonus
-        res['value']['nilai_bonus'] = nilai_bonus
-        res['value']['total_paket'] = total_paket
+#         res['value']['target_paket'] = target_paket
+#         res['value']['nilai_target'] = nilai_target
+#         res['value']['pertambahan_bonus'] = pertambahan_bonus
+#         res['value']['nilai_bonus'] = nilai_bonus
+        res['value']['total_paket'] = total_consignment
         return res
