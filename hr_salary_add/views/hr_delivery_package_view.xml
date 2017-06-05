@@ -98,6 +98,8 @@
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit" class="oe_highlight"/>
+                        <button name="action_draft" type="object"
+                                string="Set to Draft" states="reject,approved" class="oe_highlight"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
 	            	<sheet string="Target Paket">

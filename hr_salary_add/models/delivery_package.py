@@ -197,6 +197,10 @@ result = total_consignment * 500''')
     def action_reject(self):
         self.state = 'reject'
         
+    @api.multi
+    def action_draft(self):
+        self.state = 'draft'
+        
     # Business methods
     @api.model
     def get_target(self, employee, date_from, date_to):
