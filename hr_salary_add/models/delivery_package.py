@@ -470,11 +470,11 @@ class HRPayslip(models.Model):
         bonus_amount = 0.0
         localdict = dict(result=None, total_consignment=total_consignment, total_courier=total_courier, employee=employee, contract=contract)
         
-        if target.target_condition(localdict):
+        if target and target.target_condition(localdict):
             amount, qty = target.compute_target(localdict)
             target_amount = amount * qty
             
-        if target.bonus_condition(localdict):
+        if target and target.bonus_condition(localdict):
             amount, qty = target.compute_bonus(localdict)
             bonus_amount = amount * qty
         
