@@ -99,7 +99,7 @@
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit" class="oe_highlight"/>
                         <button name="action_draft" type="object"
-                                string="Set to Draft" states="reject,approved" class="oe_highlight"/>
+                                string="Set to Draft" states="reject,approved"/>
 	            		<field name="state" widget="statusbar"/>
 	            	</header>
 	            	<sheet string="Target Paket">
@@ -121,20 +121,20 @@
 		                    </group>
 		            		<group string="Target Paket">
 		                    	<separator string="Conditions"/><newline/>
-		                    	<field name="target_condition_select" attrs="{'required': 1}"/><newline/>
+		                    	<field name="target_condition_select"/><newline/>
 		                    	<field name="target_condition_python" attrs="{'required': [('target_condition_select','=','python')], 'invisible': [('target_condition_select','!=','python')]}"/><newline/>
 		                    	<separator string="Computation"/><newline/>
-		                    	<field name="target_amount_select" attrs="{'required': 1}"/><newline/>
+		                    	<field name="target_amount_select"/><newline/>
                                 <field name="target_quantity" attrs="{'required':[('target_amount_select','!=','code')], 'invisible':[('target_amount_select','=','code')]}"/><newline/>
                                 <field name="target_amount_fix"  attrs="{'required':[('target_amount_select','=','fix')], 'invisible':[('target_amount_select','!=','fix')]}"/><newline/>
                                 <field name="target_amount_python_compute" attrs="{'required':[('target_amount_select','=','code')], 'invisible':[('target_amount_select','!=','code')]}"/>
 		                    </group>
 		            		<group string="Bonus Paket">
 		                    	<separator string="Conditions"/><newline/>
-		                    	<field name="bonus_condition_select" attrs="{'required': 1}"/><newline/>
+		                    	<field name="bonus_condition_select"/><newline/>
 		                    	<field name="bonus_condition_python" attrs="{'required': [('bonus_condition_select','=','python')], 'invisible': [('bonus_condition_select','!=','python')]}"/><newline/>
 		                    	<separator string="Computation"/><newline/>
-		                    	<field name="bonus_amount_select" attrs="{'required': 1}"/><newline/>
+		                    	<field name="bonus_amount_select"/><newline/>
                                 <field name="bonus_quantity" attrs="{'required':[('bonus_amount_select','!=','code')], 'invisible':[('bonus_amount_select','=','code')]}"/><newline/>
                                 <field name="bonus_amount_fix"  attrs="{'required':[('bonus_amount_select','=','fix')], 'invisible':[('bonus_amount_select','!=','fix')]}"/><newline/>
                                 <field name="bonus_amount_python_compute" attrs="{'required':[('bonus_amount_select','=','code')], 'invisible':[('bonus_amount_select','!=','code')]}"/>
@@ -204,12 +204,12 @@
 							<group string="Pengiriman">
 								<field name="total_paket"/>
 							</group>
-							<group string="Target">
-								<field name="target_paket"/>
-								<field name="nilai_target"/>
-								<field name="pertambahan_bonus"/>
-								<field name="nilai_bonus"/>
-							</group>
+<!--							<group string="Target">-->
+<!--								<field name="target_paket"/>-->
+<!--								<field name="nilai_target"/>-->
+<!--								<field name="pertambahan_bonus"/>-->
+<!--								<field name="nilai_bonus"/>-->
+<!--							</group>-->
 						</group>
 					</page>
 				</xpath>
