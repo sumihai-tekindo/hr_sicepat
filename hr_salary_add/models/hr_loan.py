@@ -278,16 +278,16 @@ class HRLoanLine(models.Model):
 
     # Business methods
     @api.model
-    def get_loan_line(self, employee, date_from, date_to, code):
+    def get_loan_line(self, contract, date_from, date_to, code):
         """
-        @param employee: browse record of employee
+        @param contract: browse record of contract
         @param date_from: date field
         @param date_to: date field
         @param code: char field
-        @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
+        @return: returns the ids of all the salary structure lines for the given contract that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal_angsuran', '<=', date_to),('tanggal_angsuran','>=', date_from)]
-        clause_final = [('loan_id.employee_id','=',employee.id), ('posted','=',True), ('paid','=',False), ('loan_id.loan_type.code','=',code)] + clause_1
+        clause_final = [('loan_id.employee_id','=',contract.employee_id.id), ('posted','=',True), ('paid','=',False), ('loan_id.loan_type.code','=',code)] + clause_1
         loan_line_ids = self.search(clause_final, order='tanggal_angsuran desc')
         return loan_line_ids
 
@@ -339,15 +339,12 @@ class HRPayslip(models.Model):
         result = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
 
         contract_obj = self.pool['hr.contract']
-        employee_obj = self.pool['hr.employee']
         loan_line = self.pool['hr.loan.line']
-        
-        employee_id = contract_obj.browse(cr, uid, contract_ids, context=context)[0].employee_id.id
-        employee = employee_obj.browse(cr, uid, employee_id, context=context)
         
         for res in result:
             if loan_line.get_condition(cr, uid, res.get('code'), context=context):
-                loan_line_ids = loan_line.get_loan_line(cr, uid, employee, date_from, date_to, res['code'], context=context)
+                contract = contract_obj.browse(cr, uid, [res['contract_id']], context=context)
+                loan_line_ids = loan_line.get_loan_line(cr, uid, contract, date_from, date_to, res['code'], context=context)
                 if loan_line_ids:
                     res['amount'] = loan_line_ids.get_amount()
                     res['loan_line_ids'] = [(6, 0, [l.id for l in loan_line_ids])]
