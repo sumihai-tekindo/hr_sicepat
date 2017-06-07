@@ -90,16 +90,16 @@ class SalaryStructureLine(models.Model):
     tanggal = fields.Date(related='structure_id.tanggal', store=True)
 
     @api.model
-    def get_structure_line(self, employee, date_from, date_to):
+    def get_structure_line(self, contract, date_from, date_to):
         """
-        @param employee: browse record of employee
+        @param employee: browse record of contract
         @param date_from: date field
         @param date_to: date field
         @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
         clause_2 = [('tanggal', '<=', date_to)]
-        clause_final = [('structure_id.department_id','=',employee.department_id.id), ('jabatan_id','=',employee.job_id.id), ('structure_id.state','=','approved'),'|'] + clause_1 + clause_2
+        clause_final = [('structure_id.department_id','=',contract.department_id.id), ('jabatan_id','=',contract.job_id.id), ('structure_id.state','=','approved'),'|'] + clause_1 + clause_2
         struc_line_ids = self.search(clause_final, order='tanggal desc')
         return struc_line_ids
 
@@ -128,15 +128,12 @@ class HRPayslip(models.Model):
         res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
 
         contract_obj = self.pool.get('hr.contract')
-        employee_obj = self.pool.get('hr.employee')
         struct_line = self.pool.get('salary.structure.line')
-        
-        employee_id = contract_obj.browse(cr, uid, contract_ids, context=context)[0].employee_id.id
-        employee = employee_obj.browse(cr, uid, employee_id, context=context)
         
         for result in res:
             if struct_line.get_condition(cr, uid, result.get('code'), context=context):
-                struct_line_ids = struct_line.get_structure_line(cr, uid, employee, date_from, date_to, context=context)
+                contract = contract_obj.browse(cr, uid, [result['contract_id']], context=context)
+                struct_line_ids = struct_line.get_structure_line(cr, uid, contract, date_from, date_to, context=context)
                 if struct_line_ids:
                     result['amount'] = struct_line_ids[0].get_amount(result['code'])
 
