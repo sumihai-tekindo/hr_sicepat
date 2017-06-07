@@ -81,16 +81,16 @@ class HRInsentifLine(models.Model):
     insentif_state = fields.Selection(related='insentif_id.state', string='Status Insentif', store=True, default='draft', readonly=True)
 
     @api.model
-    def get_insentif_line(self, employee, date_from, date_to):
+    def get_insentif_line(self, contract, date_from, date_to):
         """
-        @param employee: browse record of employee
+        @param contract: browse record of contract
         @param date_from: date field
         @param date_to: date field
-        @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
+        @return: returns the ids of all the salary structure lines for the given contract that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
         clause_2 = [('tanggal', '<=', date_to)]
-        clause_final = [('employee_id','=',employee.id), ('insentif_id.state','=','approved'),'|'] + clause_1 + clause_2
+        clause_final = [('employee_id','=',contract.employee_id.id), ('insentif_id.state','=','approved'),'|'] + clause_1 + clause_2
         insentif_line_ids = self.search(clause_final, order='tanggal desc')
         return insentif_line_ids
 
@@ -108,15 +108,12 @@ class HRPayslip(models.Model):
         res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
 
         contract_obj = self.pool.get('hr.contract')
-        employee_obj = self.pool.get('hr.employee')
         insentif_line = self.pool.get('hr.insentif.line')
-        
-        employee_id = contract_obj.browse(cr, uid, contract_ids, context=context)[0].employee_id.id
-        employee = employee_obj.browse(cr, uid, employee_id, context=context)
         
         for result in res:
             if result.get('code') == 'INSENTIF':
-                struct_line_ids = insentif_line.get_insentif_line(cr, uid, employee, date_from, date_to, context=context)
+                contract = contract_obj.browse(cr, uid, [result['contract_id']], context=context)
+                struct_line_ids = insentif_line.get_insentif_line(cr, uid, contract, date_from, date_to, context=context)
                 if struct_line_ids:
                     result['amount'] = struct_line_ids[0].nilai_insentif
 
