@@ -61,6 +61,7 @@ HR Sicepat Ekspres
     'data': [
         "wizard/hr_loan_state.xml",
         "views/hr_employee_view.xml",
+        "views/hr_contract_view.xml",
         "views/hr_payroll_view.xml",
         "views/hr_salary_structure_amt_view.xml",
         "views/hr_delivery_package_view.xml",

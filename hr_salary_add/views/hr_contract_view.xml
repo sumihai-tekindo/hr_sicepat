@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="hr_contract_view_search_department" model="ir.ui.view">
+            <field name="name">hr.contract.view.search.department</field>
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_search"/>
+            <field name="arch" type="xml">
+               <field name="employee_id" position="after">
+               	<field name="department_id"/>
+               </field>
+               <xpath expr="//group/filter[@string='Employee']" position="after">
+                   <filter string="Department" context="{'group_by':'department_id'}"/>
+               </xpath>
+            </field>
+        </record>
+        <record id="hr_contract_view_form_department" model="ir.ui.view">
+            <field name="name">hr.contract.view.form.department</field>
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+            <field name="arch" type="xml">
+            	<field name="type_id" position="before">
+            		<field name="department_id"/>
+            	</field>
+            </field>
+        </record>
+        <record id="hr_contract_view_tree_department" model="ir.ui.view">
+            <field name="name">hr.contract.view.tree.department</field>
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_tree"/>
+            <field name="arch" type="xml">
+                <field name="type_id" position="after">
+                	<field name="department_id"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>

@@ -21,6 +21,7 @@
 ##############################################################################
 
 import hr_payroll
+import hr_contract
 import hr_salary_structure_amt
 import hr_insentif
 import hr_overtime
