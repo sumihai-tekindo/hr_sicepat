@@ -70,7 +70,7 @@
 		                    	<field name="employee_id"/>
 		                    	<field name="jabatan_id" options="{'no_open': True}"/>
 		                    	<field name="department_id" options="{'no_open': True}"/>
-		                		<field name="nilai"/>
+		                		<field name="nilai" sum="Nilai Lemburan"/>
 		                		<field name="alasan"/>
 		                		<field name="state" invisible="1"/>
 		                		<field name="overtime_state" invisible="1"/>

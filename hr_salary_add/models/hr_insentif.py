@@ -89,8 +89,9 @@ class HRInsentifLine(models.Model):
         @return: returns the ids of all the salary structure lines for the given contract that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
-        clause_2 = [('tanggal', '<=', date_to)]
-        clause_final = [('employee_id','=',contract.employee_id.id), ('insentif_id.state','=','approved'),'|'] + clause_1 + clause_2
+#         clause_2 = [('tanggal', '<=', date_to)]
+#         clause_final = [('employee_id','=',contract.employee_id.id), ('insentif_id.state','=','approved'),'|'] + clause_1 + clause_2
+        clause_final = [('employee_id','=',contract.employee_id.id), ('insentif_id.state','=','approved')] + clause_1
         insentif_line_ids = self.search(clause_final, order='tanggal desc')
         return insentif_line_ids
 

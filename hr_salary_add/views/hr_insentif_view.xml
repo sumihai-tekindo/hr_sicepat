@@ -70,7 +70,7 @@
 		                    	<field name="employee_id"/>
 		                		<field name="jabatan_id" options="{'no_open': True}"/>
 		                    	<field name="department_id" options="{'no_open': True}"/>
-		                		<field name="nilai_insentif"/>
+		                		<field name="nilai_insentif" sum="Nilai Insentif"/>
 		                		<field name="alasan"/>
 		                    </tree>
 		            	</field>
