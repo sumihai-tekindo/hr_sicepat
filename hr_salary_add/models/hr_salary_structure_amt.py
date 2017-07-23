@@ -35,6 +35,8 @@ class SalaryStructure(models.Model):
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     department_id = fields.Many2one('hr.department', string='Nama Cabang', required=True, readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+    zone_id = fields.Many2one('delivery.package.zone', 'Zone ID', readonly=True,
+        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     state = fields.Selection([
         ('draft','Open'),
         ('submit','Submit'),
@@ -97,9 +99,13 @@ class SalaryStructureLine(models.Model):
         @param date_to: date field
         @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
         """
+        employee = contract.employee_id
+        department = contract.department_id
         clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
         clause_2 = [('tanggal', '<=', date_to)]
-        clause_final = [('structure_id.department_id','=',contract.department_id.id), ('jabatan_id','=',contract.job_id.id), ('structure_id.state','=','approved'),'|'] + clause_1 + clause_2
+        clause_final = [('structure_id.department_id','=',department.id), \
+            employee.zone_id and ('structure_id.zone_id', '=', employee.zone_id.id) or ('structure_id.zone_id', '=', False), \
+            ('jabatan_id','=',contract.job_id.id), ('structure_id.state','=','approved'),'|'] + clause_1 + clause_2
         struc_line_ids = self.search(clause_final, order='tanggal desc')
         return struc_line_ids
 

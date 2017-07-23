@@ -51,21 +51,25 @@ class HROvertime(models.Model):
         return super(HROvertime, self).create(vals)
 
     @api.multi
+    def action_draft(self):
+        self.state = 'draft'
+
+    @api.multi
     def action_submit(self):
         self.state = 'submit'
 
     @api.multi
     def action_approve(self):
-        for line in self.overtime_line:
-            if line.state not in ('confirmed', 'cancel'):
-                raise Warning(_("Silahkan lakukan Approve atau Reject setiap lemburan."))
+#         for line in self.overtime_line:
+#             if line.state not in ('confirmed', 'cancel'):
+#                 raise Warning(_("Silahkan lakukan Approve atau Reject setiap lemburan."))
         self.state = 'approved'
         
     @api.multi
     def action_reject(self):
-        for line in self.overtime_line:
-            if line.state not in ('confirmed', 'cancel'):
-                raise Warning(_("Silahkan lakukan Approve atau Reject setiap lemburan."))
+#         for line in self.overtime_line:
+#             if line.state not in ('confirmed', 'cancel'):
+#                 raise Warning(_("Silahkan lakukan Approve atau Reject setiap lemburan."))
         self.state = 'reject'
         
     @api.multi
@@ -79,18 +83,21 @@ class HROvertimeLine(models.Model):
     _order = 'tanggal desc, department_id, nilai desc'
     
     overtime_id = fields.Many2one('hr.overtime', string='Overtime', readonly=True)
-    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True,
-        states={'draft': [('readonly', False)]})
+#     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True,
+#         states={'draft': [('readonly', False)]})
+    employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True)
     jabatan_id = fields.Many2one('hr.job', string='Jabatan', compute='_get_employee', store=True, readonly=True)
     department_id = fields.Many2one('hr.department', string='Nama Cabang', compute='_get_employee', store=True, readonly=True)
-    nilai = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Lemburan', required=True, readonly=True,
-        states={'draft': [('readonly', False)]})
-    alasan = fields.Text(readonly=True, states={'draft': [('readonly', False)]})
-    state = fields.Selection([
-        ('draft','Draft'),
-        ('confirmed','Confirmed'),
-        ('cancel','Cancel'),
-        ], string='Status', default='draft')
+#     nilai = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Lemburan', required=True, readonly=True,
+#         states={'draft': [('readonly', False)]})
+    nilai = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Lemburan', required=True)
+#     alasan = fields.Text(readonly=True, states={'draft': [('readonly', False)]})
+    alasan = fields.Text()
+#     state = fields.Selection([
+#         ('draft','Draft'),
+#         ('confirmed','Confirmed'),
+#         ('cancel','Cancel'),
+#         ], string='Status', default='draft')
     tanggal = fields.Date(related='overtime_id.tanggal', store=True, readonly=True)
     overtime_state = fields.Selection(related='overtime_id.state', string='Status Overtime', store=True, default='draft', readonly=True)
     
@@ -117,7 +124,9 @@ class HROvertimeLine(models.Model):
         @return: returns the ids of all the salary structure lines for the given employee that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal', '<=', date_to),('tanggal','>=', date_from)]
-        clause_final = [('employee_id','=',contract.employee_id.id), ('state','=','confirmed'), ('overtime_id.state','=','proses')] + clause_1
+        clause_final = [('employee_id','=',contract.employee_id.id), \
+#                         ('state','=','confirmed'), \
+                        ('overtime_state','=','proses')] + clause_1
         overtime_line_ids = self.search(clause_final, order='tanggal desc')
         return overtime_line_ids
 

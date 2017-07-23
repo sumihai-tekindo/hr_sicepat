@@ -14,11 +14,13 @@
                     <field name="name"/>
                     <field name="tanggal"/>
                     <field name="department_id" operator="child_of"/>
+                    <field name="zone_id"/>
                     <field name="request_id" string="Requestor"/>
                     <field name="state"/>
                     <separator/>
                     <group expand="0" string="Group By">
                         <filter name="group_by_dept" string="Cabang" context="{'group_by':'department_id'}"/>
+	                	<filter name="group_by_zone" string="Zone" context="{'group_by':'zone_id'}"/>
                         <filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
                         <separator/>
                     	<filter name="group_by_request_id" string="Requestor" context="{'group_by':'request_id'}"/>
@@ -34,6 +36,7 @@
                     <field name="name"/>
                     <field name="tanggal"/>
                     <field name="department_id"/>
+                    <field name="zone_id"/>
                     <field name="request_id"/>
                     <field name="state"/>
                 </tree>
@@ -66,6 +69,7 @@
 		                    	<field name="request_id"/>
 	                    		<field name="tanggal"/>
 		                    	<field name="department_id"/>
+			                    <field name="zone_id"/>
 	                    	</group>
 	                    </group>
 	                    <field name="structure_line">

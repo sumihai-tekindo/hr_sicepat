@@ -50,7 +50,9 @@
                                 string="Reject" states="submit" class="oe_highlight"/>
                         <button name="action_proses" type="object"
                                 string="Proses di Gaji" states="approved" class="oe_highlight"/>
-	            		<field name="state" widget="statusbar"/>
+                		<button name="action_draft" type="object"
+                			string="Set to Draft" states="proses,reject"/>
+	            		<field name="state" widget="statusbar" statusbar_visible="draft,submit,approved,proses"/>
 	            	</header>
 	            	<sheet string="Lemburan">
 	                    <div class="oe_title">
@@ -72,10 +74,10 @@
 		                    	<field name="department_id" options="{'no_open': True}"/>
 		                		<field name="nilai" sum="Nilai Lemburan"/>
 		                		<field name="alasan"/>
-		                		<field name="state" invisible="1"/>
+<!--		                		<field name="state" invisible="1"/>-->
 		                		<field name="overtime_state" invisible="1"/>
-		                		<button name="action_cancel" states="draft,cancel" type="object" string="Reject Lemburan" icon="gtk-cancel" attrs="{'readonly': [('overtime_state','!=','submit')]}"/>
-	                            <button name="action_confirm" states="draft,confirmed" type="object" string="Confirm Lemburan" icon="gtk-apply" attrs="{'readonly': [('overtime_state','!=','submit')]}"/>
+<!--		                		<button name="action_cancel" states="draft,cancel" type="object" string="Reject Lemburan" icon="gtk-cancel" attrs="{'readonly': [('overtime_state','!=','submit')]}"/>-->
+<!--	                            <button name="action_confirm" states="draft,confirmed" type="object" string="Confirm Lemburan" icon="gtk-apply" attrs="{'readonly': [('overtime_state','!=','submit')]}"/>-->
 	                		</tree>
 	                    </field>
 	            	</sheet>
@@ -99,12 +101,12 @@
                     <field name="jabatan_id"/>
                     <field name="department_id"/>
                     <field name="tanggal"/>
-                    <field name="state"/>
+<!--                    <field name="state"/>-->
                     <field name="overtime_state"/>
                     <separator/>
                     <group expand="0" string="Group By">
                         <filter name="group_by_overtime" string="Overtime" context="{'group_by':'overtime_id'}"/>
-                        <filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>
+<!--                        <filter name="group_by_state" string="Status" context="{'group_by':'state'}"/>-->
                     	<filter name="group_by_jabatan_id" string="Jabatan" context="{'group_by':'jabatan_id'}"/>
                     	<filter name="group_by_department_id" string="Cabang" context="{'group_by':'department_id'}"/>
                         <filter name="group_by_overtime_state" string="Status Overtime" context="{'group_by':'overtime_state'}"/>
@@ -116,14 +118,15 @@
             <field name="name">overtime.line.tree</field>
             <field name="model">hr.overtime.line</field>
             <field name="arch" type="xml">
-                <tree create="false" colors="blue:state=='draft';black:state=='confirmed';red:state=='cancel'" string="Lemburan Detail" >
+<!--                <tree create="false" colors="blue:state=='draft';black:state=='confirmed';red:state=='cancel'" string="Lemburan Detail" >-->
+                <tree create="false" colors="blue:overtime_state in ('draft','submit');black:overtime_state=='approved';red:overtime_state=='reject';gray:overtime_state=='proses'"  string="Lemburan Detail" >
                     <field name="overtime_id"/>
                     <field name="tanggal"/>
                     <field name="employee_id"/>
                     <field name="jabatan_id"/>
                     <field name="department_id"/>
-                    <field name="nilai"/>
-                    <field name="state"/>
+                    <field name="nilai" sum="Nilai Lemburan"/>
+<!--                    <field name="state"/>-->
                     <field name="overtime_state"/>
                 </tree>
             </field>
@@ -133,13 +136,13 @@
             <field name="model">hr.overtime.line</field>
             <field name="arch" type="xml">
                 <form string="Lemburan Detail Form" create="false">
-                	<header>
-                		<button name="action_confirm" type="object"
-                                string="Confirm Lemburan" states="draft" class="oe_highlight"/>
-                        <button name="action_cancel" type="object"
-                                string="Reject Lemburan" states="draft"/>
-	            		<field name="state" widget="statusbar"/>
-	            	</header>
+<!--                	<header>-->
+<!--                		<button name="action_confirm" type="object"-->
+<!--                                string="Confirm Lemburan" states="draft" class="oe_highlight"/>-->
+<!--                        <button name="action_cancel" type="object"-->
+<!--                                string="Reject Lemburan" states="draft"/>-->
+<!--	            		<field name="state" widget="statusbar"/>-->
+<!--	            	</header>-->
 	            	<sheet string="Lemburan Detail">
 	                    <div class="oe_title">
 	                        <h1>
@@ -149,10 +152,10 @@
 		            	<group>
 		            		<group col="4">
 	                    		<field name="tanggal"/>
-		                    	<field name="employee_id"/>
+		                    	<field name="employee_id" attrs="{'readonly': [('overtime_state','not in',['draft','submit'])]}"/>
 		                    	<field name="jabatan_id" options="{'no_open': True}"/>
 		                    	<field name="department_id" options="{'no_open': True}"/>
-		                    	<field name="nilai"/>
+		                    	<field name="nilai" attrs="{'readonly': [('overtime_state','not in',['draft','submit'])]}"/>
 		                    	<field name="overtime_state"/>
 		                    </group>
 		                </group>
