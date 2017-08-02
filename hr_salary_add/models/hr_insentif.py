@@ -29,8 +29,7 @@ class HRInsentif(models.Model):
     _order = "tanggal desc, id desc"
     
     name = fields.Char(string='Number', readonly=True)
-    request_id = fields.Many2one('res.users', string='Requestor', readonly=True,
-        default=lambda self: self.env.user)
+    request_id = fields.Many2one('res.users', string='Requestor', default=lambda self: self.env.user)
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self), readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     nama_koordinator = fields.Many2one('hr.employee', string='Nama Koordinator Wilayah')
@@ -65,13 +64,20 @@ class HRInsentif(models.Model):
         vals['name'] = self.env['ir.sequence'].get('hr.insentif')
         return super(HRInsentif, self).create(vals)
 
+    @api.multi
+    def unlink(self):
+        for insentif in self:
+            if insentif.state not in ('draft', 'cancel'):
+                raise Warning(_('You cannot delete an insentif which is not draft or cancelled.'))
+        return super(HRInsentif, self).unlink()
+
 
 class HRInsentifLine(models.Model):
     _name = 'hr.insentif.line'
     _rec_name = 'employee_id'
     _order = 'tanggal desc, department_id, nilai_insentif desc'
 
-    insentif_id = fields.Many2one('hr.insentif', string='Insentif')
+    insentif_id = fields.Many2one('hr.insentif', string='Insentif', ondelete='cascade')
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True)
     jabatan_id = fields.Many2one('hr.job', string='Jabatan', compute='_get_employee', store=True, readonly=True)
     department_id = fields.Many2one('hr.department', string='Nama Cabang', compute='_get_employee', store=True, readonly=True)
