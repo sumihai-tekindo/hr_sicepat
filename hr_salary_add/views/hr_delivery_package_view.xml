@@ -74,7 +74,7 @@
             <field name="name">target_paket.tree</field>
             <field name="model">delivery.package.target</field>
             <field name="arch" type="xml">
-                <tree string="Target Paket">
+                <tree colors="blue:state=='draft';black:state=='submit';red:state=='reject';gray:state=='approved'" string="Target Paket">
                     <field name="name"/>
                     <field name="department_id"/>
                     <field name="zone_id"/>
@@ -100,7 +100,7 @@
                                 string="Reject" states="submit" class="oe_highlight"/>
                         <button name="action_draft" type="object"
                                 string="Set to Draft" states="reject,approved"/>
-	            		<field name="state" widget="statusbar"/>
+	            		<field name="state" widget="statusbar" statusbar_visible="draft,submit,approved"/>
 	            	</header>
 	            	<sheet string="Target Paket">
 	                    <div class="oe_title">

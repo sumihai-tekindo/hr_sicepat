@@ -21,6 +21,8 @@
 ##############################################################################
 
 from openerp import api, fields, models
+from openerp.exceptions import Warning
+from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
 
 class HRInsentif(models.Model):
@@ -43,6 +45,10 @@ class HRInsentif(models.Model):
     insentif_line = fields.One2many('hr.insentif.line', 'insentif_id', readonly=True,
         states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     
+    @api.multi
+    def action_draft(self):
+        self.state = 'draft'
+
     @api.multi
     def action_submit(self):
         self.state = 'submit'
