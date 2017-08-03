@@ -13,6 +13,7 @@
     'depends': ['stock','stock_account','hr_salary_add','stock_analytic_account'],
     'data': [
         'views/stock_move_view.xml',
+        'views/piutang_karyawan_view.xml',
     ],
     'installable': True,
 }

@@ -39,7 +39,7 @@ class stock_transfer_details(models.TransientModel):
 					'sourceloc_id': op.location_id.id,
 					'destinationloc_id': op.location_dest_id.id,
 					'result_package_id': op.result_package_id.id,
-					'date': op.date, 
+					'date': op.date,
 					'owner_id': op.owner_id.id,
 					'account_analytic_id':account_analytic_id,
 					'account_analytic_dest_id':account_analytic_dest_id,

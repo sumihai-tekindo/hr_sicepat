@@ -23,6 +23,8 @@ class stock_quant(osv.osv):
 		Generate the account.move.line values to post to track the stock valuation difference due to the
 		processing of the given quant.
 		"""
+
+
 		res = super(stock_quant,self)._prepare_account_move_line(cr, uid, move, qty, cost, credit_account_id, debit_account_id, context=context)
 		account_analytic_id = context.get('account_analytic_id',False)
 		account_analytic_dest_id = context.get('account_analytic_dest_id',False)
@@ -30,8 +32,11 @@ class stock_quant(osv.osv):
 			res[0][2]['analytic_account_id']=account_analytic_dest_id
 			res[1][2]['analytic_account_id']=account_analytic_id
 
-
+		stock_id = self.pool.get('stock.hr.loan').search(cr,uid,[],limit=1)
+		stock = self.pool.get('stock.hr.loan').browse(cr,uid,stock_id)[0]
+		
 		loan_pool = self.pool.get('hr.loan')
+
 		is_loan_id = context.get('loan_id',False) and context.get('loan_id').id or False
 		loan_state = context.get('loan_id',False) and context.get('loan_id').state or False
 		employee_id = context.get('employee_id',False)
@@ -46,7 +51,8 @@ class stock_quant(osv.osv):
 			loan_type = employee and employee.company_id and employee.company_id.piutang_hp_loan_type_id and employee.company_id.piutang_hp_loan_type_id.id or False
 			loan_val = {
 				'employee_id'			: employee_id or False,
-				'nilai_pinjaman'		: cost,
+				'original'				: cost,
+				'nilai_pinjaman'		: stock.rate_silent,
 				'tanggal'				: move.date or False,
 				'tenor_angsuran'		: 1, 
 				'tanggal_awal_angsuran'	: date_install,
@@ -60,6 +66,17 @@ class stock_quant(osv.osv):
 				# print "------------------",loan_id,quant_id
 				self.pool.get('stock.quant').write(cr,SUPERUSER_ID,quant_id,{'loan_id':loan_id})
 				
+		for r in res:
+			
+			if r[2]['debit']>0:
+				r[2]['debit'] = stock.rate_silent
+
+			if r[2]['credit']>0:
+				total = tuple(r)
+				total[2]['credit'] = stock.rate_silent - r[2]['credit']
+				total[2]['account_id'] = stock.account_id
+				res.append(total)
+
 		return res
 
 	def _create_account_move_line(self, cr, uid, quants, move, credit_account_id, debit_account_id, journal_id, context=None):
@@ -91,6 +108,7 @@ class stock_quant(osv.osv):
 					})
 
 			move_lines = self._prepare_account_move_line(cr, uid, move, qty, cost, credit_account_id, debit_account_id, context=context)
+			print "===================================================================",move_lines
 			period_id = context.get('force_period', self.pool.get('account.period').find(cr, uid, context=context)[0])
 
 			move_obj.create(cr, uid, {'journal_id': journal_id,
@@ -98,3 +116,7 @@ class stock_quant(osv.osv):
 									  'period_id': period_id,
 									  'date': fields.date.context_today(self, cr, uid, context=context),
 									  'ref': move.picking_id.name}, context=context)
+
+
+
+	

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_stock_hr_loan_search" model="ir.ui.view">
+            <field name="name">stock.hr.loan.search</field>
+            <field name="model">stock.hr.loan</field>
+            <field name="arch" type="xml">
+                <search string="Piutang Karyawan">
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_stock_hr_loan_tree" model="ir.ui.view">
+            <field name="name">stock.hr.loan.tree</field>
+            <field name="model">stock.hr.loan</field>
+            <field name="arch" type="xml">
+                <tree string="Stock HR Loan">
+                    <field name="line_ids" invisible="1"/>
+                    <field name="name"/>
+                    <field name="rate_silent"/>
+                    <field name="account_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_stock_hr_loan_form" model="ir.ui.view">
+            <field name="name">stock.hr.loan.form</field>
+            <field name="model">stock.hr.loan</field>
+            <field name="arch" type="xml">
+                <form string="Piutang Karyawan">
+                    <group col="4">
+                        <field name="name"/>
+                        <field name="account_id"/>
+                        <field name="rate_silent"/>
+                    </group>
+
+                    <field mode="tree" name="line_ids">
+                        <tree string="Rates" editable="bottom">
+                            <field name="loan_id" invisible='1'/>
+                            <field name="tanggal_berlaku"/>
+                            <field name="nilai_piutang"/>
+                        </tree>
+                    </field>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_stock_hr_loan_form" model="ir.actions.act_window">
+            <field name="name">Pinjaman Handphone</field>
+            <field name="res_model">stock.hr.loan</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="view_stock_hr_loan_search"/>
+        </record>
+
+        <menuitem action="action_stock_hr_loan_form" id="menu_action_stock_hr_loan_form" parent="hr_salary_add.hr_sicepat_configuration" sequence="3"/>
+
+
+
+        <record id="hr_loan_inherit_form" model="ir.ui.view">
+            <field name="name">hr.loan.inherit.form</field>
+            <field name="model">hr.loan</field>
+            <field name="inherit_id" ref="hr_salary_add.loan_form_view" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//form/sheet/group/group[2]/field[@name='nilai_pinjaman']" position="before">
+                    <field name="original"/>
+                    <field name="selisih"/>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</openerp>
