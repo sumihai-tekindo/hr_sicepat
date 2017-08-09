@@ -75,6 +75,7 @@ class DeliveryPackage(models.Model):
 #----------------------
 # employee: hr.employee object
 # contract: hr.contract object
+# consignments: list of dict of delivery consignment; dict consist of 'employee_id', 'lines', 'total_consignment'
 # total_consignment: total of consignment delivered
 # total_courier: total of courier
 
@@ -97,6 +98,7 @@ result = total_consignment > 1500''')
 #----------------------
 # employee: hr.employee object
 # contract: hr.contract object
+# consignments: list of dict of delivery consignment; dict consist of 'employee_id', 'lines', 'total_consignment'
 # total_consignment: total of consignment delivered
 # total_courier: total of courier
 
@@ -115,6 +117,7 @@ result = total_consignment * 500''')
 #----------------------
 # employee: hr.employee object
 # contract: hr.contract object
+# consignments: list of dict of delivery consignment; dict consist of 'employee_id', 'lines', 'total_consignment'
 # total_consignment: total of consignment delivered
 # total_courier: total of courier
 
@@ -137,6 +140,7 @@ result = total_consignment > 1500''')
 #----------------------
 # employee: hr.employee object
 # contract: hr.contract object
+# consignments: list of dict of delivery consignment; dict consist of 'employee_id', 'lines', 'total_consignment'
 # total_consignment: total of consignment delivered
 # total_courier: total of courier
 
@@ -437,7 +441,7 @@ class HRPayslip(models.Model):
         total_courier = len(consignments)
         target_amount = 0.0
         bonus_amount = 0.0
-        localdict = dict(result=None, total_consignment=total_consignment, total_courier=total_courier, employee=employee, contract=contract)
+        localdict = dict(result=None, consignments=consignments, total_consignment=total_consignment, total_courier=total_courier, employee=employee, contract=contract)
         
         if target and target.get_condition(localdict):
             amount, qty = target.compute_get(localdict)
