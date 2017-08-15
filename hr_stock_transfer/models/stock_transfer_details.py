@@ -57,7 +57,7 @@ class stock_transfer_details(models.TransientModel):
 	def do_detailed_transfer(self):
 		if self.picking_id.state not in ['assigned', 'partially_available']:
 			raise Warning(_('You cannot transfer a picking in state \'%s\'.') % self.picking_id.state)
-		# print "---------------------------hr_stock_transfer 1-------------------------"
+
 		processed_ids = []
 		# Create new and update existing pack operations
 		move_ids = [x.id for x in self.picking_id.move_lines]
@@ -74,9 +74,6 @@ class stock_transfer_details(models.TransientModel):
 					'result_package_id': prod.result_package_id.id,
 					'date': prod.date if prod.date else datetime.now(),
 					'owner_id': prod.owner_id.id,
-					# 'account_analytic_id': prod.account_analytic_id and prod.account_analytic_id.id or False ,
-					# 'account_analytic_dest_id': prod.account_analytic_dest_id and prod.account_analytic_dest_id.id or False,
-					# 'employee_id': prod.employee_id and prod.employee_id.id or False,
 				}
 				if prod.packop_id:
 					prod.packop_id.with_context(no_recompute=True).write(pack_datas)
@@ -86,19 +83,27 @@ class stock_transfer_details(models.TransientModel):
 					packop_id = self.env['stock.pack.operation'].create(pack_datas)
 					processed_ids.append(packop_id.id)
 				#write quant
-				quant = self.env['stock.quant'].search([('product_id','=',prod.product_id.id),('lot_id','=',prod.lot_id.id), \
-					('reservation_id','in',move_ids),('location_id','=',prod.sourceloc_id.id)])
-				if not quant and prod.lot_id.id:
-					quant = self.env['stock.quant'].search([('product_id','=',prod.product_id.id),('lot_id','=',prod.lot_id.id), \
+				quant = self.env['stock.quant'].search([
+					('product_id','=',prod.product_id.id),
+					('lot_id','=',prod.lot_id and prod.lot_id.id or False),
+					('reservation_id','in',move_ids),
 					('location_id','=',prod.sourceloc_id.id)])
+				if not quant and prod.lot_id:
+					quant = self.env['stock.quant'].search([
+						('product_id','=',prod.product_id.id),
+						('lot_id','=',prod.lot_id.id),
+						('location_id','=',prod.sourceloc_id.id)])
 				if quant:
 					try:
 						quant=quant[0]
 					except:
 						pass
-				quant.sudo().write({'account_analytic_id': prod.account_analytic_id and prod.account_analytic_id.id or False ,
-													'account_analytic_dest_id': prod.account_analytic_dest_id and prod.account_analytic_dest_id.id or False,
-													'employee_id': prod.employee_id and prod.employee_id.id or False})
+					quant.sudo().write({
+							'account_analytic_id': prod.account_analytic_id and prod.account_analytic_id.id or False,
+							'account_analytic_dest_id': prod.account_analytic_dest_id and prod.account_analytic_dest_id.id or False,
+							'employee_id': prod.employee_id and prod.employee_id.id or False,
+							'is_loan': prod.is_loan,
+						})
 
 		# Delete the others
 		packops = self.env['stock.pack.operation'].search(['&', ('picking_id', '=', self.picking_id.id), '!', ('id', 'in', processed_ids)])
@@ -106,12 +111,12 @@ class stock_transfer_details(models.TransientModel):
 
 		# Execute the transfer of the picking
 		self.picking_id.do_transfer()
-		return True
 
-	
+		return True
 
 
 class stock_transfer_details_items(models.TransientModel):
 	_inherit = 'stock.transfer_details_items'
 
-	employee_id 		= fields.Many2one("hr.employee","Employee",required=False)
+	employee_id = fields.Many2one('hr.employee', 'Employee', required=False)
+	is_loan = fields.Boolean('Employee Loan')
