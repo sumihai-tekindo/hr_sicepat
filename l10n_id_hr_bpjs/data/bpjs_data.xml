@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record id="contrib_register_companies" model="hr.contribution.register">
+            <field name="name">Companies</field>
+            <field name="partner_id" ref="base.main_partner"/>
+        </record>
+        <!-- BPJS Type -->
+        <record id="bpjs_ketenagakerjaan" model="hr.bpjs.type">
+            <field name="name">BPJS Ketenagakerjaan</field>
+        </record>
+        <record id="bpjs_kesehatan" model="hr.bpjs.type">
+            <field name="name">BPJS Kesehatan</field>
+        </record>
+
+        <record id="bpjs_jkk_company" model="hr.bpjs.category">
+            <field name="name">Program Jaminan Kecelakaan Kerja (Pemberi Kerja)</field>
+            <field name="code">JKK_COMP</field>
+            <field name="type_id" ref="bpjs_ketenagakerjaan"/>
+            <field name="amount">0.0174</field>
+            <field name="deduction_type">percent</field>
+            <field name="employee_deduction" eval="False"/>
+        </record>
+        <record id="bpjs_jk_company" model="hr.bpjs.category">
+            <field name="name">Program Jaminan Kematian (Pemberi Kerja)</field>
+            <field name="code">JK_COMP</field>
+            <field name="type_id" ref="bpjs_ketenagakerjaan"/>
+            <field name="amount">0.003</field>
+            <field name="deduction_type">percent</field>
+            <field name="employee_deduction" eval="False"/>
+        </record>
+        <record id="bpjs_jht_company" model="hr.bpjs.category">
+            <field name="name">Program Jaminan Hari Tua (Pemberi Kerja)</field>
+            <field name="code">JHT_COMP</field>
+            <field name="type_id" ref="bpjs_ketenagakerjaan"/>
+            <field name="amount">0.037</field>
+            <field name="deduction_type">percent</field>
+            <field name="employee_deduction" eval="False"/>
+        </record>
+        <record id="bpjs_jp_company" model="hr.bpjs.category">
+            <field name="name">Program Jaminan Pensiun (Pemberi Kerja)</field>
+            <field name="code">JP_COMP</field>
+            <field name="type_id" ref="bpjs_ketenagakerjaan"/>
+            <field name="amount">0.02</field>
+            <field name="deduction_type">percent</field>
+            <field name="employee_deduction" eval="False"/>
+        </record>
+        <record id="bpjs_jht_employee" model="hr.bpjs.category">
+            <field name="name">Program Jaminan Hari Tua (Pekerja)</field>
+            <field name="code">JHT_EMP</field>
+            <field name="type_id" ref="bpjs_ketenagakerjaan"/>
+            <field name="amount">0.02</field>
+            <field name="deduction_type">percent</field>
+            <field name="employee_deduction" eval="True"/>
+        </record>
+        <record id="bpjs_jp_employee" model="hr.bpjs.category">
+            <field name="name">Program Jaminan Pensiun (Pekerja)</field>
+            <field name="code">JP_EMP</field>
+            <field name="type_id" ref="bpjs_ketenagakerjaan"/>
+            <field name="amount">0.01</field>
+            <field name="deduction_type">percent</field>
+            <field name="employee_deduction" eval="True"/>
+        </record>
+        <record id="bpjs_pjk_company" model="hr.bpjs.category">
+            <field name="name">Program Jaminan Kesehatan (Pemberi Kerja)</field>
+            <field name="code">PJK_COMP</field>
+            <field name="type_id" ref="bpjs_kesehatan"/>
+            <field name="amount">0.04</field>
+            <field name="deduction_type">percent</field>
+            <field name="employee_deduction" eval="False"/>
+        </record>
+        <record id="bpjs_pjk_employee" model="hr.bpjs.category">
+            <field name="name">Program Jaminan Kesehatan (Pekerja)</field>
+            <field name="code">PJK_EMP</field>
+            <field name="type_id" ref="bpjs_kesehatan"/>
+            <field name="amount">0.01</field>
+            <field name="deduction_type">percent</field>
+            <field name="employee_deduction" eval="True"/>
+        </record>
+    </data>
+</openerp>

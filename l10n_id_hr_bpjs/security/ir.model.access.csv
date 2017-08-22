@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_bpjs_type_employee,hr.bpjs.type.employee,model_hr_bpjs_type,base.group_user,1,0,0,0
+access_bpjs_category_employee,hr.bpjs.category.employee,model_hr_bpjs_category,base.group_user,1,0,0,0
+access_bpjs_employee,hr.bpjs.employee,model_hr_bpjs,base.group_user,1,0,0,0
+access_bpjs_line_employee,hr.bpjs.line.employee,model_hr_bpjs_line,base.group_user,1,0,0,0
+access_bpjs_type_user,hr.bpjs.type.user,model_hr_bpjs_type,base.group_hr_user,1,1,1,1
+access_bpjs_category_user,hr.bpjs.category.user,model_hr_bpjs_category,base.group_hr_user,1,1,1,1
+access_bpjs_user,hr.bpjs.user,model_hr_bpjs,base.group_hr_user,1,1,1,1
+access_bpjs_line_user,hr.bpjs.line.user,model_hr_bpjs_line,base.group_hr_user,1,1,1,1

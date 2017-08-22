@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+        <record model="ir.actions.act_window" id="action_bpjs_type">
+            <field name="name">Type of BPJS</field>
+            <field name="res_model">hr.bpjs.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_type_search_view">
+            <field name="name">bpjs.type.search</field>
+            <field name="model">hr.bpjs.type</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" filter_domain="[('name','ilike',self)]"/>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_type_tree_view">
+            <field name="name">bpjs.type.tree</field>
+            <field name="model">hr.bpjs.type</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_type_form_view">
+            <field name="name">bpjs.type.form</field>
+            <field name="model">hr.bpjs.type</field>
+            <field name="arch" type="xml">
+                <form string="Type of BPJS Form">
+                    <group col="4">
+                        <field name="name"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+    	
+        <record model="ir.actions.act_window" id="action_bpjs_category">
+            <field name="name">Programs of BPJS</field>
+            <field name="res_model">hr.bpjs.category</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_category_search_view">
+            <field name="name">hr.bpjs.category.search</field>
+            <field name="model">hr.bpjs.category</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="type_id"/>
+                    <field name="deduction_type"/>
+                    <separator/>
+            		<filter name="percent" string="Percentage" domain="[('deduction_type','=','percent')]"/>
+            		<filter name="fixed" string="Fixed Amount" domain="[('deduction_type','=','fixed')]"/>
+            		<separator/>
+            		<filter name="active" string="Active" domain="[('active','=',True)]"/>
+            		<filter name="non_active" string="Non Active" domain="[('active','=',False)]"/>
+                    <group expand="0" string="Group By">
+	                	<filter name="group_by_deduction_type" string="Method" context="{'group_by':'deduction_type'}"/>
+	                	<filter name="group_by_type_id" string="Type" context="{'group_by':'type_id'}"/>
+	                	<filter name="group_by_employee_deduction" string="Emp. Deduction" context="{'group_by':'employee_deduction'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_category_tree_view">
+            <field name="name">bpjs.category.tree</field>
+            <field name="model">hr.bpjs.category</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="active" invisible="1"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="type_id"/>
+                    <field name="deduction_type"/>
+                    <field name="amount"/>
+                    <field name="employee_deduction"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_category_form_view">
+            <field name="name">bpjs.category.form</field>
+            <field name="model">hr.bpjs.category</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="code"/>
+                                <field name="type_id" widget="selection"/>
+                                <field name="active"/>
+                            </group>
+                            <group>
+                                <field name="deduction_type"/>
+                                <field name="amount"/>
+                                <field name="employee_deduction"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <menuitem id="hr_bpjs_configuration" name="BPJS" 
+        		  parent="hr.menu_hr_configuration"/>
+        <menuitem id="menu_bpjs_category" name="Programs of BPJS" 
+        		  parent="l10n_id_hr_bpjs.hr_bpjs_configuration"
+                  sequence="1" action="action_bpjs_category"/>
+        <menuitem id="menu_bpjs_type" name="Type of BPJS" 
+        		  parent="l10n_id_hr_bpjs.hr_bpjs_configuration"
+                  sequence="2" action="action_bpjs_type"/>
+
+        <record model="ir.actions.act_window" id="action_bpjs">
+            <field name="name">BPJS</field>
+            <field name="res_model">hr.bpjs</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_search_view">
+            <field name="name">hr.bpjs.search</field>
+            <field name="model">hr.bpjs</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="date_registered"/>
+                    <field name="employee_id"/>
+                    <field name="type_id"/>
+                    <field name="state"/>
+                    <group expand="0" string="Group By">
+	                	<filter name="group_by_date_registered" string="Date Registered" context="{'group_by':'date_registered'}"/>
+	                	<filter name="group_by_employee_id" string="Employee" context="{'group_by':'employee_id'}"/>
+	                	<filter name="group_by_type_id" string="Type" context="{'group_by':'type_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_tree_view">
+            <field name="name">bpjs.tree</field>
+            <field name="model">hr.bpjs</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="date_registered"/>
+                    <field name="employee_id"/>
+                    <field name="type_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="bpjs_form_view">
+            <field name="name">bpjs.form</field>
+            <field name="model">hr.bpjs</field>
+            <field name="arch" type="xml">
+                <form>
+	                <header>
+                        <button name="action_register" type="object" string="Register" states="draft" class="oe_highlight"/>
+                        <button name="action_draft" type="object" string="Set to Draft" states="registered"/>
+	                    <field name="state" widget="statusbar" statusbar_colors='{"draft":"gray","registered":"blue"}'/>
+	                </header>
+                    <sheet>
+                        <div class="oe_title">
+                        	<label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="employee_id"/>
+                                <field name="type_id" widget="selection"/>
+                            </group>
+                            <group>
+                                <field name="date_registered"/>
+                            </group>
+                        </group>
+                        <notebook>
+                        	<page string="Program of BPJS">
+                        		<field name="line_ids">
+                        			<tree editable="bottom">
+                        				<field name="bpjs_id" invisible="1"/>
+                        				<field name="type_id" invisible="1"/>
+                        				<field name="category_id"/>
+                        				<field name="deduction_type"/>
+                        				<field name="amount"/>
+                        				<field name="employee_deduction"/>
+                        			</tree>
+                        		</field>
+	                            <div class="oe_clear">
+	                                <label for="note"/>
+	                            </div>
+	                            <field name="note"/>
+                        	</page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <menuitem id="hr_bpjs_main" name="BPJS" 
+        		  parent="hr.menu_hr_root"/>
+        <menuitem id="menu_bpjs" name="BPJS" 
+        		  parent="l10n_id_hr_bpjs.hr_bpjs_main"
+                  sequence="1" action="action_bpjs"/>
+                  	
+	</data>
+</openerp>
