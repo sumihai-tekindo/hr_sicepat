@@ -69,6 +69,7 @@ class HrBPJSLine(models.Model):
     _description = "Programs of BPJS per type per employee"
 
     bpjs_id = fields.Many2one('hr.bpjs')
+    date_registered = fields.Date(related='bpjs_id.date_registered')
     type_id = fields.Many2one('hr.bpjs.type', related='bpjs_id.type_id')
     category_id = fields.Many2one('hr.bpjs.category', 'BPJS Programs', domain="[('type_id','=',type_id)]", required=True)
     amount = fields.Float(required=True, digits=dp.get_precision('Payroll Rate'), help="For BPJS program type percentage, enter % ratio between 0-1.")
