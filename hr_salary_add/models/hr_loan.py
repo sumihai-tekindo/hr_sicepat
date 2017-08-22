@@ -233,6 +233,7 @@ class HRLoanLine(models.Model):
     nilai_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Pinjaman', related='loan_id.nilai_pinjaman')
     tenor_angsuran = fields.Integer(string='Tenor', related='loan_id.tenor_angsuran')
     nilai_tenor = fields.Float(digits=dp.get_precision('Payroll'), string="Angsuran Per Bulan", related='loan_id.nilai_angsuran')
+    loan_state = fields.Selection(related='loan_id.state', string='Status Loan', store=True, default='draft', readonly=True)
     sisa_tenor = fields.Integer(string="Sisa Tenor", compute='_get_info_loan_line')
     total_bayar_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string='Total Bayar Angsuran', compute='_get_info_loan_line')
     sisa_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string="Sisa Angsuran", compute='_get_info_loan_line')
@@ -287,7 +288,7 @@ class HRLoanLine(models.Model):
         @return: returns the ids of all the salary structure lines for the given contract that need to be considered for the given dates
         """
         clause_1 = ['&',('tanggal_angsuran', '<=', date_to),('tanggal_angsuran','>=', date_from)]
-        clause_final = [('loan_id.employee_id','=',contract.employee_id.id), ('posted','=',True), ('paid','=',False), ('loan_id.loan_type.code','=',code)] + clause_1
+        clause_final = [('loan_id.employee_id','=',contract.employee_id.id), ('posted','=',True), ('paid','=',False), ('loan_id.loan_type.code','=',code), ('loan_state','=','approved')] + clause_1
         loan_line_ids = self.search(clause_final, order='tanggal_angsuran desc')
         return loan_line_ids
 

@@ -58,6 +58,7 @@
                     <field name="jabatan_id"/>
                     <field name="department_id"/>
                     <field name="loan_type"/>
+                    <field name="notes"/>
                     <separator/>
             		<filter name="open" string="Open" domain="[('state','=','draft')]"/>
             		<filter name="submit" string="Submit" domain="[('state','=','submit')]"/>
@@ -259,7 +260,7 @@
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{}</field>
-            <field name="domain">[('paid','=',False)]</field>
+            <field name="domain">[('paid','=',False), ('loan_state','=','approved')]</field>
             <field name="view_id" ref="unpaid_loan_line_tree_view"/>
         </record>
 <!--    END OF LOAN    -->
