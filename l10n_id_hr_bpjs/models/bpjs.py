@@ -51,7 +51,7 @@ class HrBPJS(models.Model):
     line_ids = fields.One2many('hr.bpjs.line', 'bpjs_id', readonly=True, states={'draft': [('readonly', False)]})
     note = fields.Text('Internal Note')
     
-    _sql_constraint = [
+    _sql_constraints = [
             ('name_unique', 'UNIQUE(name)', 'BPJS Number must be unique'),
         ]
 
@@ -119,7 +119,7 @@ class HrBPJSLine(models.Model):
         @param code: char field
         @return: returns True or False
         """
-        code_from_category = [t.code for t in self.env['hr.bpjs.category'].search([])]
+        code_from_category = [t.code for t in self.env['hr.bpjs.category'].search([('employee_deduction','=',True)])]
         if code and code in code_from_category:
             return True
         return False
@@ -136,7 +136,7 @@ class HRPayslip(models.Model):
         for res in result:
             if bpjs_line.get_condition(cr, uid, res.get('code'), context=context):
                 contract = contract_obj.browse(cr, uid, [res['contract_id']], context=context)
-                bpjs_line_ids = bpjs_line.get_loan_line(cr, uid, contract, date_from, date_to, res['code'], context=context)
+                bpjs_line_ids = bpjs_line.get_bpjs_line(cr, uid, contract, date_from, date_to, res['code'], context=context)
                 if bpjs_line_ids:
                     res['amount'] = bpjs_line_ids.get_amount(contract)
         return result

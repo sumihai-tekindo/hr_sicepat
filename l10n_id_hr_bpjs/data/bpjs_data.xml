@@ -78,4 +78,54 @@
             <field name="employee_deduction" eval="True"/>
         </record>
     </data>
+    <data>
+        <record id="rule_bpjs_pjk_employee" model="hr.salary.rule">
+            <field name="name">BPJS Kesehatan</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="code">PJK_EMP</field>
+            <field name="sequence">121</field>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.PJK_EMP and -inputs.PJK_EMP.amount or 0.0</field>
+        </record>
+        <record id="input_bpjs_pjk_employee" model="hr.rule.input">
+            <field name="name">BPJS Kesehatan</field>
+            <field name="input_id" ref="rule_bpjs_pjk_employee"/>
+            <field name="code">PJK_EMP</field>
+        </record>
+        <record id="rule_bpjs_jht_employee" model="hr.salary.rule">
+            <field name="name">BPJS JHT</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="code">JHT_EMP</field>
+            <field name="sequence">122</field>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.JHT_EMP and -inputs.JHT_EMP.amount or 0.0</field>
+        </record>
+        <record id="input_bpjs_jht_employee" model="hr.rule.input">
+            <field name="name">BPJS JHT</field>
+            <field name="input_id" ref="rule_bpjs_jht_employee"/>
+            <field name="code">JHT_EMP</field>
+        </record>
+        <record id="rule_bpjs_jp_employee" model="hr.salary.rule">
+            <field name="name">BPJS Pensiun</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="code">JP_EMP</field>
+            <field name="sequence">123</field>
+            <field name="active" eval="True"/>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">result = inputs.JP_EMP and -inputs.JP_EMP.amount or 0.0</field>
+        </record>
+        <record id="input_bpjs_jp_employee" model="hr.rule.input">
+            <field name="name">BPJS Pensiun</field>
+            <field name="input_id" ref="rule_bpjs_jp_employee"/>
+            <field name="code">JP_EMP</field>
+        </record>
+    </data>
 </openerp>
