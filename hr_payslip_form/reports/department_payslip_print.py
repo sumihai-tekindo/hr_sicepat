@@ -288,9 +288,16 @@ class department_payslip_xls(report_xls):
 			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
 			ws.write(4,0,"WILAYAH",normal_bold_style_a)
 			ws.write_merge(4,4,1,4,": "+data['department_name'],normal_bold_style_a)
-			headers = ["NO","NAMA","BANK","NO REKENING","NPWP","POSISI","TGL.MASUK KERJA","HARI KERJA","STATUS","PAKET","GAJI POKOK",
+			headers = ["NO","CABANG","NIK","NAMA","JENIS KELAMIN","STATUS","TANGGUNGAN","NPWP","ALAMAT KTP","BANK","NO REKENING","POSISI","TGL.MASUK KERJA","HARI KERJA","PAKET","GAJI POKOK",
 					"UANG MAKAN","UANG TRANSPORT","KERAJINAN","BONUS PAKET 1","BONUS PAKET 2","INSENTIF","TUNJANGAN OPERASIONAL",
-					"TUNJANGAN JABATAN","SERVICE MOTOR","LEMBURAN","PINJAMAN","POTONGAN HP","POTONGAN BARANG","TOTAL","KETERANGAN"]
+					"TUNJANGAN JABATAN","SERVICE MOTOR","LEMBURAN","PINJAMAN","POTONGAN HP","POTONGAN BARANG","POTONGAN LAIN","BPJS KES","BPJS JHT","GROSS","DEDUCTION","THP","KETERANGAN",
+					]
+			available_banks = _p.get_available_bank (objects)
+			for bank in available_banks:
+				headers.append(bank)
+
+			headers.append("TUNAI") #Tambahan Headers
+
 			col_pos = 0
 			for head in headers :
 
@@ -298,9 +305,15 @@ class department_payslip_xls(report_xls):
 				col_pos+=1
 			row_pos = 7
 			
-			columns = ["NO","NAMA","BANK","NO_REK","NPWP","POS","TGL_MSK","WORKDAYS","MARITAL","PAKET","BASIC","MEAL","TRANSPORT",
-					"PERSISTANCE","TARGET","TBONUS","INSENTIF","OPER","ALLOW","BIKE","OVERTIME","LOAN","POTHP","POTBRG","TOTAL","KETERANGAN"]
+			columns = ["NO","CABANG","NIK","NAMA","JEN_KEL","MARITAL","TANGGUNGAN","NPWP","ALAMAT","BANK","NO_REK","POS","TGL_MSK","WORKDAYS","PAKET","BASIC","MEAL","TRANSPORT",
+					"PERSISTANCE","TARGET","TBONUS","INSENTIF","OPER","ALLOW","BIKE","OVERTIME","LOAN","POTHP","POTBRG","POTLL","BPJS_KES","BPJS_JHT","GROSS","DEDUCT","TOTAL","KETERANGAN"]
+			for bank in available_banks:
+				columns.append(bank)
+
+			columns.append("TUNAI")
+
 			counter=1
+			
 			col_pos=0
 			for o in objects:								#hr.payslip
 				dump_wd = {}
@@ -328,14 +341,18 @@ class department_payslip_xls(report_xls):
 				
 				
 				NO = str(counter)
+				CABANG = o.employee_id.department_id.name or 'Undefined'
+				NIK = o.employee_id.nik or ''
 				NAMA = o.employee_id.name or 'Undefined'
+				JEN_KEL = o.employee_id.gender or ''
+				MARITAL = o.employee_id.marital or 'Undefined'
+				NPWP = o.employee_id.no_npwp or 'Undefined'
+				ALAMAT = o.employee_id.ktp_address_id and o.employee_id.ktp_address_id.contact_address or ''
 				BANK = o.employee_id.bank_account_id.bank_name or 'Undefined'
 				NO_REK = o.employee_id.bank_account_id.acc_number or 'Undefined'
-				NPWP = o.employee_id.no_npwp or 'Undefined'
 				POS = o.employee_id.job_id and o.employee_id.job_id.name or 'Undefined'
 				TGL_MSK = o.employee_id and o.employee_id.tgl_masuk or ''
 				WORKDAYS = dump_wd.get('SISO',False) and dump_wd.get('SISO').get('number_of_days',0.0) or 0.0
-				MARITAL = o.employee_id.marital or 'Undefined'
 				PAKET = o.total_paket or 0.0
 				BASIC = dump_sr.get('BASIC',False) and dump_sr.get('BASIC').get('total',0.0) or 0.0
 				MEAL = dump_sr.get('MEAL',False) and dump_sr.get('MEAL').get('total',0.0) or 0.0
@@ -351,6 +368,11 @@ class department_payslip_xls(report_xls):
 				LOAN = dump_sr.get('LOAN',False) and dump_sr.get('LOAN').get('total',0.0) or 0.0
 				POTHP = dump_sr.get('POTHP',False) and dump_sr.get('POTHP').get('total',0.0) or 0.0
 				POTBRG = dump_sr.get('POTBRG',False) and dump_sr.get('POTBRG').get('total',0.0) or 0.0
+				POTLL = dump_sr.get('POTLL',False) and dump_sr.get('POTLL').get('total',0.0) or 0.0
+				BPJS_KES = dump_sr.get('PJK_EMP',False) and dump_sr.get('PJK_EMP').get('total',0.0) or 0.0
+				BPJS_JHT = dump_sr.get('JHT_EMP',False) and dump_sr.get('JHT_EMP').get('total',0.0) or 0.0
+				GROSS = dump_sr.get('GROSS',False) and dump_sr.get('GROSS').get('total',0.0) or 0.0
+				DEDUCT = 0.0
 				TOTAL = dump_sr.get('NET',False) and dump_sr.get('NET').get('total',0.0) or 0.0
  				
 				KETERANGAN = ""
@@ -370,7 +392,9 @@ class department_payslip_xls(report_xls):
 			
 			for i in range(6,len(columns)):
 				chr_ord =chr(ord('A') + i)
+				print "chr_ord", chr_ord
 				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),normal_style_float_round_total)
+
 
 		elif data['t_report']=='all':
 			ws = wb.add_sheet('REGIONAL BASED')
