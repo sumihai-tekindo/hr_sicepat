@@ -21,6 +21,7 @@
 ##############################################################################
 
 import xlwt
+import string
 from xlwt import Formula as fm
 from datetime import datetime
 from openerp.osv import orm
@@ -51,6 +52,7 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 			'get_by_job':self._get_grouped_by_job,
 			'get_available_bank':self._get_available_bank,
 			'get_by_dept_bank':self._get_by_dept_bank,
+			'get_col_list':self._get_col_list,
 		})
 
 	def _get_grouped_by_department(self,data,objects):
@@ -182,6 +184,19 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 			if o.employee_id and o.employee_id.bank_account_id and o.employee_id.bank_account_id.bank and o.employee_id.bank_account_id.bank.id:
 				banks.update({o.employee_id.bank_account_id.bank.id:o.employee_id.bank_account_id.bank.name})
 		return banks
+
+	def _get_col_list(self):
+		def get_string(val):
+			return string.uppercase[val%26]*(val / 26+1)
+
+		col_list=list()
+		for i in range(-1, 26):
+			for j in range(0, 26):
+				if i==-1:
+					col_list.append(str(get_string(j)))
+				else:
+					col_list.append(str(get_string(i) + get_string(j)))
+		return col_list
 
 	def _get_by_dept_bank(self,data,objects):
 		banks = self._get_available_bank(objects)
@@ -390,9 +405,9 @@ class department_payslip_xls(report_xls):
 				row_pos+=1
 			ws.write_merge(row_pos,row_pos,1,5,"TOTAL",title_style)
 			
+			col_list = _p.get_col_list()
 			for i in range(6,len(columns)):
-				chr_ord =chr(ord('A') + i)
-				print "chr_ord", chr_ord
+				chr_ord = col_list[i]
 				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),normal_style_float_round_total)
 
 
