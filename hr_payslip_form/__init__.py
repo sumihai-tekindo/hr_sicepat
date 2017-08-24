@@ -1,2 +1,2 @@
-from . import models
-from . import reports
+import models
+import reports

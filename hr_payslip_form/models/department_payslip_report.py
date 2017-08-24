@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
+from datetime import date
+from datetime import datetime as dt
+from dateutil.relativedelta import relativedelta
 from openerp import models, fields, api, _
 
 class department_payslip_report(models.TransientModel):
 	_name = "department.payslip.report"
 
 	# period_id = fields.Many2one("account.period","Period",required=True)
-	start_date = fields.Date(string="Start Date",required=True,default=lambda x:'2016-09-21')
-	end_date = fields.Date(string="End Date",required=True,default=lambda x:'2016-10-20')
+	start_date = fields.Date(string="Start Date",required=True,default=lambda *x: (date.today()+ relativedelta(months=-1)).strftime('%Y-%m-21'))
+	end_date = fields.Date(string="End Date",required=True,default=lambda *x: date.today().strftime('%Y-%m-20'))
 	report_model = fields.Selection(
 		[('department','Per Employee in a Region'),
 		('totalled','Totalled per Bank'),

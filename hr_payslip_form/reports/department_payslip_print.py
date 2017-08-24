@@ -360,8 +360,9 @@ class department_payslip_xls(report_xls):
 				NIK = o.employee_id.nik or ''
 				NAMA = o.employee_id.name or 'Undefined'
 				JEN_KEL = o.employee_id.gender or ''
-				MARITAL = o.employee_id.marital or 'Undefined'
-				NPWP = o.employee_id.no_npwp or 'Undefined'
+				MARITAL = o.employee_id.marital or '-'
+				TANGGUNGAN = o.employee_id.children or 0
+				NPWP = o.employee_id.no_npwp or '-'
 				ALAMAT = o.employee_id.ktp_address_id and o.employee_id.ktp_address_id.contact_address or ''
 				BANK = o.employee_id.bank_account_id.bank_name or 'Undefined'
 				NO_REK = o.employee_id.bank_account_id.acc_number or 'Undefined'
@@ -394,15 +395,17 @@ class department_payslip_xls(report_xls):
  				KETERANGAN += (dump_sr.get('LOAN',False) and dump_sr.get('LOAN').get('keterangan',False)) or ""
  				KETERANGAN += (dump_sr.get('POTHP',False) and dump_sr.get('POTHP').get('keterangan',False)) or ""
  				KETERANGAN += (dump_sr.get('POTBRG',False) and dump_sr.get('POTBRG').get('keterangan',False)) or ""
-				
+				TUNAI = 0.0
 				col_pos = 0
 
 				for colx in columns:
-					ws.write(row_pos,col_pos,eval(colx),normal_style_float_round)
+					
+					ws.write(row_pos,col_pos,eval(str(colx)),normal_style_float_round)
 					col_pos+=1
 
 				counter+=1
 				row_pos+=1
+
 			ws.write_merge(row_pos,row_pos,1,5,"TOTAL",title_style)
 			
 			col_list = _p.get_col_list()
