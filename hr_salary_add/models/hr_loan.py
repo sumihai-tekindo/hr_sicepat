@@ -38,6 +38,7 @@ class HRLoanType(models.Model):
         
     name = fields.Char(string='Name', required=True)
     code = fields.Char(string='Code', size=52, required=True)
+    user_ids = fields.Many2many('res.users','loan_type_user_rel','loan_type_id','user_id',string='User',required=True)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):

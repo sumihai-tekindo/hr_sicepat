@@ -33,6 +33,11 @@
                         <field name="name"/>
                         <field name="code"/>
                     </group>
+                    <notebook>
+                        <page string="Users">
+                            <field name="user_ids"/>
+                        </page>
+                    </notebook>
                 </form>
             </field>
         </record>
