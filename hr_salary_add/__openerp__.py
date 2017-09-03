@@ -59,6 +59,7 @@ HR Sicepat Ekspres
 
     # always loaded
     'data': [
+        "data/hr_contract_security.xml",
         "wizard/hr_loan_state.xml",
         "views/hr_employee_view.xml",
         "views/hr_contract_view.xml",
