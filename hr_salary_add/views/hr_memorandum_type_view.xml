@@ -1,0 +1,48 @@
+<openerp>
+    <data>
+<!--	START MEMORANDUM	-->
+        <record model="ir.actions.act_window" id="memorandum_type_action">
+            <field name="name">Surat Peringatan</field>
+            <field name="res_model">hr.memorandum.type</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="memorandum_type_tree_view">
+            <field name="name">memorandum.type.tree</field>
+            <field name="model">hr.memorandum.type</field>
+            <field name="arch" type="xml">
+                <tree string="Memorandum Type Tree">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="interval_number"/>
+                    <field name="interval_type"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="memorandum_type_form_view">
+            <field name="name">memorandum.type.form</field>
+            <field name="model">hr.memorandum.type</field>
+            <field name="arch" type="xml">
+                <form string="Memorandum Type Form">
+               	<group string="Surat Peringatan">
+                        <group>
+                        	<group>
+	                            <field name="name"/>
+	                            <field name="code"/>
+	                            
+	                        </group>
+	                        <group>
+	                        	<field name="interval_number"/>
+	                            <field name="interval_type"/>
+	                        </group>
+
+                        </group>
+                </group>
+                </form>
+            </field>
+        </record>
+        <menuitem id="memorandum_type" name="Type SP" 
+                  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="memorandum_type_action"/>
+    </data>
+</openerp>

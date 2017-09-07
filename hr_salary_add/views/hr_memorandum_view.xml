@@ -1,7 +1,7 @@
 <openerp>
-	<data>
+    <data>
 <!--	START MEMORANDUM	-->
-		<record model="ir.actions.act_window" id="memorandum_action">
+        <record model="ir.actions.act_window" id="memorandum_action">
             <field name="name">Surat Peringatan</field>
             <field name="res_model">hr_memorandum</field>
             <field name="view_type">form</field>
@@ -12,9 +12,13 @@
             <field name="model">hr_memorandum</field>
             <field name="arch" type="xml">
                 <tree string="Memorandum Tree">
+                    <field name="name"/>
                     <field name="tanggal"/>
                     <field name="nama_karyawan"/>
                     <field name="nama_cabang"/>
+                    <field name="type_id"/>
+                    <field name="date_from"/>
+                    <field name="date_to"/>
                     <field name="state"/>
                 </tree>
             </field>
@@ -24,27 +28,40 @@
             <field name="model">hr_memorandum</field>
             <field name="arch" type="xml">
                 <form string="Memorandum Form">
-                	<header>
-                		<button name="action_submit" type="object"
+                    <header>
+                        <button name="action_submit" type="object"
                                 string="Submit" states="open" class="oe_highlight"/>
                         <button name="action_approve" type="object"
                                 string="Approve" states="submit" class="oe_highlight"/>
                         <button name="action_reject" type="object"
                                 string="Reject" states="submit" class="oe_highlight"/>
-	            		<field name="state" widget="statusbar"/>
-	            	</header>
-	            	<group string="Surat Peringatan">
-	            		<group>
-	            			<field name="tanggal" string="Tanggal" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-		                	<field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-		                	<field name="nama_atasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-		            		<field name="jabatan"/>
-		            		<field name="nama_cabang"/>
-		            		<field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-		            		<field name="flag" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
-	            		</group>
-	            		<group></group>
-	            	</group>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="True"/>
+                        </h1>
+                    </div>
+                    <group string="Surat Peringatan">
+                        <group>
+                            <group>
+                            <field name="tanggal" string="Tanggal Pelanggaran" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+                            <field name="nama_karyawan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+                            <field name="nama_atasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+                            <field name="jabatan"/>
+                            <field name="nama_cabang"/>
+                            </group>
+                            <group>
+                            <field name="type_id" string="Tipe SP"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+                            <field name="flag" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
+                            </group>
+                        </group>
+                    </group>
+                    </sheet>
                 </form>
             </field>
         </record>
@@ -52,8 +69,8 @@
         
 <!--    START MENU ITEM    -->
         <menuitem id="memorandum" name="SP" 
-        		  parent="hr_sicepat_salary"
+                  parent="hr_sicepat_salary"
                   action="memorandum_action" sequence="8"/>
 <!--    END OF MENU ITEM    	-->
-	</data>
+    </data>
 </openerp>

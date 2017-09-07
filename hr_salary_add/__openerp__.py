@@ -69,9 +69,11 @@ HR Sicepat Ekspres
         "views/hr_insentif_view.xml",
         "views/hr_employee_mutation_view.xml",
         "views/hr_memorandum_view.xml",
+        "views/hr_memorandum_type_view.xml",
         "views/hr_promotion_view.xml",
         "views/hr_salary_proposal_view.xml",
         "views/hr_loan_view.xml",
+        "views/sp_form.xml",
         "data/hr_salary_structure_amt_seq.xml",
         "data/hr_loan_sequence.xml",
         "data/delivery_package_sequence.xml",
@@ -85,7 +87,7 @@ HR Sicepat Ekspres
         "views/hr_employee_resign.xml",
         "views/res_company_view.xml",
         "views/hr_absence_summary_view.xml",
-        "wizard/absence_summary_search.xml"
+        "wizard/absence_summary_search.xml",
         ],
     # only loaded in demonstration mode
     'demo': [],

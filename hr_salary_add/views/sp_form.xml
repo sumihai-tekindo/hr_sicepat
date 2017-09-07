@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+    <report 
+            id="action_sp_form" 
+            model="hr_memorandum" 
+            string="SP"
+            report_type="qweb-pdf"
+            name="hr_salary_add.sp_form" 
+            file="hr_salary_add.sp_form"
+        />
+
+<template id="sp_form">
+    <t t-call="report.html_container">
+        <t t-foreach="docs" t-as="o">
+            <div class="header">
+                <div class="row" style="text-align:center;">
+                    <h2>SURAT PERINGATAN TINDAKAN DISIPLIN</h2>
+                </div>
+                <div class="row zero_min_height">
+                    <div class="col-xs-12">
+                        <div style="border-bottom: 4px double black;"></div>
+                    </div>
+                </div>
+                <div class="col-xs-5">
+                        <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 45px;"/>
+                </div>
+                <div class="row">
+                    <p t-field="o.name"/>
+                </div>
+            </div>
+                <div class="page">
+                    <table class="table table-condensed table-bordered">
+                        <tr>
+                            <td><strong>Name</strong></td>
+                            <td colspan="4"><span t-field="o.nama_karyawan.name"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Bagian</strong></td>
+                            <td><span t-field="o.jabatan"/></td>
+                            <td><strong>Tanggal Gabung</strong></td>
+                            <td><span t-field="o.nama_karyawan.tgl_masuk"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cabang</strong></td>
+                            <td><span t-field="o.nama_cabang"/></td>
+                            <td><strong>No. ID</strong></td>
+                            <td><span t-field="o.nama_karyawan.nik"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align:center;"><strong>Jenis Pelanggaran</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Detail pelanggaran</strong></td>
+                            <td colspan="3"><span t-field="o.alasan"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tanggal Pelanggaran</strong></td>
+                            <td><span t-field="o.tanggal"/></td>
+                            <td><strong>Lokasi</strong></td>
+                            <td><span t-field="o.nama_karyawan.department_id"/></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" style="text-align:center;"><strong>Tindakan Disiplin Yang Diberikan</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <t t-foreach="get_type_sp()" t-as="x">
+                                    <input t-att-value="x.id" type="checkbox" t-att-checked="o.type_id.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.name"/>
+                                    <br/>                                
+                                </t>
+                            </td>
+
+                            <td colspan="2">
+                                <p>* Masa Berlaku : <span t-field="o.type_id.interval_number"/> <span t-field="o.type_id.interval_type"/></p>
+                                <p><span t-field="o.date_from"/> s/d <span t-field="o.date_to"/></p>
+                                <p>* Pemberhentian Efektif per ........................................................................</p>
+                                <p>* Lainnya .....................................................................................................</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="height:200" colspan="2">
+                                <span>Direkomendasikan Oleh :</span>
+                                <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+                                <span style="border-top: 1px solid black;">Atasan karyawan       </span>
+                            </td>
+                            <td>
+                                <span>Disetujui Oleh :</span>
+                                <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+                                <span style="border-top: 1px solid black;">HRD                   </span>
+                            </td>
+                            <td>
+                                <span>Diterima Oleh :</span>
+                                <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
+                                <span style="border-top: 1px solid black;" t-field="o.nama_karyawan.name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="height:100" colspan="4">
+                                <p>
+                                - Apabila Saudara melakukan pelanggaran lagi, maka akan diberikan sanksi pada derajat/tingkatan selanjutnya
+                                </p>
+                                <p>
+                                - Dengan dikeluarkannya surat ini, kami harapkan agar saudara lebih tanggap dalam melakukan tugas, mengikuti kebijakan yang diatur oleh perusahaan dan meningkatka kinerja saudara di perusahaan dimasa mendatang
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="height:200" colspan="4">Komentar/Pernyataan karyawan :</td>
+                        </tr>
+                    </table>
+
+                    <p class="text-left">
+                        <tr>
+                            <td>Tanggal Dibuat : </td>
+                            <td><span t-esc="formatLang(o.create_date, date=True)"/></td>
+                        </tr>
+                    </p>
+                    <p class="text-left">
+                        <tr>
+                            <td>Distribution   : Form Asli untuk HRD, Copy untuk Cabang dan Karyawan</td>
+                        </tr>
+                        
+                    </p>
+                </div>
+
+                <div class="footer">
+                    <div class="text-center" style="border-top: 4px double black;">
+                        
+                    </div>
+                </div>   
+            
+        </t>
+    </t>
+</template>
+</data>
+</openerp>
