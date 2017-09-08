@@ -38,6 +38,7 @@ class HRLoanType(models.Model):
         
     name = fields.Char(string='Name', required=True)
     code = fields.Char(string='Code', size=52, required=True)
+    user_ids = fields.Many2many('res.users','loan_type_user_rel','loan_type_id','user_id',string='User',required=True)
 
     @api.model
     def name_search(self, name, args=None, operator='ilike', limit=100):
@@ -63,36 +64,36 @@ class HRLoan(models.Model):
     # Fields declaration
     name = fields.Char(string='Number', readonly=True)
     loan_type = fields.Many2one('hr.loan.type', 'Loan Type', required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+        track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     tanggal = fields.Date(default=lambda self: fields.Date.context_today(self), readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+        track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     employee_id = fields.Many2one('hr.employee', 'Nama Karyawan', required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+        track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     jabatan_id = fields.Many2one('hr.job', string='Jabatan', compute='_get_employee', store=True, readonly=True)
     department_id = fields.Many2one('hr.department', string='Nama Cabang', compute='_get_employee', store=True, readonly=True)
     address_home_id = fields.Many2one(related='employee_id.address_home_id', readonly=True)
     pinjaman_unpaid = fields.Float(digits=dp.get_precision('Payroll'), string="Pinjaman Sebelumnya", compute='_compute_pinjaman_unpaid')
     nilai_pinjaman = fields.Float(digits=dp.get_precision('Payroll'), string='Nilai Pinjaman', required=True, readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+        track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     tenor_angsuran = fields.Integer(string='Tenor', required=True, default=1, help="Lama angsuran dalam bulan", readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+        track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     nilai_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string="Angsuran Per Bulan", compute='_compute_angsuran_per_bulan', readonly=True)
     total_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string="Total Angsuran", compute='_compute_angsuran')
     total_bayar_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string="Total Pembayaran Angsuran", compute='_compute_angsuran')
     sisa_angsuran = fields.Float(digits=dp.get_precision('Payroll'), string="Sisa Angsuran", compute='_compute_angsuran')
     tanggal_awal_angsuran = fields.Date(string="Tanggal mulai angsuran", required=True, default=lambda *a: str(datetime.now() + relativedelta(day=20))[:10], readonly=True,
-        states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
-    notes = fields.Text(states={'close': [('readonly', True)]})
+        track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+    notes = fields.Text(track_visibility='onchange')
     loan_line = fields.One2many('hr.loan.line', 'loan_id', index=True)
-    alasan_reject = fields.Text(readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+    alasan_reject = fields.Text(readonly=True, track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     payment_method = fields.Selection([
         ('bank', 'Bank Transfer'),
         ('cash', 'Tunai'),
         ('other', 'Lain-lain')
         ], string='Payment method', default='bank',
-        readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+        readonly=True, track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     bank_account_id = fields.Many2one('res.partner.bank', 'Rekening', domain="[('partner_id','=',address_home_id)]",
-        readonly=True, states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
+        readonly=True, track_visibility='onchange', states={'draft': [('readonly', False)], 'submit': [('readonly', False)]})
     state = fields.Selection([
         ('draft','Open'),
         ('submit','Submit'),

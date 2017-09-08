@@ -38,6 +38,7 @@
     # always loaded
     'data': [
         'data/bpjs_data.xml',
+        'security/bpjs_security.xml',
         'security/ir.model.access.csv',
         'views/bpjs_view.xml',
     ],

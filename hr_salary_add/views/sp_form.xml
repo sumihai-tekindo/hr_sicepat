@@ -79,23 +79,47 @@
                                 <p>* Lainnya .....................................................................................................</p>
                             </td>
                         </tr>
-                        <tr>
-                            <td style="height:200" colspan="2">
+                        <tr style="border-bottom: none !important;">
+                            <td colspan="2">
                                 <span>Direkomendasikan Oleh :</span>
-                                <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
-                                <span style="border-top: 1px solid black;">Atasan karyawan       </span>
                             </td>
                             <td>
                                 <span>Disetujui Oleh :</span>
-                                <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
-                                <span style="border-top: 1px solid black;">HRD                   </span>
                             </td>
                             <td>
                                 <span>Diterima Oleh :</span>
-                                <br></br><br></br><br></br><br></br><br></br><br></br><br></br><br></br>
-                                <span style="border-top: 1px solid black;" t-field="o.nama_karyawan.name"/>
                             </td>
                         </tr>
+                        <tr style="border-bottom: none !important;">
+                            <td colspan="2" style="height:200">
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: none !important;">
+                            <td colspan="2">
+                                <span t-field="o.nama_atasan"/>
+                            </td>
+                            <td>
+                            </td>
+                            <td>
+                                <span t-field="o.nama_karyawan"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <span style="border-top: 1px solid black;">Atasan Karyawan</span>
+                            </td>
+                            <td>
+                                <span style="border-top: 1px solid black;">HRD</span>
+                            </td>
+                            <td >
+                                <span style="border-top: 1px solid black;">Karyawan</span>
+                            </td>
+                        </tr>
+                        
                         <tr>
                             <td style="height:100" colspan="4">
                                 <p>
@@ -119,7 +143,7 @@
                     </p>
                     <p class="text-left">
                         <tr>
-                            <td>Distribution   : Form Asli untuk HRD, Copy untuk Cabang dan Karyawan</td>
+                            <td>Distribution   : Form asli untuk HRD, Copy untuk Cabang dan Karyawan</td>
                         </tr>
                         
                     </p>

@@ -38,6 +38,29 @@ from openerp.tools.translate import _
 import logging
 _logger = logging.getLogger(__name__)
 
+col_headers = {
+		'BASIC': 'Gaji Pokok',
+		'MEAL': 'Uang Makan',
+		'TRANSPORT': 'Uang Transport',
+		'PERSISTANCE': 'Uang Kerajinan',
+		'TARGET': 'Target Paket',
+		'TBONUS': 'Bonus Paket',
+		'INSENTIF': 'Insentif',
+		'OPER': 'Tunjangan Operasional',
+		'ALLOW': 'Tunjangan Jabatan',
+		'BIKE': 'Service Motor',
+		'OVERTIME': 'Lemburan',
+		'GROSS': 'Gaji Kotor',
+		'LOAN': 'Pot. Pinjaman',
+		'POTHP': 'Pot. Handphone',
+		'POTBRG': 'Pot. Barang Hilang',
+		'PJK_EMP': 'BPJS Kesehatan',
+		'JHT_EMP': 'BPJS JHT',
+		'JP_EMP': 'BPJS Pensiun',
+		'POTLL': 'Pot. Lain',
+		'DEDUC': 'Potongan',
+		'NET': 'THP',
+	}
 
 class department_payslip_xls_parser(report_sxw.rml_parse):
 
@@ -48,13 +71,54 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 		
 		self.localcontext.update({
 			'datetime': datetime,
+			'get_available_bank':self._get_available_bank,
+			'get_col_list':self._get_col_list,
+			'get_columns':self._get_columns,
 			'get_by_dept':self._get_grouped_by_department,
 			'get_by_job':self._get_grouped_by_job,
-			'get_available_bank':self._get_available_bank,
 			'get_by_dept_bank':self._get_by_dept_bank,
-			'get_col_list':self._get_col_list,
 		})
 
+	def _get_available_bank(self, objects):
+		banks = {}
+		for o in objects:
+			if o.employee_id and o.employee_id.bank_account_id and o.employee_id.bank_account_id.bank and o.employee_id.bank_account_id.bank.id:
+				banks.update({o.employee_id.bank_account_id.bank.id: o.employee_id.bank_account_id.bank.name})
+		return banks
+
+	def _get_col_list(self):
+		def get_string(val):
+			return string.uppercase[val%26]*(val / 26+1)
+
+		col_list=list()
+		for i in range(-1, 26):
+			for j in range(0, 26):
+				if i==-1:
+					col_list.append(str(get_string(j)))
+				else:
+					col_list.append(str(get_string(i) + get_string(j)))
+		return col_list
+
+	def _get_columns(self, objects):
+		rule_obj = self.pool.get('hr.salary.rule')
+		struct_obj = self.pool.get('hr.payroll.structure')
+
+		col_dict = dict()
+		columns = list()
+		contract_ids = [o.contract_id.id for o in objects if o.contract_id]
+		structure_ids = self.pool.get('hr.contract').get_all_structures(self.cr, self.uid, contract_ids)
+# 		structure_ids = [o.struct_id.id for o in objects if o.struct_id]
+		rule_ids = struct_obj.get_all_rules(self.cr, self.uid, structure_ids)
+		sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x:x[1])]
+		for rule in rule_obj.browse(self.cr, self.uid, sorted_rule_ids):
+			if rule.code == 'TARGET' and rule.input_ids:
+				for input in rule.input_ids:
+					col_dict.setdefault(input.code, (input.code, rule.sequence))
+				continue
+			col_dict.setdefault(rule.code, (rule.code, rule.sequence))
+		columns += [v[0] for k, v in sorted(col_dict.items(), key=lambda x:x[1][1])]
+		return columns
+		
 	def _get_grouped_by_department(self,data,objects):
 		cr = self.cr
 		uid = self.uid
@@ -178,26 +242,6 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 				continue
 		return jobs,value
 
-	def _get_available_bank(self,objects):
-		banks = {}
-		for o in objects:
-			if o.employee_id and o.employee_id.bank_account_id and o.employee_id.bank_account_id.bank and o.employee_id.bank_account_id.bank.id:
-				banks.update({o.employee_id.bank_account_id.bank.id:o.employee_id.bank_account_id.bank.name})
-		return banks
-
-	def _get_col_list(self):
-		def get_string(val):
-			return string.uppercase[val%26]*(val / 26+1)
-
-		col_list=list()
-		for i in range(-1, 26):
-			for j in range(0, 26):
-				if i==-1:
-					col_list.append(str(get_string(j)))
-				else:
-					col_list.append(str(get_string(i) + get_string(j)))
-		return col_list
-
 	def _get_by_dept_bank(self,data,objects):
 		banks = self._get_available_bank(objects)
 		cr = self.cr
@@ -256,7 +300,6 @@ class department_payslip_xls(report_xls):
 		super(department_payslip_xls, self).__init__(
 			name, table, rml, parser, header, store)
 
-
 	def generate_xls_report(self, _p, _xs, data, objects, wb):
 		##Penempatan untuk template rows
 		title_style 					= xlwt.easyxf('font: height 180, name Calibri, colour_index black, bold on; align: wrap on, vert centre, horiz left; ')
@@ -286,6 +329,8 @@ class department_payslip_xls(report_xls):
 		
 		normal_style_float_round_total 	= xlwt.easyxf('font: height 180, name Calibri, colour_index black, bold on; align: wrap on, vert centre, horiz right; borders: top thin, bottom thin;',num_format_str='#,##0')
 
+		col_list = _p.get_col_list()
+		
 		if data['t_report']=='department':
 			ws = wb.add_sheet("Payslip")
 			ws.panes_frozen = True
@@ -294,125 +339,141 @@ class department_payslip_xls(report_xls):
 			ws.fit_width_to_pages = 1
 			ws.preview_magn = 100
 			ws.normal_magn = 100
-			ws.print_scaling=100
+			ws.print_scaling = 100
 			ws.page_preview = False
 			ws.set_fit_width_to_pages(1)
 			
-			ws.write_merge(0,0,0,19,"REKAPITULASI PAYSLIP PER EMPLOYEE",title_style_center)
-			ws.write(3,0,"PERIODE",normal_bold_style_a)
-			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
-			ws.write(4,0,"WILAYAH",normal_bold_style_a)
-			ws.write_merge(4,4,1,4,": "+data['department_name'],normal_bold_style_a)
-			headers = ["NO","CABANG","NIK","NAMA","JENIS KELAMIN","STATUS","TANGGUNGAN","NPWP","ALAMAT KTP","BANK","NO REKENING","POSISI","TGL.MASUK KERJA","HARI KERJA","PAKET","GAJI POKOK",
-					"UANG MAKAN","UANG TRANSPORT","KERAJINAN","BONUS PAKET 1","BONUS PAKET 2","INSENTIF","TUNJANGAN OPERASIONAL",
-					"TUNJANGAN JABATAN","SERVICE MOTOR","LEMBURAN","PINJAMAN","POTONGAN HP","POTONGAN BARANG","POTONGAN LAIN","BPJS KES","BPJS JHT","GROSS","DEDUCTION","THP","KETERANGAN",
-					]
-			available_banks = _p.get_available_bank (objects)
+			available_banks = _p.get_available_bank(objects)
+			additional_banks = {'cabang': 'Cash KACAB', 'other': 'Lain-lain', 'cash': 'Tunai'}
+			col_headers.update(available_banks)
+			col_headers.update(additional_banks)
+			
+			headers = [
+					'NO', 'CABANG', 'NIK', 'NAMA', 'JENIS KELAMIN', 'STATUS', 'TANGGUNGAN', 'NPWP', 'ALAMAT KTP', 'BANK',
+					'NO REKENING', 'POSISI', 'TGL.MASUK KERJA', 'HARI KERJA', 'PAKET'
+				]
+			headers += _p.get_columns(objects)
+			headers[headers.index('NET')]='DEDUC'
+			headers += ['NET', 'KETERANGAN']
 			for bank in available_banks:
 				headers.append(bank)
+			for bank in additional_banks:
+				headers.append(bank)
 
-			headers.append("TUNAI") #Tambahan Headers
-
-			col_pos = 0
-			for head in headers :
-
-				ws.write(6,col_pos,head,th_top_style)
-				col_pos+=1
-			row_pos = 7
-			
-			columns = ["NO","CABANG","NIK","NAMA","JEN_KEL","MARITAL","TANGGUNGAN","NPWP","ALAMAT","BANK","NO_REK","POS","TGL_MSK","WORKDAYS","PAKET","BASIC","MEAL","TRANSPORT",
-					"PERSISTANCE","TARGET","TBONUS","INSENTIF","OPER","ALLOW","BIKE","OVERTIME","LOAN","POTHP","POTBRG","POTLL","BPJS_KES","BPJS_JHT","GROSS","DEDUCT","TOTAL","KETERANGAN"]
+			columns = [
+					'nbr', 'department', 'nik', 'employee_name', 'gender', 'marital', 'children', 'no_npwp', 'ktp_address', 'bank_name',
+					'bank_account', 'job_position', 'tgl_masuk', 'workdays', 'total_paket'
+				]
+			columns += _p.get_columns(objects)
+			columns[columns.index('NET')]='DEDUC'
+			columns += ['NET', 'note']
 			for bank in available_banks:
 				columns.append(bank)
+			for bank in additional_banks:
+				columns.append(bank)
 
-			columns.append("TUNAI")
+			ws.write_merge(0,0,0,len(columns),"REKAPITULASI PAYSLIP PER EMPLOYEE",title_style_center)
+			ws.write(3,0,"PERIODE",normal_bold_style_a)
+			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
+			ws.write(4,0,"JUMLAH KARYAWAN",normal_bold_style_a)
+			ws.write_merge(4,4,1,4,": "+str(len(objects)),normal_bold_style_a)
 
-			counter=1
-			
-			col_pos=0
+			col_pos = 0
+			for head in headers:
+				ws.write(6,col_pos,head in col_headers and col_headers[head] or head,th_top_style)
+				col_pos+=1
+
+			row_pos = 7
+			counter = 1
 			for o in objects:								#hr.payslip
-				dump_wd = {}
+				col_lines = {}
+				for col in columns:
+					col_lines.setdefault(col, None)
+				
+				col_lines.update({
+						'nbr': str(counter),
+						'department': o.department_id and o.department_id.name or None,
+						'nik': o.employee_id.nik or None,
+						'employee_name': o.employee_id.name or None,
+						'gender': o.employee_id.gender or None,
+						'marital': o.employee_id.marital or None,
+						'children': o.employee_id.children or 0,
+						'no_npwp': o.employee_id.no_npwp or None,
+						'ktp_address': o.employee_id.ktp_address_id and o.employee_id.ktp_address_id.contact_address or None,
+						'bank_name': o.employee_id.bank_account_id and o.employee_id.bank_account_id.bank.name or None,
+						'bank_account': o.employee_id.bank_account_id and o.employee_id.bank_account_id.acc_number or None,
+						'job_position': o.employee_id.job_id and o.employee_id.job_id.name or None,
+						'tgl_masuk': o.employee_id.tgl_masuk or None,
+						'workdays': 0,
+						'total_paket': o.total_paket or 0,
+					})
+				notes = ''
+				deduc = 0.0
 				for wd in o.worked_days_line_ids:
-					dump_wd.update({
-						wd.code:{
-								'number_of_days':wd.number_of_days or 0.0,
-								'number_of_hours':wd.number_of_hours  or 0.0,
-								}
-								})
-				dump_sr ={}										
-				for sr in o.line_ids:
-					dump_sr.update({
-						sr.code : {
-							'quantity':sr.quantity or 0.0,
-							'rate':sr.rate or 0.0,
-							'amount':sr.amount or 0.0,
-							'total':sr.total or 0.0,
-							'keterangan':sr.note_pinjaman,
-							}
-						})	
+					if wd.code=='SISO':
+						col_lines.update({'workdays': wd.number_of_days})
+				for line in o.line_ids:
+					if line.code=='TARGET' and line.salary_rule_id.input_ids:
+						for input in line.salary_rule_id.input_ids:
+							for slip_input in o.input_line_ids:
+								if input.code==slip_input.code:
+									col_lines.update({input.code: slip_input.amount})
+						continue
+					col_lines.update({line.code: line.total})
+					if line.note:
+						if not notes:
+							notes += line.note
+						else:
+							notes += '\n%s' % line.note
+					if line.note_pinjaman:
+						if not notes:
+							notes += line.note_pinjaman
+						else:
+							notes += '\n%s' % line.note_pinjaman
+					if line.category_id.code=='DED':
+						deduc += line.total
 				
+				col_lines.update({
+						'note': notes,
+						'DEDUC': deduc,
+					})
 				
+				net_amount = col_lines.get('NET', 0.0)
+				cash_limit = 10000000.0
+				if o.employee_id.bank_account_id:
+					if net_amount > cash_limit:
+						col_lines.update({o.employee_id.bank_account_id.bank.id: cash_limit})
+						col_lines.update({'cash': net_amount-cash_limit})
+					else:
+						col_lines.update({o.employee_id.bank_account_id.bank.id: net_amount})
+				else:
+					if net_amount > cash_limit:
+						col_lines.update({'other': cash_limit})
+						col_lines.update({'cash': net_amount-cash_limit})
+					else:
+						col_lines.update({'other': net_amount})
 				
-				
-				
-				NO = str(counter)
-				CABANG = o.employee_id.department_id.name or 'Undefined'
-				NIK = o.employee_id.nik or ''
-				NAMA = o.employee_id.name or 'Undefined'
-				JEN_KEL = o.employee_id.gender or ''
-				MARITAL = o.employee_id.marital or '-'
-				TANGGUNGAN = o.employee_id.children or 0
-				NPWP = o.employee_id.no_npwp or '-'
-				ALAMAT = o.employee_id.ktp_address_id and o.employee_id.ktp_address_id.contact_address or ''
-				BANK = o.employee_id.bank_account_id.bank_name or 'Undefined'
-				NO_REK = o.employee_id.bank_account_id.acc_number or 'Undefined'
-				POS = o.employee_id.job_id and o.employee_id.job_id.name or 'Undefined'
-				TGL_MSK = o.employee_id and o.employee_id.tgl_masuk or ''
-				WORKDAYS = dump_wd.get('SISO',False) and dump_wd.get('SISO').get('number_of_days',0.0) or 0.0
-				PAKET = o.total_paket or 0.0
-				BASIC = dump_sr.get('BASIC',False) and dump_sr.get('BASIC').get('total',0.0) or 0.0
-				MEAL = dump_sr.get('MEAL',False) and dump_sr.get('MEAL').get('total',0.0) or 0.0
-				TRANSPORT = dump_sr.get('TRANSPORT',False) and dump_sr.get('TRANSPORT').get('total',0.0) or 0.0
-				PERSISTANCE = dump_sr.get('PERSISTANCE',False) and dump_sr.get('PERSISTANCE').get('total',0.0) or 0.0
-				TARGET = dump_sr.get('TARGET',False) and dump_sr.get('TARGET').get('total',0.0) or 0.0
-				TBONUS = dump_sr.get('TBONUS',False) and dump_sr.get('TBONUS').get('total',0.0) or 0.0
-				INSENTIF = dump_sr.get('INSENTIF',False) and dump_sr.get('INSENTIF').get('total',0.0) or 0.0
-				OPER = dump_sr.get('OPER',False) and dump_sr.get('OPER').get('total',0.0) or 0.0
-				ALLOW = dump_sr.get('ALLOW',False) and dump_sr.get('ALLOW').get('total',0.0) or 0.0
-				BIKE = dump_sr.get('BIKE',False) and dump_sr.get('BIKE').get('total',0.0) or 0.0
-				OVERTIME = dump_sr.get('OVERTIME',False) and dump_sr.get('OVERTIME').get('total',0.0) or 0.0
-				LOAN = dump_sr.get('LOAN',False) and dump_sr.get('LOAN').get('total',0.0) or 0.0
-				POTHP = dump_sr.get('POTHP',False) and dump_sr.get('POTHP').get('total',0.0) or 0.0
-				POTBRG = dump_sr.get('POTBRG',False) and dump_sr.get('POTBRG').get('total',0.0) or 0.0
-				POTLL = dump_sr.get('POTLL',False) and dump_sr.get('POTLL').get('total',0.0) or 0.0
-				BPJS_KES = dump_sr.get('PJK_EMP',False) and dump_sr.get('PJK_EMP').get('total',0.0) or 0.0
-				BPJS_JHT = dump_sr.get('JHT_EMP',False) and dump_sr.get('JHT_EMP').get('total',0.0) or 0.0
-				GROSS = dump_sr.get('GROSS',False) and dump_sr.get('GROSS').get('total',0.0) or 0.0
-				DEDUCT = 0.0
-				TOTAL = dump_sr.get('NET',False) and dump_sr.get('NET').get('total',0.0) or 0.0
- 				
-				KETERANGAN = ""
- 				KETERANGAN += (dump_sr.get('LOAN',False) and dump_sr.get('LOAN').get('keterangan',False)) or ""
- 				KETERANGAN += (dump_sr.get('POTHP',False) and dump_sr.get('POTHP').get('keterangan',False)) or ""
- 				KETERANGAN += (dump_sr.get('POTBRG',False) and dump_sr.get('POTBRG').get('keterangan',False)) or ""
-				TUNAI = 0.0
-				col_pos = 0
+				if o.contract_id and o.contract_id.date_end and o.contract_id.date_end <= o.date_to:
+					if net_amount > cash_limit:
+						col_lines.update({'cabang': cash_limit})
+						col_lines.update({'cash': net_amount-cash_limit})
+					else:
+						col_lines.update({'cabang': net_amount})
 
-				for colx in columns:
-					
-					ws.write(row_pos,col_pos,eval(str(colx)),normal_style_float_round)
+				col_pos = 0
+				for col in columns:
+					ws.write(row_pos,col_pos,col_lines[col],normal_style_float_round)
 					col_pos+=1
 
 				counter+=1
 				row_pos+=1
 
-			ws.write_merge(row_pos,row_pos,1,5,"TOTAL",title_style)
+			ws.write_merge(row_pos,row_pos,1,14,"TOTAL",title_style)
 			
-			col_list = _p.get_col_list()
-			for i in range(6,len(columns)):
+			for i in range(15, len(columns)):
 				chr_ord = col_list[i]
-				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),normal_style_float_round_total)
-
+				first_row = row_pos-counter+2
+				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$"+str(first_row)+":$"+chr_ord+"$"+str(row_pos)+")"),normal_style_float_round_total)
 
 		elif data['t_report']=='all':
 			ws = wb.add_sheet('REGIONAL BASED')
