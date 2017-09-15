@@ -61,6 +61,11 @@ col_headers = {
 		'DEDUC': 'Potongan',
 		'NET': 'THP',
 	}
+additional_banks = {
+		'cabang': 'Cash KACAB',
+		'other': 'Lain-lain',
+		'cash': 'Tunai',
+	}
 
 class department_payslip_xls_parser(report_sxw.rml_parse):
 
@@ -71,12 +76,16 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 		
 		self.localcontext.update({
 			'datetime': datetime,
-			'get_available_bank':self._get_available_bank,
-			'get_col_list':self._get_col_list,
-			'get_columns':self._get_columns,
-			'get_by_dept':self._get_grouped_by_department,
-			'get_by_job':self._get_grouped_by_job,
-			'get_by_dept_bank':self._get_by_dept_bank,
+			'get_available_bank': self._get_available_bank,
+			'get_col_list': self._get_col_list,
+			'get_columns': self._get_columns,
+			'get_gross_ded_net_col': self._get_gross_ded_net_col,
+			'group_by_department': self._group_by_department,
+			'group_by_department_gross_ded_net_bank': self._group_by_department_gross_ded_net_bank,
+			'group_by_job': self._group_by_job,
+			'get_by_dept': self._get_grouped_by_department,
+			'get_by_job': self._get_grouped_by_job,
+			'get_by_dept_bank': self._get_by_dept_bank,
 		})
 
 	def _get_available_bank(self, objects):
@@ -119,6 +128,208 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 		columns += [v[0] for k, v in sorted(col_dict.items(), key=lambda x:x[1][1])]
 		return columns
 		
+	def _get_gross_ded_net_col(self, objects):
+		rule_obj = self.pool.get('hr.salary.rule')
+		struct_obj = self.pool.get('hr.payroll.structure')
+
+		col_dict = dict()
+		columns = list()
+		contract_ids = [o.contract_id.id for o in objects if o.contract_id]
+		structure_ids = self.pool.get('hr.contract').get_all_structures(self.cr, self.uid, contract_ids)
+# 		structure_ids = [o.struct_id.id for o in objects if o.struct_id]
+		rule_ids = struct_obj.get_all_rules(self.cr, self.uid, structure_ids)
+		sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x:x[1])]
+		for rule in rule_obj.browse(self.cr, self.uid, sorted_rule_ids):
+			if rule.code in ('GROSS', 'NET') or rule.category_id.code == 'DED':
+				col_dict.setdefault(rule.code, (rule.code, rule.sequence))
+		columns += [v[0] for k, v in sorted(col_dict.items(), key=lambda x:x[1][1])]
+		return columns
+		
+	def _group_by_department(self, objects):
+		slip_department_info = {}
+		columns = self._get_columns(objects)
+		for slip in objects:
+			key = slip.department_id.id
+
+			if slip_department_info.get(key):
+				slip_department_info[key]['total_emp'] += 1
+				slip_department_info[key]['total_consignment'] += slip.total_paket
+				for wd in slip.worked_days_line_ids:
+					if wd.code=='SISO':
+						slip_department_info[key]['total_workdays'] += wd.number_of_days
+				deduc = 0.0
+				for line in slip.line_ids:
+					if line.code=='TARGET' and line.salary_rule_id.input_ids:
+						for input in line.salary_rule_id.input_ids:
+							for slip_input in slip.input_line_ids:
+								if input.code==slip_input.code:
+									slip_department_info[key][input.code] += slip_input.amount
+						continue
+					slip_department_info[key][line.code] += line.total
+					if line.category_id.code=='DED':
+						deduc += line.total
+				slip_department_info[key]['DEDUC'] += deduc
+			else:
+				slip_department_info[key] = {
+										'department': slip.department_id.display_name, 
+										'total_emp': 1, 
+										'total_consignment': slip.total_paket,
+										'total_workdays': 0,
+									}
+				for col in columns:
+					slip_department_info[key].update({col: 0.0})
+				for wd in slip.worked_days_line_ids:
+					if wd.code=='SISO':
+						slip_department_info[key].update({'total_workdays': wd.number_of_days})
+				deduc = 0.0
+				for line in slip.line_ids:
+					if line.code=='TARGET' and line.salary_rule_id.input_ids:
+						for input in line.salary_rule_id.input_ids:
+							for slip_input in slip.input_line_ids:
+								if input.code==slip_input.code:
+									slip_department_info[key].update({input.code: slip_input.amount})
+						continue
+					slip_department_info[key].update({line.code: line.total})
+					if line.category_id.code=='DED':
+						deduc += line.total
+				slip_department_info[key].update({'DEDUC': deduc})
+
+		return [v for k,v in sorted(slip_department_info.items())]
+
+	def _group_by_department_gross_ded_net_bank(self, objects):
+		slip_department_info = {}
+		columns = self._get_gross_ded_net_col(objects)
+		for bank in self._get_available_bank(objects):
+			columns.append(bank)
+		for bank in additional_banks:
+			columns.append(bank)
+		for slip in objects:
+			key = slip.department_id.id
+
+			if slip_department_info.get(key):
+				for line in slip.line_ids:
+					if slip_department_info[key].get(line.code):
+						slip_department_info[key][line.code] += line.total
+
+				net_amount = slip_department_info[key].get('NET', 0.0)
+				cash_limit = 10000000.0
+				if slip.employee_id.bank_account_id:
+					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
+						if net_amount > cash_limit:
+							slip_department_info[key]['cabang'] += cash_limit
+							slip_department_info[key]['cash'] += net_amount-cash_limit
+						else:
+							slip_department_info[key]['cabang'] += net_amount
+					else:
+						if net_amount > cash_limit:
+							slip_department_info[key][slip.employee_id.bank_account_id.bank.id] += cash_limit
+							slip_department_info[key]['cash'] += net_amount-cash_limit
+						else:
+							slip_department_info[key][slip.employee_id.bank_account_id.bank.id] += net_amount
+				else:
+					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
+						if net_amount > cash_limit:
+							slip_department_info[key]['cabang'] += cash_limit
+							slip_department_info[key]['cash'] += net_amount-cash_limit
+						else:
+							slip_department_info[key]['cabang'] += net_amount
+					else:
+						if net_amount > cash_limit:
+							slip_department_info[key]['other'] += cash_limit
+							slip_department_info[key]['cash'] += net_amount-cash_limit
+						else:
+							slip_department_info[key]['other'] += net_amount
+			else:
+				slip_department_info[key] = {'department': slip.department_id.display_name}
+				for col in columns:
+					slip_department_info[key].update({col: 0.0})
+				for line in slip.line_ids:
+					slip_department_info[key].update({line.code: line.total})
+
+				net_amount = slip_department_info[key].get('NET', 0.0)
+				cash_limit = 10000000.0
+				if slip.employee_id.bank_account_id:
+					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
+						if net_amount > cash_limit:
+							slip_department_info[key].update({'cabang': cash_limit})
+							slip_department_info[key].update({'cash': net_amount-cash_limit})
+						else:
+							slip_department_info[key].update({'cabang': net_amount})
+					else:
+						if net_amount > cash_limit:
+							slip_department_info[key].update({slip.employee_id.bank_account_id.bank.id: cash_limit})
+							slip_department_info[key].update({'cash': net_amount-cash_limit})
+						else:
+							slip_department_info[key].update({slip.employee_id.bank_account_id.bank.id: net_amount})
+				else:
+					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
+						if net_amount > cash_limit:
+							slip_department_info[key].update({'cabang': cash_limit})
+							slip_department_info[key].update({'cash': net_amount-cash_limit})
+						else:
+							slip_department_info[key].update({'cabang': net_amount})
+					else:
+						if net_amount > cash_limit:
+							slip_department_info[key].update({'other': cash_limit})
+							slip_department_info[key].update({'cash': net_amount-cash_limit})
+						else:
+							slip_department_info[key].update({'other': net_amount})
+	
+		return [v for k,v in sorted(slip_department_info.items())]
+
+	def _group_by_job(self, objects):
+		slip_job_info = {}
+		columns = self._get_columns(objects)
+		for slip in objects:
+			employee_job = slip.employee_id.job_id
+			contract_job = slip.contract_id and slip.contract_id.job_id or employee_job
+			key = contract_job.id
+
+			if slip_job_info.get(key):
+				slip_job_info[key]['total_emp'] += 1
+				slip_job_info[key]['total_consignment'] += slip.total_paket
+				for wd in slip.worked_days_line_ids:
+					if wd.code=='SISO':
+						slip_job_info[key]['total_workdays'] += wd.number_of_days
+				deduc = 0.0
+				for line in slip.line_ids:
+					if line.code=='TARGET' and line.salary_rule_id.input_ids:
+						for input in line.salary_rule_id.input_ids:
+							for slip_input in slip.input_line_ids:
+								if input.code==slip_input.code:
+									slip_job_info[key][input.code] += slip_input.amount
+						continue
+					slip_job_info[key][line.code] += line.total
+					if line.category_id.code=='DED':
+						deduc += line.total
+				slip_job_info[key]['DEDUC'] += deduc
+			else:
+				slip_job_info[key] = {
+										'job': slip.contract_id.job_id.display_name, 
+										'total_emp': 1, 
+										'total_consignment': slip.total_paket,
+										'total_workdays': 0,
+									}
+				for col in columns:
+					slip_job_info[key].update({col: 0.0})
+				for wd in slip.worked_days_line_ids:
+					if wd.code=='SISO':
+						slip_job_info[key].update({'total_workdays': wd.number_of_days})
+				deduc = 0.0
+				for line in slip.line_ids:
+					if line.code=='TARGET' and line.salary_rule_id.input_ids:
+						for input in line.salary_rule_id.input_ids:
+							for slip_input in slip.input_line_ids:
+								if input.code==slip_input.code:
+									slip_job_info[key].update({input.code: slip_input.amount})
+						continue
+					slip_job_info[key].update({line.code: line.total})
+					if line.category_id.code=='DED':
+						deduc += line.total
+				slip_job_info[key].update({'DEDUC': deduc})
+
+		return [v for k,v in sorted(slip_job_info.items())]
+
 	def _get_grouped_by_department(self,data,objects):
 		cr = self.cr
 		uid = self.uid
@@ -344,7 +555,6 @@ class department_payslip_xls(report_xls):
 			ws.set_fit_width_to_pages(1)
 			
 			available_banks = _p.get_available_bank(objects)
-			additional_banks = {'cabang': 'Cash KACAB', 'other': 'Lain-lain', 'cash': 'Tunai'}
 			col_headers.update(available_banks)
 			col_headers.update(additional_banks)
 			
@@ -352,24 +562,24 @@ class department_payslip_xls(report_xls):
 					'NO', 'CABANG', 'NIK', 'NAMA', 'JENIS KELAMIN', 'STATUS', 'TANGGUNGAN', 'NPWP', 'ALAMAT KTP', 'BANK',
 					'NO REKENING', 'POSISI', 'TGL.MASUK KERJA', 'HARI KERJA', 'PAKET'
 				]
-			headers += _p.get_columns(objects)
-			headers[headers.index('NET')]='DEDUC'
-			headers += ['NET', 'KETERANGAN']
-			for bank in available_banks:
-				headers.append(bank)
-			for bank in additional_banks:
-				headers.append(bank)
-
 			columns = [
 					'nbr', 'department', 'nik', 'employee_name', 'gender', 'marital', 'children', 'no_npwp', 'ktp_address', 'bank_name',
 					'bank_account', 'job_position', 'tgl_masuk', 'workdays', 'total_paket'
 				]
+
+			headers += _p.get_columns(objects)
+			headers[headers.index('NET')]='DEDUC'
+			headers += ['NET', 'KETERANGAN']
+
 			columns += _p.get_columns(objects)
 			columns[columns.index('NET')]='DEDUC'
 			columns += ['NET', 'note']
+
 			for bank in available_banks:
+				headers.append(bank)
 				columns.append(bank)
 			for bank in additional_banks:
+				headers.append(bank)
 				columns.append(bank)
 
 			ws.write_merge(0,0,0,len(columns),"REKAPITULASI PAYSLIP PER EMPLOYEE",title_style_center)
@@ -384,14 +594,14 @@ class department_payslip_xls(report_xls):
 				col_pos+=1
 
 			row_pos = 7
-			counter = 1
+			nbr = 1
 			for o in objects:								#hr.payslip
 				col_lines = {}
 				for col in columns:
 					col_lines.setdefault(col, None)
 				
 				col_lines.update({
-						'nbr': str(counter),
+						'nbr': str(nbr),
 						'department': o.department_id and o.department_id.name or None,
 						'nik': o.employee_id.nik or None,
 						'employee_name': o.employee_id.name or None,
@@ -441,39 +651,46 @@ class department_payslip_xls(report_xls):
 				net_amount = col_lines.get('NET', 0.0)
 				cash_limit = 10000000.0
 				if o.employee_id.bank_account_id:
-					if net_amount > cash_limit:
-						col_lines.update({o.employee_id.bank_account_id.bank.id: cash_limit})
-						col_lines.update({'cash': net_amount-cash_limit})
+					if o.contract_id and o.contract_id.date_end and o.contract_id.date_end <= o.date_to:
+						if net_amount > cash_limit:
+							col_lines.update({'cabang': cash_limit})
+							col_lines.update({'cash': net_amount-cash_limit})
+						else:
+							col_lines.update({'cabang': net_amount})
 					else:
-						col_lines.update({o.employee_id.bank_account_id.bank.id: net_amount})
+						if net_amount > cash_limit:
+							col_lines.update({o.employee_id.bank_account_id.bank.id: cash_limit})
+							col_lines.update({'cash': net_amount-cash_limit})
+						else:
+							col_lines.update({o.employee_id.bank_account_id.bank.id: net_amount})
 				else:
-					if net_amount > cash_limit:
-						col_lines.update({'other': cash_limit})
-						col_lines.update({'cash': net_amount-cash_limit})
+					if o.contract_id and o.contract_id.date_end and o.contract_id.date_end <= o.date_to:
+						if net_amount > cash_limit:
+							col_lines.update({'cabang': cash_limit})
+							col_lines.update({'cash': net_amount-cash_limit})
+						else:
+							col_lines.update({'cabang': net_amount})
 					else:
-						col_lines.update({'other': net_amount})
+						if net_amount > cash_limit:
+							col_lines.update({'other': cash_limit})
+							col_lines.update({'cash': net_amount-cash_limit})
+						else:
+							col_lines.update({'other': net_amount})
 				
-				if o.contract_id and o.contract_id.date_end and o.contract_id.date_end <= o.date_to:
-					if net_amount > cash_limit:
-						col_lines.update({'cabang': cash_limit})
-						col_lines.update({'cash': net_amount-cash_limit})
-					else:
-						col_lines.update({'cabang': net_amount})
-
 				col_pos = 0
 				for col in columns:
 					ws.write(row_pos,col_pos,col_lines[col],normal_style_float_round)
 					col_pos+=1
 
-				counter+=1
+				nbr+=1
 				row_pos+=1
 
-			ws.write_merge(row_pos,row_pos,1,14,"TOTAL",title_style)
+			ws.write_merge(row_pos,row_pos,1,14,'TOTAL',title_style)
 			
 			for i in range(15, len(columns)):
 				chr_ord = col_list[i]
-				first_row = row_pos-counter+2
-				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$"+str(first_row)+":$"+chr_ord+"$"+str(row_pos)+")"),normal_style_float_round_total)
+				first_row = row_pos-nbr+2
+				ws.write(row_pos,i,xlwt.Formula('SUM($'+chr_ord+'$'+str(first_row)+':$'+chr_ord+'$'+str(row_pos)+')'),normal_style_float_round_total)
 
 		elif data['t_report']=='all':
 			ws = wb.add_sheet('REGIONAL BASED')
@@ -487,38 +704,55 @@ class department_payslip_xls(report_xls):
 			ws.page_preview = False
 			ws.set_fit_width_to_pages(1)
 
-			ws.write_merge(0,0,0,19,"REKAPITULASI PAYSLIP DEPARTMENT",title_style_center)
-			ws.write(3,0,"PERIODE",normal_bold_style_a)
-			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
-			headers = ["NO","DAERAH","KLASIFIKASI (CABANG/GERAI/TOKO)","JUMLAH KARYAWAN","JUMLAH HARI KERJA BULAN INI","JUMLAH PAKET","GAJI POKOK","INSENTIF","BONUS PAKET 1","BONUS PAKET 2","U.MAKAN","SERVICE MOTOR","U.KERAJINAN(all)","T.K MALAM","LEMBURAN","TUNJANGAN JABATAN","TUNJANGAN LAIN-LAIN","HUTANG PINJAMAN","POTONGAN","TOTAL"]		
-			columns = ["NO","DEPT","CLASS","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF","TARGET","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN","DEDUCT","TOTAL"]
-			
-			departments,grouped_objects = _p.get_by_dept(data,objects)
-			# print "======grouped_objects=========",grouped_objects
+			headers = ['NO','DAERAH','KLASIFIKASI (CABANG/GERAI/TOKO)','JUMLAH KARYAWAN','JUMLAH HARI KERJA BULAN INI','JUMLAH PAKET']		
+			columns = ['nbr','department','class','total_emp','total_workdays','total_consignment']
+			headers += _p.get_columns(objects)
+			headers[headers.index('NET')]='DEDUC'
+			headers += ['NET']
+			columns += _p.get_columns(objects)
+			columns[columns.index('NET')]='DEDUC'
+			columns += ['NET']
+# 			departments,grouped_objects = _p.get_by_dept(data,objects)
+			slip_group_department = _p.group_by_department(objects)
+
+			ws.write_merge(0,0,0,len(columns),'REKAPITULASI PAYSLIP DEPARTMENT',title_style_center)
+			ws.write(3,0,'PERIODE',normal_bold_style_a)
+			ws.write_merge(3,3,1,4,': '+data['start_date']+' - '+data['end_date'],normal_bold_style_a)
+
 			col_pos=0
-			for head in headers :
-				ws.write(6,col_pos,head,th_top_style)
+			for head in headers:
+				ws.write(6,col_pos,head in col_headers and col_headers[head] or head,th_top_style)
 				col_pos+=1
-			col_pos = 0
+
 			row_pos = 7 
-			NO = 1
-			for group in departments:
+			nbr = 1
+			for group in slip_group_department:
+				col_lines = {}
+				for col in columns:
+					col_lines.setdefault(col, None)
+				
+				col_lines.update(dict(nbr=str(nbr)))
+				col_lines.update(dict(group))
+				
 				col_pos = 0
-				for colx in columns:
-					if col_pos == 0:
-						ws.write(row_pos,col_pos,int(eval(colx)),normal_style_center)
-					else:
-						if grouped_objects.get(group,False):
-							if grouped_objects.get(group,False).get(colx,False):
-								ws.write(row_pos,col_pos,grouped_objects.get(group).get(colx),normal_style)
+				for col in columns:
+# 					if col_pos == 0:
+# 						ws.write(row_pos,col_pos,int(eval(col)),normal_style_center)
+# 					else:
+# 						if grouped_objects.get(group,False):
+# 							if grouped_objects.get(group,False).get(col,False):
+# 								ws.write(row_pos,col_pos,grouped_objects.get(group).get(col),normal_style)
+					ws.write(row_pos,col_pos,col_lines[col],normal_style_float_round)
 					col_pos+=1
-				NO+=1
+				nbr+=1
 				row_pos+=1
-			ws.write_merge(row_pos,row_pos,1,2,"TOTAL",title_style)
+			ws.write_merge(row_pos,row_pos,1,2,'TOTAL',title_style)
 			
 			for i in range(3,len(columns)):
-				chr_ord =chr(ord('A') + i)
-				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),title_style)
+				chr_ord = col_list[i]
+				first_row = row_pos-nbr+2
+				ws.write(row_pos,i,xlwt.Formula('SUM($'+chr_ord+'$'+str(first_row)+':$'+chr_ord+'$'+str(row_pos)+')'),normal_style_float_round_total)
+		
 		elif data['t_report']=='totalled':
 			ws = wb.add_sheet('TOTALLED PER BANK')
 			ws.panes_frozen = True
@@ -532,40 +766,64 @@ class department_payslip_xls(report_xls):
 			ws.set_fit_width_to_pages(1)
 
 			available_banks = _p.get_available_bank(objects)
-			headers = ["NO","WILAYAH","TOTAL"]		
-			columns = ["NO","DEPT","TOTAL"]
-			for b in available_banks:
-				headers.append(available_banks.get(b))
-				columns.append(b)
-			ws.write_merge(0,0,0,3+len(available_banks),"REKAPITULASI PAYSLIP PER DEPARTMENT PER BANK",title_style_center)
-			ws.write(3,0,"PERIODE",normal_bold_style_a)
-			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
-			dept,grouped_objects = _p.get_by_dept_bank(data,objects)
+			col_headers.update(available_banks)
+			col_headers.update(additional_banks)
 
-			col_pos=0
-			for head in headers :
-				ws.write(6,col_pos,head,th_top_style)
-				col_pos+=1
+			headers = ['NO', 'WILAYAH']		
+			columns = ['nbr', 'department']
+
+			headers += _p.get_gross_ded_net_col(objects)
+			columns += _p.get_gross_ded_net_col(objects)
+
+			for bank in available_banks:
+				headers.append(bank)
+				columns.append(bank)
+			for bank in additional_banks:
+				headers.append(bank)
+				columns.append(bank)
+
+# 			dept,grouped_objects = _p.get_by_dept_bank(data,objects)
+			slip_group_department = _p.group_by_department_gross_ded_net_bank(objects)
+
+			ws.write_merge(0,0,0,len(columns),'REKAPITULASI PAYSLIP PER DEPARTMENT PER BANK',title_style_center)
+			ws.write(3,0,'PERIODE',normal_bold_style_a)
+			ws.write_merge(3,3,1,4,': '+data['start_date']+' - '+data['end_date'],normal_bold_style_a)
+			ws.write(4,0,"JUMLAH KARYAWAN",normal_bold_style_a)
+			ws.write_merge(4,4,1,4,": "+str(len(objects)),normal_bold_style_a)
+
 			col_pos = 0
+			for head in headers:
+				ws.write(6,col_pos,head in col_headers and col_headers[head] or head,th_top_style)
+				col_pos+=1
+
 			row_pos = 7 
-			NO = 1
-			for group in dept:
+			nbr = 1
+			for group in slip_group_department:
+				col_lines = {}
+				for col in columns:
+					col_lines.setdefault(col, None)
+				
+				col_lines.update(dict(nbr=str(nbr)))
+				col_lines.update(dict(group))
+				
 				col_pos = 0
-				for colx in columns:
-					if col_pos == 0:
-						ws.write(row_pos,col_pos,int(eval(colx)),normal_style_center)
-					else:
-						if grouped_objects.get(group,False):
-							if grouped_objects.get(group,False).get(colx,False):
-								ws.write(row_pos,col_pos,grouped_objects.get(group).get(colx),normal_style)
+				for col in columns:
+# 					if col_pos == 0:
+# 						ws.write(row_pos,col_pos,int(eval(col)),normal_style_center)
+# 					else:
+# 						if grouped_objects.get(group,False):
+# 							if grouped_objects.get(group,False).get(col,False):
+# 								ws.write(row_pos,col_pos,grouped_objects.get(group).get(col),normal_style)
+					ws.write(row_pos,col_pos,col_lines[col],normal_style_float_round)
 					col_pos+=1
-				NO+=1
+				nbr+=1
 				row_pos+=1
-			ws.write_merge(row_pos,row_pos,0,1,"TOTAL",title_style)
+			ws.write_merge(row_pos,row_pos,0,1,'TOTAL',title_style)
 			
 			for i in range(2,len(columns)):
-				chr_ord =chr(ord('A') + i)
-				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),title_style)
+				chr_ord = col_list[i]
+				first_row = row_pos-nbr+2
+				ws.write(row_pos,i,xlwt.Formula('SUM($'+chr_ord+'$'+str(first_row)+':$'+chr_ord+'$'+str(row_pos)+')'),normal_style_float_round_total)
 		else:
 			ws = wb.add_sheet('JOB POSITION BASED')
 			ws.panes_frozen = True
@@ -578,43 +836,61 @@ class department_payslip_xls(report_xls):
 			ws.page_preview = False
 			ws.set_fit_width_to_pages(1)
 
-			ws.write_merge(0,0,0,19,"REKAPITULASI PAYSLIP PER JOB POSITION",title_style_center)
+			headers = ['NO','POSISI / JABATAN','JUMLAH KARYAWAN','JUMLAH HARI KERJA BULAN INI','JUMLAH PAKET']		
+			columns = ['nbr','job','total_emp','total_workdays','total_consignment']
+			headers += _p.get_columns(objects)
+			headers[headers.index('NET')]='DEDUC'
+			headers += ['NET']
+			columns += _p.get_columns(objects)
+			columns[columns.index('NET')]='DEDUC'
+			columns += ['NET']
+# 			jobs,grouped_objects = _p.get_by_job(data,objects)
+			slip_group_job = _p.group_by_job(objects)
+
+			ws.write_merge(0,0,0,len(columns),"REKAPITULASI PAYSLIP PER JOB POSITION",title_style_center)
 			ws.write(3,0,"PERIODE",normal_bold_style_a)
 			ws.write_merge(3,3,1,4,": "+data['start_date']+" - "+data['end_date'],normal_bold_style_a)
 
-			headers = ["NO","POSISI / JABATAN","JUMLAH KARYAWAN","JUMLAH HARI KERJA BULAN INI","JUMLAH PAKET","GAJI POKOK","TIPE INSENTIF","NILAI INSENTIF","BONUS PAKET 2","U.MAKAN","SERVICE MOTOR","U.KERAJINAN(all)","T.K MALAM","LEMBURAN","TUNJANGAN JABATAN","TUNJANGAN LAIN-LAIN","HUTANG PINJAMAN","POTONGAN","TOTAL"]		
-			columns = ["NO","JOB","EMP_COUNT","WORKDAYS_SUM","PACKAGES","BASIC","INSENTIF_TYPE","INSENTIF","TBONUS","MEAL","BIKE","PERSISTANCE","NIGHT","OVERTIME","ALLOW","OTHER_ALL","LOAN","DEDUCT","TOTAL"]
-						
-			jobs,grouped_objects = _p.get_by_job(data,objects)
 			col_pos=0
-			for head in headers :
-				ws.write(6,col_pos,head,th_top_style)
+			for head in headers:
+				ws.write(6,col_pos,head in col_headers and col_headers[head] or head,th_top_style)
 				col_pos+=1
-			NO = 1
-
+	
 			row_pos = 7 
-
-			for group in jobs:
+			nbr = 1
+			for group in slip_group_job:
+				col_lines = {}
+				for col in columns:
+					col_lines.setdefault(col, None)
+				
+				col_lines.update(dict(nbr=str(nbr)))
+				col_lines.update(dict(group))
+				
 				col_pos = 0
-				for colx in columns:
-					if col_pos == 0 and grouped_objects.get(group,False):
-						ws.write(row_pos,col_pos,int(eval(colx)),normal_style_center)
-						col_pos+=1
-					else:
-						if grouped_objects.get(group,False):
-							# print "=========>",colx,grouped_objects.get(group,False).get(colx,False)
-							if grouped_objects.get(group,False).get(colx,False):
-								ws.write(row_pos,col_pos,grouped_objects.get(group).get(colx),normal_style)
-						col_pos+=1
-				if grouped_objects.get(group,False):
-					NO+=1
-					row_pos+=1
+				for col in columns:
+# 					if col_pos == 0 and grouped_objects.get(group,False):
+# 						ws.write(row_pos,col_pos,int(eval(col)),normal_style_center)
+# 						col_pos+=1
+# 					else:
+# 						if grouped_objects.get(group,False):
+# 							# print "=========>",colx,grouped_objects.get(group,False).get(col,False)
+# 							if grouped_objects.get(group,False).get(col,False):
+# 								ws.write(row_pos,col_pos,grouped_objects.get(group).get(col),normal_style)
+# 						col_pos+=1
+# 				if grouped_objects.get(group,False):
+# 					nbr+=1
+# 					row_pos+=1
+					ws.write(row_pos,col_pos,col_lines[col],normal_style_float_round)
+					col_pos+=1
+				nbr+=1
+				row_pos+=1
 
-			ws.write_merge(row_pos,row_pos,0,1,"TOTAL",title_style)
+			ws.write_merge(row_pos,row_pos,0,1,'TOTAL',title_style)
 			
 			for i in range(2,len(columns)):
-				chr_ord =chr(ord('A') + i)
-				ws.write(row_pos,i,xlwt.Formula("SUM($"+chr_ord+"$8:$"+chr_ord+"$"+str(row_pos)+")"),title_style)
+				chr_ord = col_list[i]
+				first_row = row_pos-nbr+2
+				ws.write(row_pos,i,xlwt.Formula('SUM($'+chr_ord+'$'+str(first_row)+':$'+chr_ord+'$'+str(row_pos)+')'),normal_style_float_round_total)
 
 
 department_payslip_xls('report.department.payslip.report.xls', 'hr.payslip',

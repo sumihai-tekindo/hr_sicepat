@@ -89,10 +89,7 @@ HR Sicepat Ekspres
         "views/res_company_view.xml",
         "views/hr_absence_summary_view.xml",
         "wizard/absence_summary_search.xml",
-<<<<<<< HEAD
-=======
         "data/hr_loan_rules.xml",
->>>>>>> d04bfb42b6f9053b5a925571a1cc36cf894d51d0
         ],
     # only loaded in demonstration mode
     'demo': [],
