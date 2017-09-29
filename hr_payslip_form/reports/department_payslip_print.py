@@ -210,8 +210,8 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 				for line in slip.line_ids:
 					if slip_department_info[key].get(line.code):
 						slip_department_info[key][line.code] += line.total
+					net_amount = line.code == 'NET' and line.total or 0.0
 
-				net_amount = slip_department_info[key].get('NET', 0.0)
 				cash_limit = 10000000.0
 				if slip.employee_id.bank_account_id:
 					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
