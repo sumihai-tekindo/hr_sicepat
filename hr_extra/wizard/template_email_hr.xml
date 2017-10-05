@@ -1,0 +1,35 @@
+<openerp>
+	<data>
+<!-- 1 -->
+		<record id="email_perpanjangan_kontrak_hr" model="email.template">
+			<field name="name">Email Perpanjangan Kontrak</field>
+			<field name="model_id" ref="hr_contract.model_hr_contract"/>
+			<field name="auto_delete" eval="True"/>
+			<field name="email_from">${'general.affair@gmail.com'|safe}</field>
+			<!-- <field name="email_to">${(object.analytic_account.user_admin_id != False and object.analytic_account.user_admin_id.email)|safe}</field> -->
+			<field name="email_to">${'andreanw96@gmail.com'|safe}</field>
+			<field name="email_cc">Tim GA Pusat</field>
+			<field name="subject">Service Ganti Oli</field>
+			<field name="body_html"><![CDATA[<span>Administrator of Human Capital Management</span>
+			<br/>
+			<span>${'hrd1@sicepar.com'|safe};${'hrd6@sicepar.com'|safe}</span>
+			<br/><br/>
+			<span>To Head of Dept. This Notification e-mail to remind the employees who will expire his contract, the following appendix table below:
+			<br/><br/>
+			tabell
+			<br/><br/>
+			Please kindly apply the HCM assessment form to us immediately send it and returned to HCM. Please contact our circulation desk for more information
+			<br/><br/>
+			Warm Regards
+			<br/>
+			123123123131
+			<br/>
+			HCM
+			</span>
+
+			]]>
+			</field>
+		</record>
+
+	</data>
+</openerp>

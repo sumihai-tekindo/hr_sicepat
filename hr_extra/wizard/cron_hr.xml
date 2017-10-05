@@ -1,0 +1,36 @@
+<!-- <openerp>
+	<data>
+        <record forcecreate="True" id="cron_email_ganti_oli" model="ir.cron">
+            <field name="name">Email Ganti Oli</field>
+            <field eval="'fleet.vehicle.log.services'" name="model"/>
+            <field eval="'email_ganti_oli'" name="function"/>
+            <field eval="'()'" name="args"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field eval="True" name="active"/>
+            <field eval="True" name="doall"/>
+            <field eval="5" name="priority"/>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+	</data>
+</openerp> -->
+
+
+<openerp>
+    <data noupdate="0">
+        <record forcecreate="True" id="cron_hr" model="ir.cron">
+            <field name="name">Cron HR</field>
+            <field eval="'hr.contract'" name="model"/>
+            <field name="active" eval="True"/>
+            <field eval="'()'" name="args"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field eval="True" name="doall"/>
+            <field eval="5" name="priority"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field eval="'email_perpanjang_kontrak_hr'" name="function"/>
+        </record>
+    </data>
+</openerp>
