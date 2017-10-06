@@ -1,0 +1,36 @@
+<openerp>
+    <data>
+<!--	START MEMORANDUM	-->
+        <record model="ir.actions.act_window" id="emp_skill_action">
+            <field name="name">EMP Skill</field>
+            <field name="res_model">emp.recruitment.skill</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="emp_skill_tree_view">
+            <field name="name">emp.skill.tree</field>
+            <field name="model">emp.recruitment.skill</field>
+            <field name="arch" type="xml">
+                <tree string="EMP Skill Tree">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="emp_level_form_view">
+            <field name="name">emp.skill.form</field>
+            <field name="model">emp.recruitment.skill</field>
+            <field name="arch" type="xml">
+                <form string="EMP Skill Form">
+               	<group string="EMP Recruitment">
+                        <group>
+	                       <field name="name"/>
+                        </group>
+                </group>
+                </form>
+            </field>
+        </record>
+        <menuitem id="emp_skill" name="Skill EMP" 
+                  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="emp_skill_action"/>
+    </data>
+</openerp>

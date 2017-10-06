@@ -1,0 +1,36 @@
+<openerp>
+    <data>
+<!--	START MEMORANDUM	-->
+        <record model="ir.actions.act_window" id="emp_level_action">
+            <field name="name">EMP Level</field>
+            <field name="res_model">emp.recruitment.level</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="emp_level_tree_view">
+            <field name="name">emp.level.tree</field>
+            <field name="model">emp.recruitment.level</field>
+            <field name="arch" type="xml">
+                <tree string="EMP Level Tree">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="emp_level_form_view">
+            <field name="name">emp.level.form</field>
+            <field name="model">emp.recruitment.level</field>
+            <field name="arch" type="xml">
+                <form string="EMP Level Form">
+               	<group string="EMP Recruitment">
+                        <group>
+	                       <field name="name"/>
+                        </group>
+                </group>
+                </form>
+            </field>
+        </record>
+        <menuitem id="emp_level" name="Level EMP" 
+                  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="emp_level_action"/>
+    </data>
+</openerp>

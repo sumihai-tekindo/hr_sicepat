@@ -1,0 +1,103 @@
+<openerp>
+    <data>
+<!--	START MEMORANDUM	-->
+        <record model="ir.actions.act_window" id="emp_recruitment_action">
+            <field name="name">EMP Recruitment</field>
+            <field name="res_model">emp.recruitment.req</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="emp_recruitment_tree_view">
+            <field name="name">emp.recruitment.req.tree</field>
+            <field name="model">emp.recruitment.req</field>
+            <field name="arch" type="xml">
+                <tree string="EMP Recruitment Tree">
+                    <field name="name"/>
+                    <field name="user_id"/>
+                    <field name="department"/>
+                    <field name="posisi"/>
+                    <field name="gaji_from"/>
+                    <field name="gaji_to"/>
+                    <field name="tanggal"/>
+                    <field name="jumlah"/>
+                    <field name="level_id"/>
+                    <field name="permintaan"/>
+                    <field name="employee_id" attrs="{'required':[('permintaan','=','replace')],'invisible':[('permintaan','!=','replace')]}"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="emp_recruitment_form_view">
+            <field name="name">emp.recruitment.req.form</field>
+            <field name="model">emp.recruitment.req</field>
+            <field name="arch" type="xml">
+                <form string="EMP Recruitment Form">
+                    <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="True"/>
+                        </h1>
+                    </div>
+                    <group string="EMP Recruitment">
+                        <group>
+                            <group>
+                                <field name="user_id"/>
+                                <field name="department"/>
+                                <field name="posisi"/>
+                                <field name="gaji_from"/>
+                                <field name="gaji_to"/>
+                            </group>
+                            <group>
+                                <field name="level_id"/>
+                                <field name="tanggal"/>
+                                <field name="jumlah"/>
+                            </group>
+                        </group>
+                    </group>
+                    <group string="Keterangan Permintaan Karyawan">
+                        <group>
+                            <field name="permintaan"/>
+                            <field name="analisa"/>
+                            <field name="catatan"/>
+                        </group>
+                        <group>
+                            <field name="employee_id" attrs="{'required':[('permintaan','=','replace')],'invisible':[('permintaan','!=','replace')]}"/>
+                            <field name="keterangan" attrs="{'required':[('permintaan','=','replace')],'invisible':[('permintaan','!=','replace')]}"/>
+                            <field name="description" attrs="{'required':[('keterangan','=','terminate')],'invisible':[('keterangan','!=','terminate')]}"/>
+                            <field name="sumber_id"/>
+                            <field name="deskripsi"/>
+                        </group>
+                    </group>
+                    <group string="Kualifikasi">
+                        <group>
+                            <field name="status"/>
+                            <field name="agama_id"/>
+                            <field name="pendidikan_id"/>
+                            <field name="skill_ids"/>
+                        </group>
+                        <group>
+                            <field name="usia_from"/>
+                            <field name="usia_to"/>
+                            <field name="pengalaman"/>
+                            <field name="bahasa_ids"/>
+                        </group>
+                    </group>
+                    <group>
+                        <notebook>
+                            <page string ='Karyawan yang sudah ada'>
+                                <field name="employee_ids"/>
+                            </page>
+                        </notebook>
+                    </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+<!--    END OF MEMORANDUM    -->
+        
+<!--    START MENU ITEM    -->
+        <menuitem id="EMP" name="Permintaan Karyawan" 
+                  parent="hr_salary_add.hr_sicepat_salary"
+                  action="emp_recruitment_action" sequence="8"/>
+<!--    END OF MENU ITEM    	-->
+    </data>
+</openerp>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data>
+    <report 
+            id="action_emp_form" 
+            model="emp.recruitment.req" 
+            string="Print EMP"
+            report_type="qweb-pdf"
+            name="emp_recruitment_request.emp_form" 
+            file="emp_recruitment_request.emp_form"
+        />
+
+<template id="emp_form">
+    <t t-call="report.html_container">
+        <t t-foreach="docs" t-as="o">
+            <div class="header">
+                <div class="row" style="text-align:center;">
+                    <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 45px;"/>
+                </div>
+                <div class="row" style="text-align:center;">
+                    <h4>FORMULIR PERMINTAAN TENAGA KERJA</h4>
+                </div>
+                <div class="row" style="text-align:center;">
+                    <h4>Formulir id</h4>
+                    <!-- <p t-field="o.name" style="text-align:center;"/> -->
+                </div>
+            </div>
+                <div class="page">
+                    <table class="table-condensed">
+                        <tr>
+                            <td><strong>Departmen/Bagian/Divisi</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.department"/></td>
+                            <td><strong>Tanggal Dibutuhkan</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.tanggal"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Posisi</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.posisi"/></td>
+                            <td><strong>Jumlah Permintaan</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.jumlah"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Perkiraan Gaji</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.gaji_from"/> s/d <span t-field="o.gaji_to"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tingkat</strong></td>
+                            <td><strong>:</strong></td>
+                            <td>
+                                <t t-foreach="get_level_id()" t-as="x">
+                                    <input t-att-value="x.id" type="checkbox" t-att-checked="o.level_id.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.name"/>                            
+                                </t>
+                            </td>
+                        </tr>
+                       
+                    </table>
+                    
+                    <div class="row zero_min_height">
+                        <div class="col-xs-12">
+                            <div style="border-bottom: 4px double black;"></div>
+                        </div>
+                    </div>
+                    
+                    <table class="table-condensed">
+                        <tr>
+                            <td colspan="5"><h3><strong>Keterangan Permintaan Karyawan</strong></h3></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Keterangan</strong></td>
+                        </tr>
+                        <tr>
+                            <td><strong><span t-field="o.permintaan"/></strong></td>
+                            <td><strong>:</strong></td>
+                            <td>Nama Karyawan</td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.employee_id"/></td>
+                            <td></td>
+                            <td><span t-field="o.keterangan"/></td>
+                            <td>Karena</td>
+                            <td><span t-field="o.description"/></td>
+                        </tr>
+                    </table>
+                    <table class="table-condensed">
+                        <tr>
+                            <td colspan="5"><strong>Analisa Kebutuhan Penambahan Karyawan (Uraikan Secara Singkat)</strong></td>
+                            <td><strong>:</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="9"><span t-field="o.analisa"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sumber Rekrutmen</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.sumber"/></td>
+                            <td><strong>Catatan Khusus</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.catatan"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Deskripsi Pekerjaan</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.deskripsi"/></td>
+                        </tr>
+                    </table>
+
+                    <div class="footer">
+                        <div class="text-center" style="border-top: 4px double black;"></div>
+                    </div>
+
+                    <table class="table-condensed">
+                        <tr>
+                            <td colspan="5"><h3><strong>Kualifikasi</strong></h3></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.status"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Agama</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.agama"/></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Usia</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.usia_from"/> Tahun s/d <span t-field="o.usia_to"/> Tahun</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pendidikan</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.pendidikan"/></td>
+                        </tr>
+                    </table>
+                    <p class="text-left">
+                        <tr>
+                            <td>Tanggal Dibuat : </td>
+                            <td><span t-esc="formatLang(o.create_date, date=True)"/></td>
+                        </tr>
+                    </p>
+                    <p class="text-left">
+                        <tr>
+                            <td>Distribution   : Form asli untuk HRD, Copy untuk Cabang dan Karyawan</td>
+                        </tr>
+                        
+                    </p>
+                </div>
+
+                <div class="footer">
+                    <div class="text-center" style="border-top: 4px double black;">
+                        
+                    </div>
+                </div>   
+            
+        </t>
+    </t>
+</template>
+</data>
+</openerp>

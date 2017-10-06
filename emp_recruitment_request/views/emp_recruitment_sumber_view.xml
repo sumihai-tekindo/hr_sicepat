@@ -1,0 +1,36 @@
+<openerp>
+    <data>
+<!--	START MEMORANDUM	-->
+        <record model="ir.actions.act_window" id="emp_sumber_action">
+            <field name="name">EMP Sumber</field>
+            <field name="res_model">emp.recruitment.sumber</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="emp_sumber_tree_view">
+            <field name="name">emp.sumber.tree</field>
+            <field name="model">emp.recruitment.sumber</field>
+            <field name="arch" type="xml">
+                <tree string="EMP Sumber Tree">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="emp_sumber_form_view">
+            <field name="name">emp.sumber.form</field>
+            <field name="model">emp.recruitment.sumber</field>
+            <field name="arch" type="xml">
+                <form string="EMP Sumber Form">
+               	<group string="EMP Recruitment">
+                        <group>
+	                       <field name="name"/>
+                        </group>
+                </group>
+                </form>
+            </field>
+        </record>
+        <menuitem id="emp_sumber" name="Sumber EMP" 
+                  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="emp_sumber_action"/>
+    </data>
+</openerp>

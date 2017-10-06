@@ -68,7 +68,7 @@
 <!--    END OF MEMORANDUM    -->
         
 <!--    START MENU ITEM    -->
-        <menuitem id="memorandum" name="SP" 
+        <menuitem id="memorandum" name="Surat Peringatan" 
                   parent="hr_sicepat_salary"
                   action="memorandum_action" sequence="8"/>
 <!--    END OF MENU ITEM    	-->

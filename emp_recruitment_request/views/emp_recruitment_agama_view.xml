@@ -1,0 +1,36 @@
+<openerp>
+    <data>
+<!--	START MEMORANDUM	-->
+        <record model="ir.actions.act_window" id="emp_agama_action">
+            <field name="name">EMP Agama</field>
+            <field name="res_model">emp.recruitment.agama</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="emp_agama_tree_view">
+            <field name="name">emp.agama.tree</field>
+            <field name="model">emp.recruitment.agama</field>
+            <field name="arch" type="xml">
+                <tree string="EMP Agama Tree">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="emp_agama_form_view">
+            <field name="name">emp.agama.form</field>
+            <field name="model">emp.recruitment.agama</field>
+            <field name="arch" type="xml">
+                <form string="EMP Agama Form">
+               	<group string="EMP Recruitment">
+                        <group>
+	                       <field name="name"/>
+                        </group>
+                </group>
+                </form>
+            </field>
+        </record>
+        <menuitem id="emp_agama" name="Agama EMP" 
+                  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="emp_agama_action"/>
+    </data>
+</openerp>
