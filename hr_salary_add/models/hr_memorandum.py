@@ -20,26 +20,27 @@ class hr_memorandum(models.Model):
     date_from = fields.Date(default=lambda self: fields.Date.context_today(self))
     date_to = fields.Date(default=lambda self: fields.Date.context_today(self))
     state = fields.Selection([
-            ('open','Open'),
-            ('submit','Submit'),
-            ('reject','Reject'),
-            ('approved','Approved'),
-        ], string='Status', default='open')
+            ('draft','Draft'),
+            ('approve','Approve'),
+            ('progres','Progres'),
+            ('fault','Fault'),
+            ('done','Done'),
+        ], string='Status', default='draft')
     
     @api.multi
-    def action_submit(self):
+    def action_approve(self):
         self.name = self.env['ir.sequence'].get("memorandum")
-        self.state = 'submit'
+        self.state = 'approve'
 
     @api.multi
-    def action_approve(self):
-        self.state = 'approved'
+    def action_accept(self):
+        self.state = 'progres'
         employee = self.env['hr.employee'].search([('id','=',self.nama_karyawan.id)])
         employee.write({'flag':self.flag})
         
     @api.multi
-    def action_reject(self):
-        self.state = 'reject'
+    def action_fault(self):
+        self.state = 'fault'
         
 #     @api.onchange('nama_karyawan')
 #     def onchange_cabang_asal(self):

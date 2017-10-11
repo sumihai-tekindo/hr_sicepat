@@ -8,8 +8,8 @@
 			<field name="email_from">${'general.affair@gmail.com'|safe}</field>
 			<!-- <field name="email_to">${(object.analytic_account.user_admin_id != False and object.analytic_account.user_admin_id.email)|safe}</field> -->
 			<field name="email_to">${'andreanw96@gmail.com'|safe}</field>
-			<field name="email_cc">Tim GA Pusat</field>
-			<field name="subject">Service Ganti Oli</field>
+			<field name="email_cc">Tim HRD Pusat</field>
+			<field name="subject">Perpanjangan Kontrak</field>
 			<field name="body_html"><![CDATA[<span>Administrator of Human Capital Management</span>
 			<br/>
 			<span>${'hrd1@sicepar.com'|safe};${'hrd6@sicepar.com'|safe}</span>

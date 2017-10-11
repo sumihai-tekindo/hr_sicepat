@@ -69,16 +69,16 @@
                     </group>
                     <group string="Kualifikasi">
                         <group>
-                            <field name="status"/>
-                            <field name="agama_id"/>
+                            <field name="stat_ids"/>
                             <field name="pendidikan_id"/>
+                            <field name="agama_ids"/>
                             <field name="skill_ids"/>
                         </group>
                         <group>
                             <field name="usia_from"/>
                             <field name="usia_to"/>
                             <field name="pengalaman"/>
-                            <field name="bahasa_ids"/>
+                            <field name="b_ids"/>
                         </group>
                     </group>
                     <group>

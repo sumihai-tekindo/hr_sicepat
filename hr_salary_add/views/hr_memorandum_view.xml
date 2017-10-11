@@ -29,12 +29,12 @@
             <field name="arch" type="xml">
                 <form string="Memorandum Form">
                     <header>
-                        <button name="action_submit" type="object"
-                                string="Submit" states="open" class="oe_highlight"/>
                         <button name="action_approve" type="object"
-                                string="Approve" states="submit" class="oe_highlight"/>
-                        <button name="action_reject" type="object"
-                                string="Reject" states="submit" class="oe_highlight"/>
+                                string="Approve" states="draft" class="oe_highlight"/>
+                        <button name="action_accept" type="object"
+                                string="Accept" states="approve" class="oe_highlight"/>
+                        <button name="action_fault" type="object"
+                                string="Fault" states="progres" class="oe_highlight"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>

@@ -55,10 +55,11 @@ HR Sicepat Ekspres
         "views/emp_recruitment_view.xml",
         "views/emp_recruitment_level_view.xml",
         "views/emp_recruitment_agama_view.xml",
-        "views/emp_recruitment_bahasa_view.xml",
+        "views/emp_recruitment_b_view.xml",
         "views/emp_recruitment_pendidikan_view.xml",
         "views/emp_recruitment_skill_view.xml",
         "views/emp_recruitment_sumber_view.xml",
+        "views/emp_recruitment_stat_view.xml",
         "views/emp_form.xml"
         
         ],

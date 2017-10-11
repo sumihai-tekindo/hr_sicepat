@@ -1,0 +1,38 @@
+<openerp>
+    <data>
+<!--	START MEMORANDUM	-->
+        <record model="ir.actions.act_window" id="emp_b_action">
+            <field name="name">EMP Bahasa</field>
+            <field name="res_model">emp.recruitment.b</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="emp_b_tree_view">
+            <field name="name">emp.b.tree</field>
+            <field name="model">emp.recruitment.b</field>
+            <field name="arch" type="xml">
+                <tree string="EMP Bahasa Tree">
+                    <field name="name"/>
+                    <field name="skala"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="emp_b_form_view">
+            <field name="name">emp.b.form</field>
+            <field name="model">emp.recruitment.b</field>
+            <field name="arch" type="xml">
+                <form string="EMP Bahasa Form">
+               	<group string="EMP Recruitment">
+                        <group>
+	                       <field name="name"/>
+                           <field name="skala"/>
+                        </group>
+                </group>
+                </form>
+            </field>
+        </record>
+        <menuitem id="emp_b" name="Bahasa EMP" 
+                  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="emp_b_action"/>
+    </data>
+</openerp>

@@ -11,10 +11,15 @@ class emp_recruitment_skill(models.Model):
 
     name = fields.Char(string="Nama")
 
-class emp_recruitment_bahasa(models.Model):
-    _name = "emp.recruitment.bahasa"
+class emp_recruitment_b(models.Model):
+    _name = "emp.recruitment.b"
 
     name = fields.Char(string="Nama")
+    skala = fields.Selection([
+            ('k','Kurang'),
+            ('c','Cukup'),
+            ('b','Baik'),
+        ])
 
 class emp_recruitment_sumber(models.Model):
     _name = "emp.recruitment.sumber"
@@ -31,7 +36,11 @@ class emp_recruitment_pendidikan(models.Model):
 
     name = fields.Char(string="Nama")
 
-    
+class emp_recruitment_stat(models.Model):
+    _name = "emp.recruitment.stat"
+
+    name = fields.Char(string="Nama")
+
 class emp_recruitment_req(models.Model):
     _name = "emp.recruitment.req"
     
@@ -50,9 +59,10 @@ class emp_recruitment_req(models.Model):
     usia_to = fields.Integer(string="Usia sampai")
     level_id = fields.Many2one("emp.recruitment.level", string = "Tingkat")
     skill_ids = fields.Many2many("emp.recruitment.skill", string = "Keahlian")
-    bahasa_ids = fields.Many2many("emp.recruitment.bahasa", string = "bahasa")
+    b_ids = fields.Many2many("emp.recruitment.b", string = "Bahasa")
     sumber_id = fields.Many2one("emp.recruitment.sumber", string = "Sumber Rekrutmen")
-    agama_id = fields.Many2one("emp.recruitment.agama", string = "Agama")
+    agama_ids = fields.Many2many("emp.recruitment.agama", string = "Agama")
+    stat_ids = fields.Many2many("emp.recruitment.stat", string = "Status")
     pendidikan_id = fields.Many2one("emp.recruitment.pendidikan", string = "Pendidikan")
     employee_ids = fields.Many2many("hr.employee", string="Karyawan yang sudah ada")
     
@@ -70,25 +80,13 @@ class emp_recruitment_req(models.Model):
             ('terminate','Diberhentikan')
         ],)
 
-    status = fields.Selection([
-            ('single','Single'),
-            ('married','Married'),
-            ('widower','Widower'),
-            ('divorced','Divorced'),
-        ],)
+    # status = fields.Selection([
+    #         ('single','Single'),
+    #         ('married','Married'),
+    #         ('widower','Widower'),
+    #         ('divorced','Divorced'),
+    #     ],)
     
-    skala = fields.Selection([
-            ('1','1'),
-            ('2','2'),
-            ('3','2'),
-            ('4','4'),
-            ('5','5'),
-            ('6','6'),
-            ('7','7'),
-            ('8','8'),
-            ('9','9'),
-            ('10','10'),
-        ])
 
     pengalaman = fields.Selection([
             ('1','<1 Tahun'),

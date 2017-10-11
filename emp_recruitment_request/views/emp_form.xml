@@ -72,28 +72,36 @@
                             <td colspan="5"><h3><strong>Keterangan Permintaan Karyawan</strong></h3></td>
                         </tr>
                         <tr>
+                            <td><strong><span t-field="o.permintaan"/></strong></td>
+                            <td><strong>:</strong></td>
+                            <td>Nama Karyawan</td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.employee_id"/></td>
+                        </tr>
+                        <tr>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td><strong>Keterangan</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.keterangan"/></td>
                         </tr>
                         <tr>
-                            <td><strong><span t-field="o.permintaan"/></strong></td>
-                            <td><strong>:</strong></td>
-                            <td>Nama Karyawan</td>
-                            <td><strong>:</strong></td>
-                            <td><span t-field="o.employee_id"/></td>
                             <td></td>
-                            <td><span t-field="o.keterangan"/></td>
-                            <td>Karena</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>Karena</strong></td>
+                            <td><strong>:</strong></td>
                             <td><span t-field="o.description"/></td>
                         </tr>
                     </table>
                     <table class="table-condensed">
                         <tr>
-                            <td colspan="5"><strong>Analisa Kebutuhan Penambahan Karyawan (Uraikan Secara Singkat)</strong></td>
+                            <td colspan="3"><strong>Analisa Kebutuhan Penambahan Karyawan (Uraikan Secara Singkat)</strong></td>
                             <td><strong>:</strong></td>
                         </tr>
                         <tr>
@@ -102,7 +110,12 @@
                         <tr>
                             <td><strong>Sumber Rekrutmen</strong></td>
                             <td><strong>:</strong></td>
-                            <td><span t-field="o.sumber"/></td>
+                            <td>
+                                <t t-foreach="get_sumber_id()" t-as="x">
+                                    <input t-att-value="x.id" type="checkbox" t-att-checked="o.sumber_id.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.name"/>                            
+                                </t>
+                            </td>
                             <td><strong>Catatan Khusus</strong></td>
                             <td><strong>:</strong></td>
                             <td><span t-field="o.catatan"/></td>
@@ -125,12 +138,30 @@
                         <tr>
                             <td><strong>Status</strong></td>
                             <td><strong>:</strong></td>
-                            <td><span t-field="o.status"/></td>
+                            <td>
+                                <t t-foreach="get_stat_id()" t-as="x">
+                                     <t t-foreach="o.stat_ids" t-as="z">
+                                        <t t-if="z.id==x.id">
+                                    <input t-att-value="x.id" type="checkbox" t-att-checked="z.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.name"/>                            
+                                        </t>
+                                    </t>
+                                </t>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>Agama</strong></td>
                             <td><strong>:</strong></td>
-                            <td><span t-field="o.agama"/></td>
+                            <td colspan="3">
+                                <t t-foreach="get_agama_id()" t-as="x">
+                                     <t t-foreach="o.agama_ids" t-as="z">
+                                        <t t-if="z.id==x.id">
+                                    <input t-att-value="x.id" type="checkbox" t-att-checked="z.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.name"/>                            
+                                        </t>
+                                    </t>
+                                </t>
+                            </td>
                         </tr>
                         <tr>
                             <td><strong>Usia</strong></td>
@@ -140,7 +171,58 @@
                         <tr>
                             <td><strong>Pendidikan</strong></td>
                             <td><strong>:</strong></td>
-                            <td><span t-field="o.pendidikan"/></td>
+                            <td colspan="3">
+                                <t t-foreach="get_pendidikan_id()" t-as="x">
+                                    <input t-att-value="x.id" type="checkbox" t-att-checked="o.pendidikan_id.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.name"/>                            
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Keahlian</strong></td>
+                            <td><strong>:</strong></td>
+                            <td>
+                                <t t-foreach="get_skill_id()" t-as="x">
+                                     <t t-foreach="o.skill_ids" t-as="z">
+                                        <t t-if="z.id==x.id">
+                                    <input t-att-value="x.id" type="radio" t-att-checked="z.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.name"/>   
+                                    <br/>                         
+                                        </t>
+                                    </t>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kecakapan Bahasa</strong></td>
+                            <td><strong>:</strong></td>
+                            <td>
+                                <t t-foreach="get_b_id()" t-as="x">
+                                     <t t-foreach="o.b_ids" t-as="z">
+                                        <t t-if="z.id==x.id">
+                                    <input t-att-value="x.id" type="radio" t-att-checked="z.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.name"/>   
+                                    <br/>                         
+                                        </t>
+                                    </t>
+                                </t>
+                            </td>
+                            <td>
+                                <t t-foreach="get_b_id()" t-as="x">
+                                     <t t-foreach="o.b_ids" t-as="z">
+                                        <t t-if="z.id==x.id">
+                                    <input t-att-value="x.id" type="radio" t-att-checked="z.id==x.id and 'checked' or False"/>
+                                    <span t-field="x.skala"/>   
+                                    <br/>                         
+                                        </t>
+                                    </t>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pengalaman Kerja</strong></td>
+                            <td><strong>:</strong></td>
+                            <td><span t-field="o.pengalaman"/></td>
                         </tr>
                     </table>
                     <p class="text-left">
