@@ -90,6 +90,8 @@ HR Sicepat Ekspres
         "views/hr_absence_summary_view.xml",
         "wizard/absence_summary_search.xml",
         "data/hr_loan_rules.xml",
+        "views/hr_employee_agama_view.xml",
+        "views/hr_employee_pendidikan_view.xml",
         ],
     # only loaded in demonstration mode
     'demo': [],

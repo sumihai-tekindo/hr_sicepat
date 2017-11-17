@@ -6,7 +6,11 @@
             <field name="inherit_id" ref="hr.view_employee_form"/>
             <field name="arch" type="xml">
                 <data>
-                    <xpath expr="//form/sheet/notebook/page[3]/group" position="inside">
+                    <xpath expr="//form/sheet/notebook/page[1]/group/group[1]/field[3]" position="after">
+                        <field name="sts_karyawan"/>
+                    </xpath>
+
+                    <xpath expr="//form/sheet/notebook/page[3]/group/group[1]" position="after">
                     	<group string="Other Information">
                             <field name="flag"/>
                             <field name="referensi"/>
@@ -15,6 +19,8 @@
                     
                     <xpath expr="//form/sheet/notebook/page[2]/group/group[1]/field[5]" position="after">
                     	<field name="no_npwp"/>
+                        <field name="agama_id"/>
+                        <field name="pendidikan_id"/>
                     </xpath>
                 </data>
             </field>

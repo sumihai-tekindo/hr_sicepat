@@ -1,0 +1,36 @@
+<openerp>
+    <data>
+<!--	START MEMORANDUM	-->
+        <record model="ir.actions.act_window" id="hr_employee_agama_action">
+            <field name="name">HR Employee Religion</field>
+            <field name="res_model">hr.employee.agama</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <record model="ir.ui.view" id="hr_employee_agama_tree_view">
+            <field name="name">HR Employee Religion Tree</field>
+            <field name="model">hr.employee.agama</field>
+            <field name="arch" type="xml">
+                <tree string="HR Employee Religion Tree">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="hr_employee_agama_form_view">
+            <field name="name">HR Employee Religion form</field>
+            <field name="model">hr.employee.agama</field>
+            <field name="arch" type="xml">
+                <form string="EHR Employee Religion Form">
+               	<group string="HR Employee Religion">
+                        <group>
+	                       <field name="name"/>
+                        </group>
+                </group>
+                </form>
+            </field>
+        </record>
+        <menuitem id="hr_employee_agama" name="Religion" 
+                  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="hr_employee_agama_action"/>
+    </data>
+</openerp>

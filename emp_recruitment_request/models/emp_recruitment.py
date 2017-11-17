@@ -26,16 +26,6 @@ class emp_recruitment_sumber(models.Model):
 
     name = fields.Char(string="Nama")
 
-class emp_recruitment_agama(models.Model):
-    _name = "emp.recruitment.agama"
-
-    name = fields.Char(string="Nama")
-
-class emp_recruitment_pendidikan(models.Model):
-    _name = "emp.recruitment.pendidikan"
-
-    name = fields.Char(string="Nama")
-
 class emp_recruitment_stat(models.Model):
     _name = "emp.recruitment.stat"
 
@@ -61,11 +51,10 @@ class emp_recruitment_req(models.Model):
     skill_ids = fields.Many2many("emp.recruitment.skill", string = "Keahlian")
     b_ids = fields.Many2many("emp.recruitment.b", string = "Bahasa")
     sumber_id = fields.Many2one("emp.recruitment.sumber", string = "Sumber Rekrutmen")
-    agama_ids = fields.Many2many("emp.recruitment.agama", string = "Agama")
+    agama_ids = fields.Many2many("hr.employee.agama", string = "Religion")
     stat_ids = fields.Many2many("emp.recruitment.stat", string = "Status")
-    pendidikan_id = fields.Many2one("emp.recruitment.pendidikan", string = "Pendidikan")
     employee_ids = fields.Many2many("hr.employee", string="Karyawan yang sudah ada")
-    
+    pendidikan_id = fields.Many2one("hr.employee.pendidikan", string = "Qualification")
     description = fields.Char(string="Karena")
     employee_id = fields.Many2one("hr.employee", string="Nama Karyawan")
     permintaan = fields.Selection([
