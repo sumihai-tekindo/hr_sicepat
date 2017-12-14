@@ -49,6 +49,7 @@ HR Sicepat Ekspres
 
     # any module necessary for this one to work correctly
     'depends': [
+        'report',
         'account',
         'analytic',
         'hr_payroll',
