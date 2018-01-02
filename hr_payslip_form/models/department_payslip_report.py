@@ -22,7 +22,7 @@ class department_payslip_report(models.TransientModel):
 	@api.multi
 	def print_report(self):
 		self.ensure_one()
-		employee_ids = [e.id for e in self.env['hr.employee'].search([('department_id', 'in', [d.id for d in self.department_ids])])]
+		employee_ids = [e.id for e in self.env['hr.employee'].search([('active','=',True), ('active','=',False), ('department_id', 'in', [d.id for d in self.department_ids])])]
 		payslip_ids = self.env['hr.payslip'].search([('employee_id','in',employee_ids),('date_from','>=',self.start_date),('date_to','<=',self.end_date),('state','!=','cancel')])
 
 		if not payslip_ids:
