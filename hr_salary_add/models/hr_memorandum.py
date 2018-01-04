@@ -19,6 +19,7 @@ class hr_memorandum(models.Model):
     type_id = fields.Many2one("hr.memorandum.type", string = "Type ID")
     date_from = fields.Date(default=lambda self: fields.Date.context_today(self))
     date_to = fields.Date(default=lambda self: fields.Date.context_today(self))
+    lokasi = fields.Many2one('hr.department', string="Lokasi")
     state = fields.Selection([
             ('draft','Draft'),
             ('approve','Approve'),
@@ -78,6 +79,47 @@ class hr_memorandum(models.Model):
                 
                 if not self.date_from: self.date_from = fields.Date.context_today(self)
                 self.date_to = datetime.strptime(self.date_from, DEFAULT_SERVER_DATE_FORMAT) + _intervalTypes[self.type_id.interval_type](self.type_id.interval_number)
+
+    def convert_roman(self,num):
+        num_map = [(1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'), (100, 'C'), (90, 'XC'),
+           (50, 'L'), (40, 'XL'), (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')]
+        roman = ''
+
+        while num > 0:
+            for i, r in num_map:
+                while num >= i:
+                    roman += r
+                    num -= i
+
+        return roman
+
+    # def convert_date_indonesian(self,date_source):
+    #     months_dict = {
+    #         '01':"Januari",
+    #         '02':"Februari",
+    #         '03':"Maret",
+    #         '04':"April",
+    #         '05':"Mei",
+    #         '06':"Juni",
+    #         '07':"Juli",
+    #         '08':"Agustus",
+    #         '09':"September",
+    #         '10':"Oktober",
+    #         '11':"November",
+    #         '12':"Desember",
+    #         }
+    #     if date_source:
+    #         dt_source = datetime.strptime(date_source,'%Y-%m-%d')
+    #         dt_return = dt_source.strftime('%Y')+months_dict.get(dt_source.strftime('%m'))+dt_source.strftime('%d')
+    #         return dt_return 
+    #     return '-'
+
+    @api.multi
+    def _get_date_parse(self,source_date,format,roman=False):
+        datetime_source = datetime.strptime(source_date,'%Y-%m-%d %H:%M:%S')
+        if roman:
+            return self.convert_roman(int(datetime_source.strftime(format)))
+        return datetime_source.strftime(format)
 
 class hr_memorandum_type(models.Model):
     _name = "hr.memorandum.type"

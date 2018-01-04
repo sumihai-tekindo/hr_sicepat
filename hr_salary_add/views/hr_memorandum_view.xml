@@ -17,6 +17,7 @@
                     <field name="nama_karyawan"/>
                     <field name="nama_cabang"/>
                     <field name="type_id"/>
+                    <field name="lokasi"/>
                     <field name="date_from"/>
                     <field name="date_to"/>
                     <field name="state"/>
@@ -54,6 +55,7 @@
                             </group>
                             <group>
                             <field name="type_id" string="Tipe SP"/>
+                            <field name="lokasi"/>
                             <field name="date_from"/>
                             <field name="date_to"/>
                             <field name="alasan" attrs="{'readonly':['|',('state','=','approved'),('state','=','reject')]}"/>
