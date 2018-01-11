@@ -37,7 +37,8 @@ HR Sicepat Ekspres
 
     'author': 'Timotius Wigianto, '
               'Dedi Sinaga, '
-              'Pambudi Satria',
+              'Pambudi Satria, '
+              'Derri Widardi',
     'website': "https://github.com/sumihai-tekindo/",
 
     # Categories can be used to filter modules in modules listing

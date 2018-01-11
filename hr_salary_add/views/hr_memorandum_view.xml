@@ -3,13 +3,13 @@
 <!--	START MEMORANDUM	-->
         <record model="ir.actions.act_window" id="memorandum_action">
             <field name="name">Surat Peringatan</field>
-            <field name="res_model">hr_memorandum</field>
+            <field name="res_model">hr.memorandum</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
         <record model="ir.ui.view" id="memorandum_tree_view">
             <field name="name">memorandum.tree</field>
-            <field name="model">hr_memorandum</field>
+            <field name="model">hr.memorandum</field>
             <field name="arch" type="xml">
                 <tree string="Memorandum Tree">
                     <field name="name"/>
@@ -26,7 +26,7 @@
         </record>
         <record model="ir.ui.view" id="memorandum_form_view">
             <field name="name">memorandum.form</field>
-            <field name="model">hr_memorandum</field>
+            <field name="model">hr.memorandum</field>
             <field name="arch" type="xml">
                 <form string="Memorandum Form">
                     <header>
