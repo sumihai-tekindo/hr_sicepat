@@ -3,7 +3,7 @@
 <!--	START MEMORANDUM	-->
         <record model="ir.actions.act_window" id="memorandum_action">
             <field name="name">Surat Peringatan</field>
-            <field name="res_model">hr.memorandum</field>
+            <field name="model">hr.memorandum</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
