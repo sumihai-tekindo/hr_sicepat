@@ -63,8 +63,7 @@ col_headers = {
 	}
 additional_banks = {
 		'cabang': 'Cash KACAB',
-		'other': 'Lain-lain',
-		'cash': 'Tunai',
+		'other': 'Lain-lain'
 	}
 
 class department_payslip_xls_parser(report_sxw.rml_parse):
@@ -212,33 +211,16 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 						slip_department_info[key][line.code] += line.total
 					net_amount = line.code == 'NET' and line.total or 0.0
 
-				cash_limit = 10000000.0
 				if slip.employee_id.bank_account_id:
 					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
-						if net_amount > cash_limit:
-							slip_department_info[key]['cabang'] += cash_limit
-							slip_department_info[key]['cash'] += net_amount-cash_limit
-						else:
-							slip_department_info[key]['cabang'] += net_amount
+						slip_department_info[key]['cabang'] += net_amount
 					else:
-						if net_amount > cash_limit:
-							slip_department_info[key][slip.employee_id.bank_account_id.bank.id] += cash_limit
-							slip_department_info[key]['cash'] += net_amount-cash_limit
-						else:
-							slip_department_info[key][slip.employee_id.bank_account_id.bank.id] += net_amount
+						slip_department_info[key][slip.employee_id.bank_account_id.bank.id] += net_amount
 				else:
 					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
-						if net_amount > cash_limit:
-							slip_department_info[key]['cabang'] += cash_limit
-							slip_department_info[key]['cash'] += net_amount-cash_limit
-						else:
-							slip_department_info[key]['cabang'] += net_amount
+						slip_department_info[key]['cabang'] += net_amount
 					else:
-						if net_amount > cash_limit:
-							slip_department_info[key]['other'] += cash_limit
-							slip_department_info[key]['cash'] += net_amount-cash_limit
-						else:
-							slip_department_info[key]['other'] += net_amount
+						slip_department_info[key]['other'] += net_amount
 			else:
 				slip_department_info[key] = {'department': slip.department_id.display_name}
 				for col in columns:
@@ -247,33 +229,16 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 					slip_department_info[key].update({line.code: line.total})
 
 				net_amount = slip_department_info[key].get('NET', 0.0)
-				cash_limit = 10000000.0
 				if slip.employee_id.bank_account_id:
 					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
-						if net_amount > cash_limit:
-							slip_department_info[key].update({'cabang': cash_limit})
-							slip_department_info[key].update({'cash': net_amount-cash_limit})
-						else:
-							slip_department_info[key].update({'cabang': net_amount})
+						slip_department_info[key].update({'cabang': net_amount})
 					else:
-						if net_amount > cash_limit:
-							slip_department_info[key].update({slip.employee_id.bank_account_id.bank.id: cash_limit})
-							slip_department_info[key].update({'cash': net_amount-cash_limit})
-						else:
-							slip_department_info[key].update({slip.employee_id.bank_account_id.bank.id: net_amount})
+						slip_department_info[key].update({slip.employee_id.bank_account_id.bank.id: net_amount})
 				else:
 					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
-						if net_amount > cash_limit:
-							slip_department_info[key].update({'cabang': cash_limit})
-							slip_department_info[key].update({'cash': net_amount-cash_limit})
-						else:
-							slip_department_info[key].update({'cabang': net_amount})
+						slip_department_info[key].update({'cabang': net_amount})
 					else:
-						if net_amount > cash_limit:
-							slip_department_info[key].update({'other': cash_limit})
-							slip_department_info[key].update({'cash': net_amount-cash_limit})
-						else:
-							slip_department_info[key].update({'other': net_amount})
+						slip_department_info[key].update({'other': net_amount})
 	
 		return [v for k,v in sorted(slip_department_info.items())]
 
@@ -649,33 +614,16 @@ class department_payslip_xls(report_xls):
 					})
 				
 				net_amount = col_lines.get('NET', 0.0)
-				cash_limit = 10000000.0
 				if o.employee_id.bank_account_id:
-					if o.contract_id and o.contract_id.date_end and o.contract_id.date_end <= o.date_to:
-						if net_amount > cash_limit:
-							col_lines.update({'cabang': cash_limit})
-							col_lines.update({'cash': net_amount-cash_limit})
-						else:
-							col_lines.update({'cabang': net_amount})
+					if o.contract_id and o.contract_id.date_end and o.contract_id.date_end <= o.date_to:						
+						col_lines.update({'cabang': net_amount})
 					else:
-						if net_amount > cash_limit:
-							col_lines.update({o.employee_id.bank_account_id.bank.id: cash_limit})
-							col_lines.update({'cash': net_amount-cash_limit})
-						else:
-							col_lines.update({o.employee_id.bank_account_id.bank.id: net_amount})
+						col_lines.update({o.employee_id.bank_account_id.bank.id: net_amount})
 				else:
 					if o.contract_id and o.contract_id.date_end and o.contract_id.date_end <= o.date_to:
-						if net_amount > cash_limit:
-							col_lines.update({'cabang': cash_limit})
-							col_lines.update({'cash': net_amount-cash_limit})
-						else:
-							col_lines.update({'cabang': net_amount})
+						col_lines.update({'cabang': net_amount})
 					else:
-						if net_amount > cash_limit:
-							col_lines.update({'other': cash_limit})
-							col_lines.update({'cash': net_amount-cash_limit})
-						else:
-							col_lines.update({'other': net_amount})
+						col_lines.update({'other': net_amount})
 				
 				col_pos = 0
 				for col in columns:
