@@ -207,7 +207,7 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 
 			if slip_department_info.get(key):
 				for line in slip.line_ids:
-					if slip_department_info[key].get(line.code):
+					if line.code in slip_department_info[key]:
 						slip_department_info[key][line.code] += line.total
 					net_amount = line.code == 'NET' and line.total or 0.0
 
@@ -222,23 +222,25 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 					else:
 						slip_department_info[key]['other'] += net_amount
 			else:
+				
 				slip_department_info[key] = {'department': slip.department_id.display_name}
 				for col in columns:
-					slip_department_info[key].update({col: 0.0})
+					slip_department_info[key].setdefault(col, 0.0)
 				for line in slip.line_ids:
-					slip_department_info[key].update({line.code: line.total})
+					if line.code in slip_department_info[key]:
+						slip_department_info[key][line.code] = line.total
 
 				net_amount = slip_department_info[key].get('NET', 0.0)
 				if slip.employee_id.bank_account_id:
 					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
-						slip_department_info[key].update({'cabang': net_amount})
+						slip_department_info[key]['cabang'] = net_amount
 					else:
-						slip_department_info[key].update({slip.employee_id.bank_account_id.bank.id: net_amount})
+						slip_department_info[key][slip.employee_id.bank_account_id.bank.id] = net_amount
 				else:
 					if slip.contract_id and slip.contract_id.date_end and slip.contract_id.date_end <= slip.date_to:
-						slip_department_info[key].update({'cabang': net_amount})
+						slip_department_info[key]['cabang'] = net_amount
 					else:
-						slip_department_info[key].update({'other': net_amount})
+						slip_department_info[key]['other'] = net_amount
 	
 		return [v for k,v in sorted(slip_department_info.items())]
 
@@ -732,6 +734,7 @@ class department_payslip_xls(report_xls):
 
 # 			dept,grouped_objects = _p.get_by_dept_bank(data,objects)
 			slip_group_department = _p.group_by_department_gross_ded_net_bank(objects)
+			# print('==================', slip_group_department)
 
 			ws.write_merge(0,0,0,len(columns),'REKAPITULASI PAYSLIP PER DEPARTMENT PER BANK',title_style_center)
 			ws.write(3,0,'PERIODE',normal_bold_style_a)
