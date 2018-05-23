@@ -527,11 +527,11 @@ class department_payslip_xls(report_xls):
 			
 			headers = [
 					'NO', 'CABANG', 'NIK', 'NAMA', 'JENIS KELAMIN', 'STATUS', 'TANGGUNGAN', 'NPWP', 'ALAMAT KTP', 'BANK',
-					'NO REKENING', 'POSISI', 'TGL.MASUK KERJA', 'HARI KERJA', 'PAKET'
+					'NO REKENING', 'POSISI', 'TGL.MASUK KERJA', 'TGL.RESIGN', 'HARI KERJA', 'PAKET'
 				]
 			columns = [
 					'nbr', 'department', 'nik', 'employee_name', 'gender', 'marital', 'children', 'no_npwp', 'ktp_address', 'bank_name',
-					'bank_account', 'job_position', 'tgl_masuk', 'workdays', 'total_paket'
+					'bank_account', 'job_position', 'tgl_masuk', 'tgl_resign', 'workdays', 'total_paket'
 				]
 
 			headers += _p.get_columns(objects)
@@ -581,6 +581,7 @@ class department_payslip_xls(report_xls):
 						'bank_account': o.employee_id.bank_account_id and o.employee_id.bank_account_id.acc_number or None,
 						'job_position': o.employee_id.job_id and o.employee_id.job_id.name or None,
 						'tgl_masuk': o.employee_id.tgl_masuk or None,
+						'tgl_resign': o.contract_id.date_end or None,
 						'workdays': 0,
 						'total_paket': o.total_paket or 0,
 					})
