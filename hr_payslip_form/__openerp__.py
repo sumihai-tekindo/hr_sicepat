@@ -13,6 +13,7 @@
     'depends': ['hr','hr_payroll','hr_attendance','hr_attendance_payslip','report_xls'],
     'data': [
         'views/department_payslip_view.xml',
+        'views/hr_contact_setting.xml',
         'reports/department_payslip_report.xml',
         'reports/employee_payslip.xml',
     ],
