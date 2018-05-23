@@ -29,10 +29,10 @@ class department_payslip_report(models.TransientModel):
 			raise Warning(_('No payslip records for the given date between %s and %s') % (self.start_date, self.end_date))
 		
 		datas = {
-	            'model': 'hr.payslip',
-	            'start_date': self.start_date or False,
-	            'end_date': self.end_date or False,
-	            'department_ids': [d.id for d in self.department_ids],
+				'model': 'hr.payslip',
+				'start_date': self.start_date or False,
+				'end_date': self.end_date or False,
+				'department_ids': [d.id for d in self.department_ids],
 				'ids': [x.id for x in payslip_ids],
 				't_report': self.report_model,
 			}
@@ -48,5 +48,5 @@ class department_payslip_report(models.TransientModel):
 			result.update({'report_name': 'totalled.payslip.report.xls'})
 		else:
 			result.update({'report_name': 'functional.payslip.report.xls'})
-		
+	
 		return result

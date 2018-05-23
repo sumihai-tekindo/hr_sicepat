@@ -6,7 +6,7 @@
 		        <t t-foreach="docs" t-as="o">
 		            <t t-call="report.external_layout">
 		                <div class="page">
-		                    <h2>Pay Slip Ade</h2>
+		                    <h2>Pay Slip</h2>
 		                    <p t-field="o.name"/>
 
 		                    <table class="table table-condensed table-bordered">
@@ -41,60 +41,118 @@
 		                            <td><strong>Date To</strong></td>
 		                            <td><span t-field="o.date_to"/></td>
 		                        </tr>
+		                        <tr>
+		                        	<td><strong>Department</strong></td>
+		                        	<td><span t-field="o.department_id"/></td>
+		                        </tr>
 		                    </table>
 
-		                    <table class="table table-condensed">
-		                        <thead>
-		                            <tr>
-		                                <th>PENERIMAAN</th>
-		                                <th></th>
-		                                <th>POTONGAN</th>
-		                                <th></th>
-		                            </tr>
-		                        </thead>
-		                        <tbody>
-		                            <tr t-foreach="get_payslip_lines(o.line_ids)" t-as="p">
-		                            	 <td><p t-if="p.code == 'POTBRG' or p.code == 'POTHP' or p.code == 'LOAN' "><span t-field="p.name"/></p></td>
-    									 <td><p t-elif="p.code != 'POTBRG' or p.code != 'POTHP' or p.code != 'LOAN'"><span t-field="p.name"/></p></td>
-	                                	<!-- <t t-if="p.code == 'POTBRG' or p.code == 'POTHP' or p.code == 'LOAN' ">
-								            <td><span t-field="p.name"/></td>
-								            <td><span t-esc="formatLang(p.amount, currency_obj=o.company_id.currency_id)"/></td>
-								        </t>	                                	
-	                                	<t t-elif="p.code != 'POTBRG' or p.code != 'POTHP' or p.code != 'LOAN'">
-                                			<td><span t-field="p.name"/></td>
-                                			<td><span t-esc="formatLang(p.amount, currency_obj=o.company_id.currency_id)"/></td>  	
-	                                	</t> -->
-		                                
-		                                <!-- <td><span t-esc="formatLang(p.total, currency_obj=o.company_id.currency_id)"/></td> -->
-		                            </tr>
-		                            <tr>
-		                            	<td><strong>Total Penerimaan</strong></td>
-		                            	<td>0,0</td>
-		                            	<td><strong>Total Potongan</strong></td>
-		                            	<td>0,0</td>
-		                            </tr>
-		                        </tbody>
-		                    </table>
+	                    	<div class="row">
+	                    		<t t-set="gross" t-value="0.0"/>
+	                    		<t t-set="ded" t-value="0.0"/>
+	                    		<t t-set="nett" t-value="0.0"/>
 
-		                    <!-- <p class="text-right"><strong>Authorized signature</strong></p> -->
+	                    		<div class="col-xs-6">
+	                    			<table>
+										<tr>
+			                               <th>PENERIMAAN</th>
+				                           <th><span/></th>
+			                            </tr>
+			                        </table>
+	                    		</div>
+	                    		<div class="col-xs-6">
+	                    			<table>
+										<tr>
+				                           <th>POTONGAN</th>
+				                           <th><span/></th>
+			                            </tr>
+			                        </table>
+	                    		</div>
+		                        <hr/>
+								  <div class="col-xs-6">
+								  	<table>
+				                        <tbody>
+				                            <tr t-foreach="get_payslip_lines(o.line_ids)" t-as="p">
+			                                	<t t-if="p.salary_rule_id.category_id.code in ('BASIC','ALW')">
+										            <td><p><span t-field="p.name"/></p></td>
+										            <td><p><span t-esc="formatLang(p.amount, currency_obj=o.company_id.currency_id)"/></p></td>
+										        </t>
+										        <t t-if="p.salary_rule_id.category_id.code == 'GROSS'">
+										        	<t t-set="gross" t-value="p.amount"/>
+										        </t>
+										        <t t-if="p.salary_rule_id.category_id.code == 'TDED'">
+										        	<t t-set="ded" t-value="p.amount"/>
+										        </t>
+										        <t t-if="p.salary_rule_id.category_id.code == 'NET'">
+										        	<t t-set="nett" t-value="p.amount"/>
+										        </t>
+										    </tr>
+										</tbody>
+				                    </table>
+								  </div>
+								  <div class="col-xs-6">
+								  	<table>
+				                        <tbody>
+				                            <tr t-foreach="get_payslip_lines(o.line_ids)" t-as="p">
+			                                	<t t-if="p.salary_rule_id.category_id.code == 'DED'">
+										            <td><p><span t-field="p.name"/></p></td>
+										            <td><p><span t-esc="formatLang(p.amount, currency_obj=o.company_id.currency_id)"/></p></td>
+										        </t>
+										    </tr>
+										</tbody>
+				                    </table>
+								  </div>
+							</div>
+							
+							<div class="row">
+								<hr/>
+								<div class="col-xs-3">
+									<p><strong>Total Penerimaan</strong></p>
+								</div>
+								<div class="col-xs-3">
+									<div class="col-xs-2"></div>
+									<div class="col-xs-10">
+										<p><span t-esc="formatLang(gross, currency_obj=o.company_id.currency_id)"/></p>
+									</div>
+								</div>
+								<div class="col-xs-3">
+									<p><strong>Total Potongan</strong></p>
+								</div>
+								<div class="col-xs-3">
+									<div class="col-xs-2"></div>
+									<div class="col-xs-10">
+										<p><span t-esc="formatLang(ded, currency_obj=o.company_id.currency_id)"/></p>
+									</div>
+								</div>
+								
+							</div>
+							
+							<div class="row">
+								<hr/>
+								<div class="col-xs-3">
+									<p><strong>Total Gaji Diterima</strong></p>
+								</div>
+								<div class="col-xs-3">
+									<div class="col-xs-2"></div>
+									<div class="col-xs-10">
+										<p><span t-esc="formatLang(nett, currency_obj=o.company_id.currency_id)"/></p>
+									</div>
+								</div>
+							</div>
+
+							
+							<div class="row">
+								<hr/>
+								<div class="col-xs-3">
+									<p><strong>Kontak</strong></p>
+									<p>Phone: <span t-field="o.company_id.hr_payslip_phone"/></p>
+									<p>Email: <span t-field="o.company_id.hr_payslip_email"/></p>
+								</div>
+							</div>
 		                </div>
 		            </t>
 		        </t>
 		    </t>
-			<!-- <xpath expr="//div[@class='page']/table[1]" position="after">
-				<tr>
-					<td><strong>Department</strong></td>
-					<td><span t-field="o.department_id"/></td>
-				</tr>
-			</xpath> -->
-			<!-- <xpath expr="//div[@class='page']/table[2]/tbody" position="after">
-				<tfoot>
-					<tr style="border-top:1px solid black;">
-						<th colspan="4">Total Take Home Pay</th>
-						<th><span t-esc="formatLang(get_thp(o.line_ids), currency_obj=o.company_id.currency_id)"/></th>
-					</tr>
-				</tfoot>
-			</xpath> -->
 		</template>
 	</data>
 </openerp>
