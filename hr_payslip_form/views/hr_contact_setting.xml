@@ -1,0 +1,28 @@
+<openerp>
+	<data>
+		<record id="hr_contact_setting" model="ir.ui.view">
+			<field name="name">hr contact setting</field>
+            <field name="model">hr.config.settings</field>
+            <field name="inherit_id" ref="hr.view_human_resources_configuration" />
+            <!-- <field name="priority">50</field> -->
+            <field name="arch" type="xml">
+				<xpath expr="//form/group[@name='contract_grp']" position="after">
+					<field name="company_id" invisible='1'/>
+					<group name="contact_setting">
+						<label for="id" string="Contact Setting"/>
+						<div>
+							<div>
+								<field name="hr_payslip_phone" class="oe_inline"/>
+								<label for="hr_payslip_phone"/>
+							</div>
+							<div>
+								<field name="hr_payslip_email" class="oe_inline"/>
+								<label for="hr_payslip_email"/>
+							</div>
+						</div>
+					</group>
+				</xpath>
+			</field>
+		</record>
+	</data>
+</openerp>
