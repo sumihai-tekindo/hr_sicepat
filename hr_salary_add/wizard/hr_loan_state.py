@@ -145,7 +145,7 @@ class HRLoanClose(models.TransientModel):
     _name = "hr.loan.close"
     _description = "Loan Close"
     
-    wizard_id = fields.Many2one('hr.loan.close_wizard', string='Wizard', required=True)
+    wizard_id = fields.Many2one('hr.loan.close_wizard', string='Wizard', ondelete='cascade', required=True)
     loan_id = fields.Many2one('hr.loan', string='Loan', required=True, readonly=True)
     employee_id = fields.Many2one('hr.employee', string='Nama Karyawan', required=True, readonly=True)
     loan_type = fields.Many2one('hr.loan.type', string='Loan Type', required=True, readonly=True)

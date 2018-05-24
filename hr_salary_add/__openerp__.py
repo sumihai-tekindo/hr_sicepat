@@ -94,6 +94,7 @@ HR Sicepat Ekspres
         "data/hr_loan_rules.xml",
         "views/hr_employee_agama_view.xml",
         "views/hr_employee_pendidikan_view.xml",
+        "views/hr_working_day.xml",
         ],
     # only loaded in demonstration mode
     'demo': [],
