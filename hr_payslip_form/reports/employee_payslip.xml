@@ -75,16 +75,16 @@
 				                            <tr t-foreach="get_payslip_lines(o.line_ids)" t-as="p">
 			                                	<t t-if="p.salary_rule_id.category_id.code in ('BASIC','ALW')">
 										            <td><p><span t-field="p.name"/></p></td>
-										            <td><p><span t-esc="formatLang(p.amount, currency_obj=o.company_id.currency_id)"/></p></td>
+										            <td><p><span t-esc="formatLang(p.total, currency_obj=o.company_id.currency_id)"/></p></td>
 										        </t>
 										        <t t-if="p.salary_rule_id.category_id.code == 'GROSS'">
-										        	<t t-set="gross" t-value="p.amount"/>
+										        	<t t-set="gross" t-value="p.total"/>
 										        </t>
-										        <t t-if="p.salary_rule_id.category_id.code == 'TDED'">
-										        	<t t-set="ded" t-value="p.amount"/>
+										        <t t-if="p.salary_rule_id.category_id.code == 'DED'">
+										        	<t t-set="ded" t-value="ded + p.total"/>
 										        </t>
 										        <t t-if="p.salary_rule_id.category_id.code == 'NET'">
-										        	<t t-set="nett" t-value="p.amount"/>
+										        	<t t-set="nett" t-value="p.total"/>
 										        </t>
 										    </tr>
 										</tbody>
@@ -96,7 +96,7 @@
 				                            <tr t-foreach="get_payslip_lines(o.line_ids)" t-as="p">
 			                                	<t t-if="p.salary_rule_id.category_id.code == 'DED'">
 										            <td><p><span t-field="p.name"/></p></td>
-										            <td><p><span t-esc="formatLang(p.amount, currency_obj=o.company_id.currency_id)"/></p></td>
+										            <td><p><span t-esc="formatLang(p.total, currency_obj=o.company_id.currency_id)"/></p></td>
 										        </t>
 										    </tr>
 										</tbody>
