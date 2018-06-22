@@ -1,0 +1,53 @@
+<openerp>
+	<data>
+		<record model="ir.actions.act_window" id="action_daily_cost">
+            <field name="name">Voucher List</field>
+            <field name="res_model">hr.daily.cost</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+		<record model="ir.ui.view" id="hr_daily_cost">
+            <field name="name">hr.daily.cost.tree.view</field>
+            <field name="model">hr.daily.cost</field>
+            <field name="arch" type="xml">
+                <tree string="Voucher List" >
+                	<field name="name"/>
+                    <field name="nik"/>
+                    <field name="expense_type"/>
+                    <field name="amount"/>
+                    <field name="voucher_code"/>
+                    <field name="trx_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_daily_cost_form_view">
+            <field name="name">hr.daily.cost.form.view</field>
+            <field name="model">hr.daily.cost</field>
+            <field name="arch" type="xml">
+                <form string="Voucher List">
+                	<sheet string="Voucher List">
+                		<div class="oe_title">
+	                        <h1>
+	                            <field name="name"/>
+	                        </h1>
+	                    </div>
+                		<group name="daily_cost">
+	                    	<group>
+                                <field name="nik" class="oe_inline"/>
+                                <field name="expense_type" class="oe_inline"/>
+                                <field name="amount" class="oe_inline"/>
+                                <field name="voucher_code" class="oe_inline"/>
+                                <field name="trx_date" class="oe_inline"/>
+	                    	</group>
+	                    </group>
+                	</sheet>
+                </form>
+            </field>
+        </record>
+
+        <menuitem id="hr_daily_cost_menu" name="Voucher List" 
+        		  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="action_daily_cost" sequence="1"/>
+	</data>
+</openerp>

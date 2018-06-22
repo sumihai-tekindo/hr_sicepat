@@ -1,0 +1,41 @@
+<openerp>
+	<data>
+		<record model="ir.actions.act_window" id="action_master_expense">
+            <field name="name">Master Expense Type</field>
+            <field name="res_model">expense.type.masterdata</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record model="ir.ui.view" id="master_expense_type">
+            <field name="name">master.expense.type.tree.view</field>
+            <field name="model">expense.type.masterdata</field>
+            <field name="arch" type="xml">
+                <tree string="Master Expense Type" >
+                    <field name="expense_id"/>
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="master_expense_type_form_view">
+            <field name="name">master.expense.type.form.view</field>
+            <field name="model">expense.type.masterdata</field>
+            <field name="arch" type="xml">
+                <form string="Master Expense Type">
+                	<sheet string="Master Expense Type">
+                		<group>
+                            <field name="expense_id"/>
+                			<field name="name" />
+                            <field name="code" class="oe_inline"/>
+                		</group>
+                	</sheet>
+                </form>
+            </field>
+        </record>
+
+        <menuitem id="master_expense_menu" name="Master Expense Type" 
+        		  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="action_master_expense" sequence="1"/>
+	</data>
+</openerp>

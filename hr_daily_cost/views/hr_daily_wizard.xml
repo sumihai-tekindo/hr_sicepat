@@ -1,0 +1,31 @@
+<openerp>
+	<data>
+		<record model="ir.ui.view" id="hr_wizard_form_view">
+            <field name="name">hr.daily.form</field>
+            <field name="model">hr.daily.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Query Epettycash Data">
+                    <sheet>
+                    	<group>
+                    		<field name="date_from"/>
+                    		<field name="date_to"/>
+                    	</group>
+                    </sheet>
+                    <footer>
+                        <button name="query_data" type="object" string="Submit" class="oe_highlight" />
+                        or
+                        <button special="cancel" string="Cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+		
+		<act_window id="hr_daily_act_window"
+                    name="Query Epettycash Data"
+                    res_model="hr.daily.wizard"
+                    view_mode="form"
+                    target="new"/>
+        <!-- wizard form end-->
+        <menuitem id="menu_action_hr_daily_template_form" name='Query Epettycash Data' action="hr_daily_act_window" parent="hr_salary_add.hr_sicepat_salary" sequence="1"/>
+	</data>
+</openerp>
