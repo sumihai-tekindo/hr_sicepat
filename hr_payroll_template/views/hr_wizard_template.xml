@@ -1,0 +1,37 @@
+<openerp>
+	<data>
+
+		<record model="ir.ui.view" id="hr_wizard_form_view">
+            <field name="name">hr.wizard.form</field>
+            <field name="model">hr.wizard.template</field>
+            <field name="arch" type="xml">
+                <form string="Template Salary Structure">
+                    <sheet>
+                    	<group>
+                    		<field name="analytic_account_id"/>
+                    	</group>
+                    	<notebook>
+                    		<page string="Jobs">
+                    			<field name="job_ids"/>
+                    		</page>
+                    	</notebook>
+                    </sheet>
+                    <footer>
+                        <button name="subscribeFuction" type="object" string="Submit" class="oe_highlight" />
+                        or
+                        <button special="cancel" string="Cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        
+        <act_window id="hr_wizard_act_window"
+                    name="Template Salary Structure"
+                    res_model="hr.wizard.template"
+                    view_mode="form"
+                    target="new"/>
+        <!-- wizard form end-->
+        <menuitem id="menu_action_hr_wizard_template_form" name='Template Salary Structure' action="hr_wizard_act_window" parent="hr_salary_add.hr_sicepat_configuration" sequence="1"/>
+    </data>
+</openerp>

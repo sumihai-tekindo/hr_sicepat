@@ -1,0 +1,16 @@
+<openerp>
+	<data>
+        <record id="hr_job_code_inherit_tree" model="ir.ui.view">
+			<field name="name">hr.job.code.tree</field>
+            <field name="model">hr.job</field>
+            <field name="inherit_id" ref="hr.view_hr_job_tree" />
+            <field name="priority">50</field>
+            <field name="arch" type="xml">
+				<xpath expr="//tree/field[@name='department_id']" position="after">					
+					<field name='job_code'/>
+				</xpath>
+			</field>
+		</record>
+		
+	</data>
+</openerp>
