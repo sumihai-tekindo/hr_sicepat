@@ -12,6 +12,6 @@ class HrDailyWizard(models.TransientModel):
 		self.ensure_one()
 		all_nik = []
 		for val in self.employee_ids:
-			nik.append(val.nik)
-		self.env['hr.daily.cost'].cron_job(self.date_from, self.date_to, self.employee_ids, all_nik)
+			all_nik.append(val.nik)
+		self.env['hr.daily.cost'].cron_job(self.date_from, self.date_to, all_nik)
 		return {'type': 'ir.actions.act_window_close'}

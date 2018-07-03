@@ -23,7 +23,7 @@ class DailyCost(models.Model):
 		condition = "ee.IsDisbursed = 'Y' and cast(ee.TxDatetime as DATE) = dateadd(day,-1, cast(getdate() as date))"
 		if search_date_from and search_date_to:
 			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' " % (str(search_date_from), str(search_date_to))
-		elif search_date_from and search_date_to and employee_ids:
+		elif search_date_from and search_date_to and all_nik:
 			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ("+all_nik+")" % (str(search_date_from), str(search_date_to))
 		query = """
 					SELECT me.EmployeeNo, me.Name, pe.EmployeeId, pe.VoucherCode, ee.IsDisbursed,
