@@ -20,11 +20,13 @@ class DailyCost(models.Model):
 		conn = pymssql.connect(server='pickup-pc-sicepat.cchjcxaiivov.ap-southeast-1.rds.amazonaws.com',
 								user='odoohrd', password='0d00hrD', port=1433, database='EPETTYCASH')
 		cr_mssql = conn.cursor(as_dict=True)
+		# all_new_nik = tuple(all_nik)
+		# print '==========================', all_nik
 		condition = "ee.IsDisbursed = 'Y' and cast(ee.TxDatetime as DATE) = dateadd(day,-1, cast(getdate() as date))"
-		if search_date_from and search_date_to:
+		if all_nik and search_date_from and search_date_to:
+			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ('%s')" %(search_date_from, search_date_to, "','".join(all_nik) )
+		elif search_date_from and search_date_to:
 			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' " % (str(search_date_from), str(search_date_to))
-		elif search_date_from and search_date_to and all_nik:
-			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ("+all_nik+")" % (str(search_date_from), str(search_date_to))
 		query = """
 					SELECT me.EmployeeNo, me.Name, pe.EmployeeId, pe.VoucherCode, ee.IsDisbursed,
 					COALESCE(pe.ExpenseId, ee.ExpenseId) as ExpenseId, 
@@ -46,11 +48,12 @@ class DailyCost(models.Model):
 
 		cr_mssql.execute(query)
 		records = cr_mssql.fetchall()
-		# print '================',record
+		print '================records',records
 		emp_dict = {}
 		all_employee = self.env['hr.employee'].search([])
 		for e in all_employee:
 			emp_dict.update({e.nik:{'name': e.name, 'employee_id': e.id}})
+		print '====================================emp_dict',emp_dict
 
 		for record in records:
 			if record['EmployeeNo'] in emp_dict.keys():
