@@ -30,6 +30,9 @@ class HrWizardTemplate(models.TransientModel):
 		'JHT_EMP': 459,
 		'JP_EMP': 459,
 		'POTLL': 99,
+		'DAILY': 148,
+		'EDUCATION': 479,
+		'NETD': False,
 		}
 
 		rule_analytic_exp ={
@@ -50,6 +53,9 @@ class HrWizardTemplate(models.TransientModel):
 			"JHT_EMP"		: "",
 			"JP_EMP"		: "",
 			"POTLL"			: "",	
+			"DAILY"			: "",
+			"EDUCATION"		: "",
+			"NETD"			: "",
 		}
 
 		rule_analytic_cogs ={
@@ -70,6 +76,9 @@ class HrWizardTemplate(models.TransientModel):
 			"JHT_EMP"		: "",
 			"JP_EMP"		: "",
 			"POTLL"			: "",	
+			"DAILY"			: "",
+			"EDUCATION"		: "",
+			"NETD"			: "",
 		}
 
 		rules = self.env['hr.payroll.template'].search([])
@@ -80,7 +89,7 @@ class HrWizardTemplate(models.TransientModel):
 			jobs.append(code.job_code)
 
 		self.create_rule(jobs,job_cogs,rules_exp,rules,payroll_struct)
-		self.create_structure(jobs, job_cogs, rules_exp, rule_analytic_exp, rule_analytic_cogs, rules, payroll_struct)
+		self.create_structure(jobs, job_cogs, rule_analytic_exp, rule_analytic_cogs, rules, payroll_struct)
 
 	def create_rule(self, jobs, job_cogs, rules_exp, rules, payroll_struct):
 		for job in jobs:
@@ -121,7 +130,7 @@ class HrWizardTemplate(models.TransientModel):
 						base_struct_id = payroll_struct.search([('code','=',base_struct_code)])
 						base_struct_id.write({'rule_ids':[(4,rule_id.id)]})
 
-	def create_structure(self, jobs, job_cogs, rules_exp, rule_analytic_exp, rule_analytic_cogs, rules, payroll_struct):
+	def create_structure(self, jobs, job_cogs, rule_analytic_exp, rule_analytic_cogs, rules, payroll_struct):
 		for job in jobs:
 			struct_code = self.analytic_account_id.code+'-'+job
 			struct_name = self.analytic_account_id.name
@@ -136,6 +145,7 @@ class HrWizardTemplate(models.TransientModel):
 					if job not in job_cogs:
 						analytic=rule_analytic_exp.get(rule.code)
 					else:
+						# analytic=rule_analytic_cogs.get('NETD')
 						analytic=rule_analytic_cogs.get(rule.code)
 
 					if analytic != "":
@@ -152,8 +162,6 @@ class HrWizardTemplate(models.TransientModel):
 								jabatan = self.env['hr.job'].search([('job_code','=',job)])
 								parent_code_pcity = self.analytic_account_id.code
 								pcity = self.env['account.analytic.account'].search([('code','=',parent_code_pcity)])
-								# print '========================', pcity
-								# print '========================', pcity.id
 								code_analytic_pcity = parent_code
 								analytic_account_pcity = {
 								'name': jabatan.name,

@@ -10,6 +10,11 @@
                     		<field name="date_from"/>
                     		<field name="date_to"/>
                     	</group>
+                        <notebook>
+                            <page string="Employee">
+                                <field name="employee_ids"/>
+                            </page>
+                        </notebook>
                     </sheet>
                     <footer>
                         <button name="query_data" type="object" string="Submit" class="oe_highlight" />

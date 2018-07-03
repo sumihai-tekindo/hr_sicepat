@@ -85,7 +85,7 @@
 										        <t t-if="p.salary_rule_id.category_id.code == 'DED'">
 										        	<t t-set="ded" t-value="ded + p.total"/>
 										        </t>
-										        <t t-if="p.salary_rule_id.category_id.code == 'NET'">
+										        <t t-if="p.salary_rule_id.category_id.code == 'NETD'">
 										        	<t t-set="nett" t-value="p.total"/>
 										        </t>
 										    </tr>
