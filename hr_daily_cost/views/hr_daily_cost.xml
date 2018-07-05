@@ -11,9 +11,9 @@
             <field name="model">hr.daily.cost</field>
             <field name="arch" type="xml">
                 <tree string="Voucher List" >
+                    <field name="employee_id"/>
                 	<field name="name"/>
-                    <field name="nik"/>
-                    <field name="expense_type"/>
+                    <field name="expense_id"/>
                     <field name="amount"/>
                     <field name="voucher_code"/>
                     <field name="trx_date"/>
@@ -34,8 +34,8 @@
 	                    </div>
                 		<group name="daily_cost">
 	                    	<group>
-                                <field name="nik" class="oe_inline"/>
-                                <field name="expense_type" class="oe_inline"/>
+                                <field name="employee_id"/>
+                                <field name="expense_id" class="oe_inline"/>
                                 <field name="amount" class="oe_inline"/>
                                 <field name="voucher_code" class="oe_inline"/>
                                 <field name="trx_date" class="oe_inline"/>

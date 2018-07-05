@@ -19,10 +19,12 @@
         'hr_attendance_payslip'
     ],
     'data': [     
+        'data/daily_sequences.xml',
         'data/hr_daily_cost_cron.xml',
         'views/hr_daily_cost.xml',
         'views/hr_daily_wizard.xml',
         'views/master_expense_type.xml',
+        # 'security/ir.model.access.csv',
     ],
     'installable': True,
 }

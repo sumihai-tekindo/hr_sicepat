@@ -1,5 +1,6 @@
 from openerp import api, fields, models
 from datetime import datetime
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 import pymssql
 
 class DailyCost(models.Model):
@@ -8,11 +9,11 @@ class DailyCost(models.Model):
 	nik = fields.Char('Nik')
 	name = fields.Char('Name')
 	employee_id2 = fields.Char('Employee Id')
-	employee_id = fields.Many2one('hr.employee', string="Employee id")
+	employee_id = fields.Many2one('hr.employee', string="Employee")
 	expense_id = fields.Many2one('expense.type.masterdata')
 	expense_type = fields.Char('Expense Type')
 	amount = fields.Float('Amount')
-	voucher_code = fields.Char('Voucher Code')
+	voucher_code = fields.Boolean()
 	trx_date = fields.Date()
 
 	@api.model
@@ -20,8 +21,6 @@ class DailyCost(models.Model):
 		conn = pymssql.connect(server='pickup-pc-sicepat.cchjcxaiivov.ap-southeast-1.rds.amazonaws.com',
 								user='odoohrd', password='0d00hrD', port=1433, database='EPETTYCASH')
 		cr_mssql = conn.cursor(as_dict=True)
-		# all_new_nik = tuple(all_nik)
-		# print '==========================', all_nik
 		condition = "ee.IsDisbursed = 'Y' and cast(ee.TxDatetime as DATE) = dateadd(day,-1, cast(getdate() as date))"
 		if all_nik and search_date_from and search_date_to:
 			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ('%s')" %(search_date_from, search_date_to, "','".join(all_nik) )
@@ -48,12 +47,10 @@ class DailyCost(models.Model):
 
 		cr_mssql.execute(query)
 		records = cr_mssql.fetchall()
-		print '================records',records
 		emp_dict = {}
 		all_employee = self.env['hr.employee'].search([])
 		for e in all_employee:
 			emp_dict.update({e.nik:{'name': e.name, 'employee_id': e.id}})
-		print '====================================emp_dict',emp_dict
 
 		for record in records:
 			if record['EmployeeNo'] in emp_dict.keys():
@@ -61,14 +58,15 @@ class DailyCost(models.Model):
 				val = self.env['hr.daily.cost'].search([('voucher_code','=',record['VoucherCode']), ('expense_id','=',data.id)])
 				if val:
 					val.unlink()
+				date_ctx = record['NewTxDate'][:10]
 				self.create({'nik': record['EmployeeNo'],
-							 'name': emp_dict.get(record['EmployeeNo']).get('name'), 
+							 'name': record['VoucherCode'] or self.env['ir.sequence'].with_context(ir_sequence_date=date_ctx).get('daily.cost'), 
 							 'employee_id2': record['EmployeeId'], 
 							 'employee_id': emp_dict.get(record['EmployeeNo']).get('employee_id'), 
-							 'expense_id': data and data.id or False,
-							 'expense_type': data and data.code or False,
+							 'expense_id': data.id or False,
+							 'expense_type': data.code or False,
 							 'amount': record['Amount'],
-							 'voucher_code': record['VoucherCode'], 
+							 'voucher_code': bool(record['VoucherCode']),
 							 'trx_date': record['NewTxDate']})
 
 	@api.model					 
