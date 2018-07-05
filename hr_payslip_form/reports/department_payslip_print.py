@@ -41,6 +41,8 @@ _logger = logging.getLogger(__name__)
 col_headers = {
 		'BASIC': 'Gaji Pokok',
 		'MEAL': 'Uang Makan',
+		'DAILY': 'Uang Makan,Bensin,Pulsa Harian',
+		'EDUCATION': 'Tunjangan Pendidikan',
 		'TRANSPORT': 'Uang Transport',
 		'PERSISTANCE': 'Uang Kerajinan',
 		'TARGET': 'Target Paket',

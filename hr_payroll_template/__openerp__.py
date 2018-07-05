@@ -3,7 +3,7 @@
 # © 2016 Sumihai Teknologi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 {
-    'name': 'HR Daily Cost',
+    'name': 'HR Payroll Template',
     'version': '8.0.1.0.0',
     'license': 'AGPL-3',
     'category': 'Generic Modules/Human Resources',
@@ -11,20 +11,16 @@
     'website': "https://github.com/sumihai-tekindo/",
     'depends': [
         'hr',
-        'account',
-        'analytic',
         'hr_payroll',
         'hr_payroll_account',
-        'hr_nik',
         'hr_attendance_payslip'
     ],
     'data': [     
-        'data/daily_sequences.xml',
-        'data/hr_daily_cost_cron.xml',
-        'views/hr_daily_cost.xml',
-        'views/hr_daily_wizard.xml',
-        'views/master_expense_type.xml',
-        # 'security/ir.model.access.csv',
+        'views/hr_payroll_template.xml',
+        'views/hr_job_position.xml',
+        'views/hr_wizard_template.xml',
+        'views/hr_job_code.xml',
+        'data/hr_job_rule_data.xml',
     ],
     'installable': True,
 }

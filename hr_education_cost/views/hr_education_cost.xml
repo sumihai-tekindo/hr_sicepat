@@ -1,0 +1,51 @@
+<openerp>
+	<data>
+		<record model="ir.actions.act_window" id="action_education_cost">
+            <field name="name">Uang Pendidikan</field>
+            <field name="res_model">hr.education.cost</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_education_cost">
+            <field name="name">hr.education.cost.tree.view</field>
+            <field name="model">hr.education.cost</field>
+            <field name="arch" type="xml">
+                <tree string="Uang Pendidikan" >
+                	<field name="name"/>
+                    <field name="employee_id"/>
+                    <field name="tanggal"/>
+                    <field name="amount" class="oe_inline"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_education_cost_form_view">
+            <field name="name">hr.education.cost.form.view</field>
+            <field name="model">hr.education.cost</field>
+            <field name="arch" type="xml">
+                <form string="Uang Pendidikan">
+                	<sheet string="Uang Pendidikan">
+                		<div class="oe_title">
+	                        <h1>
+	                            <field name="name"/>
+	                        </h1>
+	                    </div>
+                		<group name="education_cost">
+	                    	<group>
+		                    	<field name="employee_id" />
+			                    <field name="jabatan_id" />
+			                    <field name="tanggal" class="oe_inline"/>
+			                    <field name="amount" class="oe_inline"/>
+	                    	</group>
+	                    </group>
+                	</sheet>
+                </form>
+            </field>
+        </record>
+
+        <menuitem id="hr_education_cost_menu" name="Uang Pendidikan" 
+        		  parent="hr_salary_add.hr_sicepat_configuration"
+                  action="action_education_cost" sequence="1"/>
+
+	</data>
+</openerp>

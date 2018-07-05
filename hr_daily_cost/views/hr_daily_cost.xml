@@ -1,9 +1,29 @@
 <openerp>
 	<data>
+
+        <record id="hr_daily_cost_filter" model="ir.ui.view">
+            <field name="name">hr.daily.cost.filter</field>
+            <field name="model">hr.daily.cost</field>
+            <field name="arch" type="xml">
+                <search string="Search Voucher List">
+                    <field name="employee_id" />
+                    <field name="expense_id" />
+                    <field name="name" string="Voucher Code" />
+                    <field name="trx_date" />
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_voucher_code" string="Voucher Code" context="{'group_by':'voucher_code'}"/>
+                        <filter name="group_by_expense_type" string="Expense Type" context="{'group_by':'expense_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
 		<record model="ir.actions.act_window" id="action_daily_cost">
             <field name="name">Voucher List</field>
             <field name="res_model">hr.daily.cost</field>
             <field name="view_mode">tree,form</field>
+            <field name="context">{'show_code':True}</field>
         </record>
 
 		<record model="ir.ui.view" id="hr_daily_cost">
@@ -11,9 +31,9 @@
             <field name="model">hr.daily.cost</field>
             <field name="arch" type="xml">
                 <tree string="Voucher List" >
+                    <field name="employee_id"/>
                 	<field name="name"/>
-                    <field name="nik"/>
-                    <field name="expense_type"/>
+                    <field name="expense_id"/>
                     <field name="amount"/>
                     <field name="voucher_code"/>
                     <field name="trx_date"/>
@@ -34,8 +54,8 @@
 	                    </div>
                 		<group name="daily_cost">
 	                    	<group>
-                                <field name="nik" class="oe_inline"/>
-                                <field name="expense_type" class="oe_inline"/>
+                                <field name="employee_id"/>
+                                <field name="expense_id" class="oe_inline"/>
                                 <field name="amount" class="oe_inline"/>
                                 <field name="voucher_code" class="oe_inline"/>
                                 <field name="trx_date" class="oe_inline"/>

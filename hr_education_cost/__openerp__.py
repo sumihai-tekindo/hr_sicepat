@@ -3,7 +3,7 @@
 # © 2016 Sumihai Teknologi Indonesia
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 {
-    'name': 'HR Daily Cost',
+    'name': 'HR Education Cost',
     'version': '8.0.1.0.0',
     'license': 'AGPL-3',
     'category': 'Generic Modules/Human Resources',
@@ -19,12 +19,8 @@
         'hr_attendance_payslip'
     ],
     'data': [     
-        'data/daily_sequences.xml',
-        'data/hr_daily_cost_cron.xml',
-        'views/hr_daily_cost.xml',
-        'views/hr_daily_wizard.xml',
-        'views/master_expense_type.xml',
-        # 'security/ir.model.access.csv',
+        'data/hr_education_cost.xml',
+        'views/hr_education_cost.xml',
     ],
     'installable': True,
 }

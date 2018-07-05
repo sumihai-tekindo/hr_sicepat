@@ -1,5 +1,6 @@
 from openerp import api, fields, models
 from datetime import datetime
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 import pymssql
 
 class DailyCost(models.Model):
@@ -8,26 +9,40 @@ class DailyCost(models.Model):
 	nik = fields.Char('Nik')
 	name = fields.Char('Name')
 	employee_id2 = fields.Char('Employee Id')
-	employee_id = fields.Many2one('hr.employee', string="Employee id")
+	employee_id = fields.Many2one('hr.employee', string="Employee")
 	expense_id = fields.Many2one('expense.type.masterdata')
 	expense_type = fields.Char('Expense Type')
 	amount = fields.Float('Amount')
-	voucher_code = fields.Char('Voucher Code')
+	voucher_code = fields.Boolean()
 	trx_date = fields.Date()
 
 	@api.model
-	def cron_job(self, search_date_from=False, search_date_to=False):
+	def cron_job(self, search_date_from=False, search_date_to=False, all_nik=False):
 		conn = pymssql.connect(server='pickup-pc-sicepat.cchjcxaiivov.ap-southeast-1.rds.amazonaws.com',
 								user='odoohrd', password='0d00hrD', port=1433, database='EPETTYCASH')
 		cr_mssql = conn.cursor(as_dict=True)
 		condition = "ee.IsDisbursed = 'Y' and cast(ee.TxDatetime as DATE) = dateadd(day,-1, cast(getdate() as date))"
-		if search_date_from and search_date_to:
-			condition = "ee.IsDisbursed = 'Y' and cast(ee.TxDatetime as DATE) >= '%s' and cast(ee.TxDatetime as DATE) <= '%s' " % (str(search_date_from), str(search_date_to))
+		if all_nik and search_date_from and search_date_to:
+			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ('%s')" %(search_date_from, search_date_to, "','".join(all_nik) )
+		elif search_date_from and search_date_to:
+			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' " % (str(search_date_from), str(search_date_to))
 		query = """
-					SELECT em.EmployeeNo, em.Name, ee.EmployeeId, ee.ExpenseId, ee.Amount, ee.VoucherCode, ee.TxDatetime, ee.IsDisbursed
-					FROM EPETTYCASH.dbo.EmployeeExpense ee WITH (NOLOCK)
-					LEFT JOIN EPETTYCASH.dbo.PettyCashExpense p WITH (NOLOCK) on ee.VoucherCode = p.VoucherCode
-					LEFT JOIN EPETTYCASH.dbo.MsEmployee em WITH (NOLOCK) on ee.EmployeeId = em.Id
+					SELECT me.EmployeeNo, me.Name, pe.EmployeeId, pe.VoucherCode, ee.IsDisbursed,
+					COALESCE(pe.ExpenseId, ee.ExpenseId) as ExpenseId, 
+					CASE
+						WHEN pe.VoucherCode IS NULL
+						THEN pe.Amount
+						ELSE ee.Amount
+					END AS Amount,
+					CASE
+						WHEN pe.VoucherCode IS NULL
+						THEN pe.TxDate
+						ELSE ee.TxDatetime
+					END AS NewTxDate
+
+					FROM EPETTYCASH.dbo.PettyCashExpense pe WITH (NOLOCK)
+					LEFT JOIN EPETTYCASH.dbo.EmployeeExpense ee WITH (NOLOCK) ON pe.VoucherCode = ee.VoucherCode AND ee.IsDisbursed = 'Y'
+					LEFT JOIN EPETTYCASH.dbo.MsEmployee me WITH (NOLOCK) ON COALESCE(pe.EmployeeId, ee.EmployeeId) = me.Id
 					WHERE """ + condition
 
 		cr_mssql.execute(query)
@@ -43,15 +58,16 @@ class DailyCost(models.Model):
 				val = self.env['hr.daily.cost'].search([('voucher_code','=',record['VoucherCode']), ('expense_id','=',data.id)])
 				if val:
 					val.unlink()
+				date_ctx = record['NewTxDate'][:10]
 				self.create({'nik': record['EmployeeNo'],
-							 'name': emp_dict.get(record['EmployeeNo']).get('name'), 
+							 'name': record['VoucherCode'] or self.env['ir.sequence'].with_context(ir_sequence_date=date_ctx).get('daily.cost'), 
 							 'employee_id2': record['EmployeeId'], 
 							 'employee_id': emp_dict.get(record['EmployeeNo']).get('employee_id'), 
-							 'expense_id': data and data.id or False,
-							 'expense_type': data and data.code or False,
+							 'expense_id': data.id or False,
+							 'expense_type': data.code or False,
 							 'amount': record['Amount'],
-							 'voucher_code': record['VoucherCode'], 
-							 'trx_date': record['TxDatetime']})
+							 'voucher_code': bool(record['VoucherCode']),
+							 'trx_date': record['NewTxDate']})
 
 	@api.model					 
 	def sum_amount_perType(self, employee_id, date_from, date_to):
@@ -71,6 +87,26 @@ class MasterDataDailyCost(models.Model):
 	expense_id = fields.Integer()
 	name = fields.Char(string='Nama Komponen Tambahan')		
 	code = fields.Char(string="Code")
+
+	@api.multi
+	def name_get(self):
+		result = []
+		for rec in self:
+			name_get = rec.name
+			if self._context.get('show_code'):
+				name_get = rec.code
+			result.append((rec.id, "%s" % (name_get)))
+		return result
+
+	@api.model
+	def name_search(self, name, args=None, operator='ilike', limit=100):
+		args = args or []
+		recs = self.browse()
+		if name:
+			recs = self.search([('code', '=', name)] + args, limit=limit)
+		if not recs:
+			recs = self.search([('name', operator, name)] + args, limit=limit)
+		return recs.name_get()
 
 
 class HRPayslip(models.Model):
