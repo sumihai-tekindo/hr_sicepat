@@ -88,6 +88,26 @@ class MasterDataDailyCost(models.Model):
 	name = fields.Char(string='Nama Komponen Tambahan')		
 	code = fields.Char(string="Code")
 
+	@api.multi
+	def name_get(self):
+		result = []
+		for rec in self:
+			name_get = rec.name
+			if self._context.get('show_code'):
+				name_get = rec.code
+			result.append((rec.id, "%s" % (name_get)))
+		return result
+
+	@api.model
+	def name_search(self, name, args=None, operator='ilike', limit=100):
+		args = args or []
+		recs = self.browse()
+		if name:
+			recs = self.search([('code', '=', name)] + args, limit=limit)
+		if not recs:
+			recs = self.search([('name', operator, name)] + args, limit=limit)
+		return recs.name_get()
+
 
 class HRPayslip(models.Model):
 	_inherit = 'hr.payslip'
