@@ -1,5 +1,16 @@
 <openerp>
 	<data>
+
+        <record id="hr_daily_cost_filter" model="ir.ui.view">
+            <field name="name">hr.daily.cost.filter</field>
+            <field name="model">hr.daily.cost</field>
+            <field name="arch" type="xml">
+                <search string="Search Voucher List">
+                    <field name="name" string="Voucher List" filter_domain="['|',('employee_id','ilike',self),('expense_id','ilike',self)]"/>
+                </search>
+            </field>
+        </record>
+
 		<record model="ir.actions.act_window" id="action_daily_cost">
             <field name="name">Voucher List</field>
             <field name="res_model">hr.daily.cost</field>
