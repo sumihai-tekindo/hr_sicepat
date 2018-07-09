@@ -108,3 +108,9 @@ class HRPayslip(models.Model):
         self.state = 'verify'
 
     # Business methods
+
+    class HrDepartmentCode(models.Model):
+        _inherit = "hr.department"
+
+        department_code = fields.Char('Department Code')
+        ojt_rule = fields.Boolean()
