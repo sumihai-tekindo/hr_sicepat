@@ -108,3 +108,19 @@ class HRPayslip(models.Model):
         self.state = 'verify'
 
     # Business methods
+
+    class HrDepartmentCode(models.Model):
+        _inherit = "hr.department"
+
+        department_code = fields.Char('Department Code')
+        ojt_rule = fields.Boolean()
+
+    class BankAccountHistory(models.Model):
+        _inherit = ['mail.thread', 'res.partner.bank']
+        _name = 'res.partner.bank'
+        
+        acc_number = fields.Char(track_visibility='onchange')
+        bank = fields.Many2one('res.bank', 'Bank', track_visibility='onchange')
+        bank_name = fields.Char(track_visibility='onchange')
+        owner_name = fields.Char(track_visibility='onchange')
+        partner_id = fields.Many2one('res.partner', 'Account Owner', ondelete='cascade', select=True, domain=['|',('is_company','=',True),('parent_id','=',False)], track_visibility='onchange')

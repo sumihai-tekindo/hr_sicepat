@@ -1,0 +1,12 @@
+<openerp>
+	<data>
+		<record id="bank_account_user_access" model="res.groups">
+			<field name="name">Bank Account User Access</field>
+			<field name="implied_ids" eval="[(4, ref('base.group_partner_manager'))]"/>
+		</record>
+
+		<record id="bank_account_user_access_no_delete" model="res.groups">
+			<field name="name">Bank Account User Access Without Delete</field>
+		</record>
+	</data>
+</openerp>

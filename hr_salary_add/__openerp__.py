@@ -62,7 +62,11 @@ HR Sicepat Ekspres
     # always loaded
     'data': [
         "data/hr_contract_security.xml",
+        "security/bank_account_access.xml",
+        "security/ir.model.access.csv",
         "wizard/hr_loan_state.xml",
+        "views/history_bank_account.xml",
+        "views/hr_department_code.xml",
         "views/hr_employee_view.xml",
         "views/hr_contract_view.xml",
         "views/hr_payroll_view.xml",
