@@ -41,9 +41,9 @@ class DailyCost(models.Model):
 					END AS NewTxDate
 
 					FROM EPETTYCASH.dbo.PettyCashExpense pe WITH (NOLOCK)
-					LEFT JOIN EPETTYCASH.dbo.EmployeeExpense ee WITH (NOLOCK) ON pe.VoucherCode = ee.VoucherCode AND ee.IsDisbursed = 'Y'
+					LEFT JOIN EPETTYCASH.dbo.EmployeeExpense ee WITH (NOLOCK) ON pe.VoucherCode = ee.VoucherCode
 					LEFT JOIN EPETTYCASH.dbo.MsEmployee me WITH (NOLOCK) ON COALESCE(pe.EmployeeId, ee.EmployeeId) = me.Id
-					WHERE """ + condition
+					WHERE ee.IsDisbursed = 'Y' AND """ + condition
 
 		cr_mssql.execute(query)
 		records = cr_mssql.fetchall()
