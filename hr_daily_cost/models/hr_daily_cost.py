@@ -18,10 +18,31 @@ class DailyCost(models.Model):
 
 	@api.model
 	def cron_job(self, search_date_from=False, search_date_to=False, all_nik=False):
-		conn = pymssql.connect(server='pickup-pc-sicepat.cchjcxaiivov.ap-southeast-1.rds.amazonaws.com',
-								user='odoohrd', password='0d00hrD', port=1433, database='EPETTYCASH')
+		get_credential = self.env['ir.config_parameter'].search([('key','in',['pettycash.host', 'pettycash.user', 'pettycash.password', 'pettycash.port', 'pettycash.db'])])
+		get_config = {
+			'user'		: '',
+			'password'	: '',
+			'host'		: '',
+			'database'	: '',
+			'port'		: '',
+		}
+		if get_credential:
+			for val in get_credential:
+				if val.key == 'pettycash.host':
+					get_config.update({'host': val.value})
+				elif val.key == 'pettycash.user':
+					get_config.update({'user': val.value})
+				elif val.key == 'pettycash.password':
+					get_config.update({'password': val.value})
+				elif val.key == 'pettycash.port':
+					get_config.update({'port': val.value})
+				elif val.key == 'pettycash.db':
+					get_config.update({'database': val.value})
+
+		conn = pymssql.connect(server=get_config['host'], user=get_config['user'], password=get_config['password'], 
+			port=get_config['port'], database=get_config['database'])
 		cr_mssql = conn.cursor(as_dict=True)
-		condition = "ee.IsDisbursed = 'Y' and cast(ee.TxDatetime as DATE) = dateadd(day,-1, cast(getdate() as date))"
+
 		if all_nik and search_date_from and search_date_to:
 			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ('%s')" %(search_date_from, search_date_to, "','".join(all_nik) )
 		elif search_date_from and search_date_to:
@@ -55,19 +76,27 @@ class DailyCost(models.Model):
 		for record in records:
 			if record['EmployeeNo'] in emp_dict.keys():
 				data = self.env['expense.type.masterdata'].search([('expense_id','=', record['ExpenseId'] )])
-				val = self.env['hr.daily.cost'].search([('voucher_code','=',record['VoucherCode']), ('expense_id','=',data.id)])
-				if val:
-					val.unlink()
-				date_ctx = record['NewTxDate'][:10]
-				self.create({'nik': record['EmployeeNo'],
-							 'name': record['VoucherCode'] or self.env['ir.sequence'].with_context(ir_sequence_date=date_ctx).get('daily.cost'), 
-							 'employee_id2': record['EmployeeId'], 
-							 'employee_id': emp_dict.get(record['EmployeeNo']).get('employee_id'), 
-							 'expense_id': data.id or False,
-							 'expense_type': data.code or False,
-							 'amount': record['Amount'],
-							 'voucher_code': bool(record['VoucherCode']),
-							 'trx_date': record['NewTxDate']})
+				domain = [ 
+						('voucher_code','=',bool(record['VoucherCode'])),
+						('expense_id','=',data.id), 
+						('trx_date','=',record['NewTxDate'][:10]), 
+						('employee_id','=',emp_dict.get(record['EmployeeNo']).get('employee_id'))]
+
+				if record['VoucherCode']:
+					domain.append(('name','=',record['VoucherCode']))
+				
+				data_from_hr_daily_cost = self.env['hr.daily.cost'].search(domain)
+				if not data_from_hr_daily_cost:
+					date_ctx = record['NewTxDate'][:10]
+					rr=self.create({'nik': record['EmployeeNo'],
+								 'name': record['VoucherCode'] or self.env['ir.sequence'].with_context(ir_sequence_date=date_ctx).get('daily.cost'), 
+								 'employee_id2': record['EmployeeId'], 
+								 'employee_id': emp_dict.get(record['EmployeeNo']).get('employee_id'), 
+								 'expense_id': data.id or False,
+								 'expense_type': data.code or False,
+								 'amount': record['Amount'],
+								 'voucher_code': bool(record['VoucherCode']),
+								 'trx_date': record['NewTxDate'][:10]})
 
 	@api.model					 
 	def sum_amount_perType(self, employee_id, date_from, date_to):
