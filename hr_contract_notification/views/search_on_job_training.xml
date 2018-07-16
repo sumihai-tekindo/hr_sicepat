@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<record id="hr_contract_view_search_ojt" model="ir.ui.view">
+            <field name="name">hr.contract.view.search.ojt</field>
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_search"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//group[1]" position="before">
+                   <filter name ="ojt" string="On Job Training" 
+                   	domain="[('trial_date_end','&gt;=',(context_today()).strftime('%Y-%m-%d')),
+                   	('trial_date_end','&lt;=',(context_today()+relativedelta(months=1)).strftime('%Y-%m-%d') )]" />
+               </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
