@@ -21,10 +21,11 @@
     'data': [     
         'data/daily_sequences.xml',
         'data/hr_daily_cost_cron.xml',
+        'security/ir.model.access.csv',
+        'security/rule.xml',
         'views/hr_daily_cost.xml',
         'views/hr_daily_wizard.xml',
         'views/master_expense_type.xml',
-        # 'security/ir.model.access.csv',
     ],
     'installable': True,
 }

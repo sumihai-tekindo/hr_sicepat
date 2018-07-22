@@ -1,0 +1,27 @@
+<openerp>
+	<data>
+		<template id="external_layout_hide_footer">
+			<!-- Multicompany -->
+			<t t-if="o and 'company_id' in o">
+				<t t-set="company" t-value="o.company_id"></t>
+			</t>
+			<t t-if="not o or not 'company_id' in o">
+				<t t-set="company" t-value="res_company"></t>
+			</t>
+
+			<t t-call="report.external_layout_header" />
+			<t t-raw="0" />
+			<t t-call="hr_payslip_form.border_footer" />
+		</template>
+
+		<template id="border_footer">
+		    <div class="footer">
+		        <div class="text-center" style="border-top: 1px solid black;">
+		        	<t t-if="company.custom_footer">
+		                <span t-raw="company.rml_footer"/>
+		            </t>
+		        </div>
+		    </div>      
+		</template>
+	</data>
+</openerp>

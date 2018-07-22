@@ -32,3 +32,11 @@ class hr_employee(models.Model):
     agama_id = fields.Many2one("hr.employee.agama", string = "Religion")
     pendidikan_id = fields.Many2one("hr.employee.pendidikan", string = "Qualification")
     bank_account_id = fields.Many2one("res.partner.bank", track_visibility="onchange")
+    bank_account_number = fields.Char(string="Account Number", track_visibility='always')
+
+
+    @api.onchange('bank_account_id')
+    def onchange_bank_account(self):
+        if self.bank_account_id:
+            self.bank_account_number = self.bank_account_id.acc_number
+

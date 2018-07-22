@@ -4,8 +4,8 @@ class HrDailyWizard(models.TransientModel):
 	_name = 'hr.daily.wizard'
 
 	employee_ids = fields.Many2many('hr.employee')
-	date_from = fields.Date()
-	date_to = fields.Date()
+	date_from = fields.Date(required=True)
+	date_to = fields.Date(required=True)
 
 	@api.multi
 	def query_data(self):

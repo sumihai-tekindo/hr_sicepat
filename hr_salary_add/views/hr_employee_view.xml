@@ -22,8 +22,11 @@
                         <field name="agama_id"/>
                         <field name="pendidikan_id"/>
                     </xpath>
-                </data>
-            </field>
+                    <field name="bank_account_id" position="after">
+                        <field name='bank_account_number' invisible="1"/>
+                    </field>
+                </data
+>            </field>
         </record>
 		<record id="view_employee_tree_contract_count" model="ir.ui.view">
             <field name="name">hr.employee.tree.contract_count</field>

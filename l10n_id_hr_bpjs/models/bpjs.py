@@ -120,7 +120,8 @@ class HrBPJSLine(models.Model):
         @param code: char field
         @return: returns True or False
         """
-        code_from_category = [t.code for t in self.env['hr.bpjs.category'].search([('employee_deduction','=',True)])]
+        # code_from_category = [t.code for t in self.env['hr.bpjs.category'].search([('employee_deduction','=',True)])]
+        code_from_category = [t.code for t in self.env['hr.bpjs.category'].search([])]
         if code and code in code_from_category:
             return True
         return False

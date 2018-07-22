@@ -1,5 +1,6 @@
 from openerp import models, fields, api, _
 from openerp.exceptions import AccessError, Warning
+import datetime
 
 import openerp.addons.decimal_precision as dp
 
@@ -71,6 +72,24 @@ class HRPayslip(models.Model):
                     'contract_id': contract_id,
                 }
                 worked_days_line_ids.append(value)
+
+            # contract_data = self.pool.get('hr.contract').browse(cr,uid,contract_id)
+            # if not contract_data.trial_date_start or not contract_data.trial_date_end:
+            #     trial_start = '0000-00-00'
+            #     trial_end = '0000-00-00'
+            # else:
+            # trial_start = datetime.datetime.strptime(contract_data.trial_date_start, '%Y-%m-%d').date()
+            # trial_end = datetime.datetime.strptime(contract_data.trial_date_end, '%Y-%m-%d').date()
+            # probation_day = trial_end - trial_start
+            # # print '============', probation_day.days
+            # ojt = {
+            #     'name': 'Probation',
+            #     'code': 'OJT',
+            #     'number_of_days': probation_day.days or 0.0,
+            #     'number_of_hours': 0.0,
+            #     'contract_id': contract_id,
+            # }
+            # worked_days_line_ids.append(ojt)
 
         return res
 
