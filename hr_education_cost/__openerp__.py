@@ -21,6 +21,8 @@
     'data': [     
         'data/hr_education_cost.xml',
         'views/hr_education_cost.xml',
+        'security/ir.model.access.csv',
+        'security/hr_education_access.xml',
     ],
     'installable': True,
 }

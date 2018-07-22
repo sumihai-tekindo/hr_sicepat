@@ -219,7 +219,6 @@ class hr_payslip(osv.osv):
 		if context.get('grouped_slip',False):
 			# print "idsssssssssssss=======>",ids
 			slips = self.pool.get('hr.payslip')._compute_grouped_slip(cr,uid,ids,context=context)
-			print "--------------",slips
 			for o in slips:
 				self.pool.get('hr.payslip').signal_workflow(cr, uid, [o], 'hr_verify_sheet')
 			return True

@@ -10,8 +10,9 @@
     'author': 'Dedi Sinaga',
     'website': 'dedisinaga.blogspot.com',
     'description': """This modules provide Payslip Reports""",
-    'depends': ['hr','hr_payroll','hr_attendance','hr_attendance_payslip','report_xls'],
+    'depends': ['hr','hr_payroll','hr_attendance','hr_attendance_payslip','report_xls','report'],
     'data': [
+        'reports/change_footer.xml',
         'views/department_payslip_view.xml',
         'views/hr_contact_setting.xml',
         'reports/department_payslip_report.xml',
