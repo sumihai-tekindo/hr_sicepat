@@ -75,18 +75,20 @@ class HRPayslip(models.Model):
                 }
                 worked_days_line_ids.append(value)
 
-        contract = self.pool.get('hr.contract').browse(cr, uid, contract_id)
-        trial_start = datetime.strptime(contract.trial_date_start, DF)
-        trial_end = contract.trial_date_end and datetime.strptime(contract.trial_date_end, DF) or datetime.strptime(date_to, DF)
-        probation_day = trial_end - trial_start
-        ojt = {
-            'name': 'Probation',
-            'code': 'OJT',
-            'number_of_days': probation_day.days or 0.0,
-            'number_of_hours': 0.0,
-            'contract_id': contract_id,
-        }
-        worked_days_line_ids.append(ojt)
+        if contract_id:
+            contract = self.pool.get('hr.contract').browse(cr, uid, [contract_id])
+            trial_start = datetime.strptime(contract.trial_date_start, DF)
+            trial_end = contract.trial_date_end and datetime.strptime(contract.trial_date_end, DF) or datetime.strptime(date_to, DF)
+            probation_day = trial_end - trial_start
+            ojt = {
+                'name': 'Probation',
+                'code': 'OJT',
+                'number_of_days': probation_day.days or 0.0,
+                'number_of_hours': 0.0,
+                'contract_id': contract_id,
+            }
+            worked_days_line_ids.append(ojt)
+
         return res
 
 class res_company(models.Model):
