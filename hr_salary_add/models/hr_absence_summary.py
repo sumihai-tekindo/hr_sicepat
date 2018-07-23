@@ -77,7 +77,7 @@ class HRPayslip(models.Model):
 
         if contract_id:
             contract = self.pool.get('hr.contract').browse(cr, uid, [contract_id])
-            trial_start = datetime.strptime(contract.trial_date_start, DF)
+            trial_start = contract.trial_date_start and datetime.strptime(contract.trial_date_start, DF) or datetime.strptime(contract.date_start, DF)
             trial_end = contract.trial_date_end and datetime.strptime(contract.trial_date_end, DF) or datetime.strptime(date_to, DF)
             probation_day = trial_end - trial_start
             ojt = {
