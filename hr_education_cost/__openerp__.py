@@ -16,7 +16,8 @@
         'hr_payroll',
         'hr_payroll_account',
         'hr_nik',
-        'hr_attendance_payslip'
+        'hr_attendance_payslip',
+        'hr_salary_add',
     ],
     'data': [     
         'data/hr_education_cost.xml',

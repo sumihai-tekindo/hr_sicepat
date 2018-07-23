@@ -142,5 +142,4 @@ class HRPayslip(models.Model):
                 struct_line_ids = struct_line.get_structure_line(cr, uid, contract, date_from, date_to, context=context)
                 if struct_line_ids:
                     result['amount'] = struct_line_ids[0].get_amount(result['code'])
-
         return res

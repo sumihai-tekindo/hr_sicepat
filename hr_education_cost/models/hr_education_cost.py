@@ -30,7 +30,6 @@ class HREducationPayslip(models.Model):
 	
 	def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
 		res = super(HREducationPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
-		# print('=========================tess',res)
 		browse_contract = self.pool.get('hr.contract').browse(cr,uid,contract_ids)
 		contracts = {}
 		for x in browse_contract:
@@ -38,9 +37,7 @@ class HREducationPayslip(models.Model):
 		
 		for result in res:
 			c = contracts.get(result.get('contract_id',False),False)
-			# print '============c', c.employee_id
 			amount = self.pool.get('hr.education.cost').check_employee(cr, uid, c.employee_id.id)
-			# print '==============amount', amount
 			if result.get('code') == 'EDUCATION':
 				result['amount'] = amount
 

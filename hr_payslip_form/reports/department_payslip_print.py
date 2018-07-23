@@ -62,6 +62,7 @@ col_headers = {
 		'POTLL': 'Pot. Lain',
 		'DEDUC': 'Potongan',
 		'NET': 'THP',
+		'TDED': 'Total Potongan',
 	}
 additional_banks = {
 		'cabang': 'Cash KACAB',
