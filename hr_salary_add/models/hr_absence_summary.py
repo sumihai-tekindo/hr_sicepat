@@ -45,7 +45,7 @@ class HRPayslip(models.Model):
         
         if context is None:
             context = {}
-        res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, \
+        res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, 
             employee_id=employee_id, contract_id=contract_id, context=context)
 
         if (not employee_id) or (not date_from) or (not date_to):
@@ -73,24 +73,23 @@ class HRPayslip(models.Model):
                 }
                 worked_days_line_ids.append(value)
 
-            # contract_data = self.pool.get('hr.contract').browse(cr,uid,contract_id)
-            # if not contract_data.trial_date_start or not contract_data.trial_date_end:
-            #     trial_start = '0000-00-00'
-            #     trial_end = '0000-00-00'
-            # else:
-            # trial_start = datetime.datetime.strptime(contract_data.trial_date_start, '%Y-%m-%d').date()
-            # trial_end = datetime.datetime.strptime(contract_data.trial_date_end, '%Y-%m-%d').date()
-            # probation_day = trial_end - trial_start
-            # # print '============', probation_day.days
-            # ojt = {
-            #     'name': 'Probation',
-            #     'code': 'OJT',
-            #     'number_of_days': probation_day.days or 0.0,
-            #     'number_of_hours': 0.0,
-            #     'contract_id': contract_id,
-            # }
-            # worked_days_line_ids.append(ojt)
-
+            contract_data = self.pool.get('hr.contract').browse(cr,uid,contract_id)
+            if not contract_data.trial_date_end:
+                today = datetime.datetime.today().strftime('%Y-%m-%d')
+                trial_start = datetime.datetime.strptime(contract_data.trial_date_start, '%Y-%m-%d').date()
+                trial_end = datetime.datetime.strptime(today, '%Y-%m-%d').date()
+            else:
+                trial_start = datetime.datetime.strptime(contract_data.trial_date_start, '%Y-%m-%d').date()
+                trial_end = datetime.datetime.strptime(contract_data.trial_date_end, '%Y-%m-%d').date()
+            probation_day = trial_end - trial_start
+            ojt = {
+                'name': 'Probation',
+                'code': 'OJT',
+                'number_of_days': probation_day.days or 0.0,
+                'number_of_hours': 0.0,
+                'contract_id': contract_id,
+            }
+            worked_days_line_ids.append(ojt)
         return res
 
 class res_company(models.Model):
