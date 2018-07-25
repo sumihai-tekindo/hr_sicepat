@@ -8,6 +8,16 @@ class HrWizardTemplate(models.TransientModel):
 	analytic_account_id = fields.Many2one('account.analytic.account', domain="[('tag', 'in', ('gerai', 'cabang', 'toko', 'head_office', 'agen', 'transit', 'pusat_transitan'))]", string='Analytic Account', required=True)
 	job_ids = fields.Many2many('hr.job')
 
+
+	@api.model
+	def default_get(self, fields_list):
+		context = dict(self._context or {})
+		result = super(HrWizardTemplate, self).default_get(fields_list)
+		loan_model = self.env['hr.job']
+		loan_ids = context.get('active_model') == 'hr.job' and context.get('active_ids') or []
+		result.update({'job_ids':context.get('active_ids')})
+		return result
+
 	@api.multi
 	def subscribeFuction(self):
 		job_cogs = ["DRIV","DRJD","HECE","HELP","HELT","KENE","SIAN","SILK","SIPI","SIPO"]
@@ -31,9 +41,9 @@ class HrWizardTemplate(models.TransientModel):
 		'JP_EMP': 459,
 		'POTLL': 99,
 		'DAILY': 148,
-		'EDUCATION': 478,
+		'EDUCATION': 563,
 		}
-#563
+
 		rule_analytic_exp ={
 			"BASIC"			: "054",
 			"MEAL"			: "055",
@@ -77,6 +87,8 @@ class HrWizardTemplate(models.TransientModel):
 			"DAILY"			: "",
 			"EDUCATION"		: "",
 		}
+
+
 
 		rules = self.env['hr.payroll.template'].search([])
 		payroll_struct = self.env['hr.payroll.structure']
