@@ -7,6 +7,10 @@
             <field name="priority">32</field>
             <field name="arch" type="xml">
 
+            	<xpath expr="//form/header/button[@name='set_recruit']" position="after">					
+					<button name="%(hr_wizard_act_window)d" type="action" string="Create Structure"/>
+				</xpath>
+
 				<xpath expr="//form/sheet/group[@name='employee_data']/field[@name='department_id']" position="after">					
 					<field name='job_code' class="oe_inline"/>
 				</xpath>
