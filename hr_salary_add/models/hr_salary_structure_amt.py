@@ -137,9 +137,11 @@ class HRPayslip(models.Model):
         struct_line = self.pool.get('salary.structure.line')
         
         for result in res:
+            print '=======result========', result
             if struct_line.get_condition(cr, uid, result.get('code'), context=context):
                 contract = contract_obj.browse(cr, uid, [result['contract_id']], context=context)
                 struct_line_ids = struct_line.get_structure_line(cr, uid, contract, date_from, date_to, context=context)
+                print '=====struct_line_ids==========', struct_line_ids
                 if struct_line_ids:
                     result['amount'] = struct_line_ids[0].get_amount(result['code'])
         return res

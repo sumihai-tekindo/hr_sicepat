@@ -5,7 +5,7 @@ import copy
 class HrWizardTemplate(models.TransientModel):
 	_name = 'hr.wizard.template'
 
-	analytic_account_id = fields.Many2one('account.analytic.account', domain="[('tag','=','cabang')]", string='Analytic Account', required=True)
+	analytic_account_id = fields.Many2one('account.analytic.account', domain="[('tag', 'in', ('gerai', 'cabang', 'toko', 'head_office', 'agen', 'transit', 'pusat_transitan'))]", string='Analytic Account', required=True)
 	job_ids = fields.Many2many('hr.job')
 
 	@api.multi
@@ -31,10 +31,9 @@ class HrWizardTemplate(models.TransientModel):
 		'JP_EMP': 459,
 		'POTLL': 99,
 		'DAILY': 148,
-		'EDUCATION': 479,
-		'NETD': False,
+		'EDUCATION': 478,
 		}
-
+#563
 		rule_analytic_exp ={
 			"BASIC"			: "054",
 			"MEAL"			: "055",
@@ -55,7 +54,6 @@ class HrWizardTemplate(models.TransientModel):
 			"POTLL"			: "",	
 			"DAILY"			: "",
 			"EDUCATION"		: "",
-			"NETD"			: "",
 		}
 
 		rule_analytic_cogs ={
@@ -78,7 +76,6 @@ class HrWizardTemplate(models.TransientModel):
 			"POTLL"			: "",	
 			"DAILY"			: "",
 			"EDUCATION"		: "",
-			"NETD"			: "",
 		}
 
 		rules = self.env['hr.payroll.template'].search([])
@@ -123,7 +120,7 @@ class HrWizardTemplate(models.TransientModel):
 						newRule[0]['account_debit'] = rules_exp.get(rule.code)
 					rule_id = self.env['hr.salary.rule'].create(newRule[0])
 
-					if rule.code !='BASIC':
+					if rule.code !='BASIC' and rule.code != 'NETD' and rule.code != 'TDED':
 						struct_id.write({'rule_ids':[(4,rule_id.id)]})
 					else:
 						base_struct_code = struct_code+'_base'
@@ -148,7 +145,7 @@ class HrWizardTemplate(models.TransientModel):
 						# analytic=rule_analytic_cogs.get('NETD')
 						analytic=rule_analytic_cogs.get(rule.code)
 
-					if analytic != "":
+					if analytic or analytic != None:
 						parent_code = struct_code
 						code_analytic = struct_code+"-"+analytic
 					else:
@@ -171,7 +168,6 @@ class HrWizardTemplate(models.TransientModel):
 								'company_id': 1,
 								'parent_id': pcity and pcity.id or False,
 								}
-								# print '====================',analytic_account_pcity,analytic_account_pcity['name']
 								parent_analytic = self.env['account.analytic.account'].create(analytic_account_pcity)
 							if parent_analytic:
 								try:
