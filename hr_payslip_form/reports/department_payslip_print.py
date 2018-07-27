@@ -142,7 +142,7 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 		rule_ids = struct_obj.get_all_rules(self.cr, self.uid, structure_ids)
 		sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x:x[1])]
 		for rule in rule_obj.browse(self.cr, self.uid, sorted_rule_ids):
-			if rule.code in ('GROSS', 'NET') or rule.category_id.code == 'DED':
+			if rule.code in ('DAILY', 'GROSS', 'NET') or rule.category_id.code == 'DED':
 				col_dict.setdefault(rule.code, (rule.code, rule.sequence))
 		columns += [v[0] for k, v in sorted(col_dict.items(), key=lambda x:x[1][1])]
 		return columns
@@ -211,7 +211,8 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 			if slip_department_info.get(key):
 				for line in slip.line_ids:
 					if line.code in slip_department_info[key]:
-						slip_department_info[key][line.code] += line.total
+						sign = line.code == 'DAILY' and -1 or 1
+						slip_department_info[key][line.code] += line.total * sign
 					net_amount = line.code == 'NET' and line.total or 0.0
 
 				if slip.employee_id.bank_account_id:
@@ -231,7 +232,8 @@ class department_payslip_xls_parser(report_sxw.rml_parse):
 					slip_department_info[key].setdefault(col, 0.0)
 				for line in slip.line_ids:
 					if line.code in slip_department_info[key]:
-						slip_department_info[key][line.code] = line.total
+						sign = line.code == 'DAILY' and -1 or 1
+						slip_department_info[key][line.code] = line.total * sign
 
 				net_amount = slip_department_info[key].get('NET', 0.0)
 				if slip.employee_id.bank_account_id:
