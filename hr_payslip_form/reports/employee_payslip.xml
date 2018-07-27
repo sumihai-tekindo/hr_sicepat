@@ -155,6 +155,17 @@
 									<p>Email: <span t-field="o.company_id.hr_payslip_email"/></p>
 								</div>
 							</div>
+
+							<div class="row">
+								<div class="col-xs-3" style="left:650px; top:100px;">
+									<p>Diketahui Oleh:</p>
+									 <div style="position:absolute; bottom:-120px;" >
+									 	<div style="border-top:1px solid black;"></div>
+										<p><strong>HRD Department</strong></p>
+									 </div>
+								</div>
+							</div>
+
 						</div>
 					</t>
 				</t>
