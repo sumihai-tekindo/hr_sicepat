@@ -13,9 +13,9 @@ class HrWizardTemplate(models.TransientModel):
 	def default_get(self, fields_list):
 		context = dict(self._context or {})
 		result = super(HrWizardTemplate, self).default_get(fields_list)
-		loan_model = self.env['hr.job']
-		loan_ids = context.get('active_model') == 'hr.job' and context.get('active_ids') or []
-		result.update({'job_ids':context.get('active_ids')})
+		active_job_ids = context.get('active_model') == 'hr.job' and context.get('active_ids') or []
+		if active_job_ids:
+			result.update({'job_ids':context.get('active_ids')})
 		return result
 
 	@api.multi
@@ -23,27 +23,28 @@ class HrWizardTemplate(models.TransientModel):
 		job_cogs = ["DRIV","DRJD","HECE","HELP","HELT","KENE","SIAN","SILK","SIPI","SIPO"]
 
 		rules_exp={
-		'BASIC': 215,
-		'MEAL': 216,
-		'TRANSPORT': 217,
-		'PERSISTANCE': 218,
-		'TARGET': False,
-		'INSENTIF': 219,
-		'OPER': 220,
-		'ALLOW': 179,
-		'BIKE': False,
-		'OVERTIME': 221,
-		'LOAN': 99,
-		'POTHP': 99,
-		'POTBRG': 99,
-		'PJK_EMP': 247,
-		'JHT_EMP': 459,
-		'JP_EMP': 459,
-		'POTLL': 99,
-		'DAILY': 148,
-		'EDUCATION': 563,
+			'BASIC': 215,
+			'MEAL': 216,
+			'TRANSPORT': 217,
+			'PERSISTANCE': 218,
+			'TARGET': False,
+			'INSENTIF': 219,
+			'OPER': 220,
+			'ALLOW': 179,
+			'BIKE': False,
+			'OVERTIME': 221,
+			'LOAN': 99,
+			'POTHP': 99,
+			'POTBRG': 99,
+			'PJK_EMP': 247,
+			'JHT_EMP': 459,
+			'JP_EMP': 459,
+			'POTLL': 99,
+			'DAILY': 148,
+			'EDUCATION': 563,
 		}
-
+# 478
+# 563
 		rule_analytic_exp ={
 			"BASIC"			: "054",
 			"MEAL"			: "055",
@@ -92,7 +93,7 @@ class HrWizardTemplate(models.TransientModel):
 
 		rules = self.env['hr.payroll.template'].search([])
 		payroll_struct = self.env['hr.payroll.structure']
-
+		
 		jobs = []
 		for code in self.job_ids:
 			jobs.append(code.job_code)
@@ -110,6 +111,7 @@ class HrWizardTemplate(models.TransientModel):
 				'name':'Base Structure '+job+" "+struct_name,
 				'code': struct_code+"_base",
 				'company_id':1,
+				'parent_id': False,
 				'rule_ids':[(4,2),(4,3)]
 				}
 				struct_id_base = payroll_struct.create(base_struct_val)
@@ -120,7 +122,7 @@ class HrWizardTemplate(models.TransientModel):
 				'company_id':1,
 				'parent_id':struct_id_base.id,
 				}
-				struct_id=payroll_struct.create(struct_val)
+				struct_id = payroll_struct.create(struct_val)
 
 			if struct_id:
 				for rule in rules:
