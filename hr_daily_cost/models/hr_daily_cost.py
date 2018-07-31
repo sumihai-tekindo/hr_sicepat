@@ -73,12 +73,16 @@ class DailyCost(models.Model):
 		for e in all_employee:
 			emp_dict.update({e.nik:{'name': e.name, 'employee_id': e.id}})
 
+		masterdata_dict = {}
+		expense_type_masterdata = self.env['expense.type.masterdata'].search([])
+		for val in expense_type_masterdata:
+			masterdata_dict.update({val.expense_id:{'id':val.id, 'code':val.code}})
+
 		for record in records:
 			if record['EmployeeNo'] in emp_dict.keys():
-				data = self.env['expense.type.masterdata'].search([('expense_id','=', record['ExpenseId'] )])
 				domain = [ 
 						('voucher_code','=',bool(record['VoucherCode'])),
-						('expense_id','=',data.id), 
+						('expense_id','=',masterdata_dict.get(record['ExpenseId']).get('id')),
 						('trx_date','=',record['NewTxDate'][:10]), 
 						('employee_id','=',emp_dict.get(record['EmployeeNo']).get('employee_id'))]
 
@@ -92,8 +96,8 @@ class DailyCost(models.Model):
 								 'name': record['VoucherCode'] or self.env['ir.sequence'].with_context(ir_sequence_date=date_ctx).get('daily.cost'), 
 								 'employee_id2': record['EmployeeId'], 
 								 'employee_id': emp_dict.get(record['EmployeeNo']).get('employee_id'), 
-								 'expense_id': data.id or False,
-								 'expense_type': data.code or False,
+								 'expense_id': masterdata_dict.get(record['ExpenseId']).get('id') or False,
+								 'expense_type': masterdata_dict.get(record['ExpenseId']).get('code') or False,
 								 'amount': record['Amount'],
 								 'voucher_code': bool(record['VoucherCode']),
 								 'trx_date': record['NewTxDate'][:10]})
