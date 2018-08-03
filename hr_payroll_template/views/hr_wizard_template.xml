@@ -8,7 +8,7 @@
                 <form string="Template Salary Structure">
                     <sheet>
                     	<group>
-                    		<field name="analytic_account_id"/>
+                    		<field name="department"/>
                     	</group>
                     	<notebook>
                     		<page string="Jobs">
