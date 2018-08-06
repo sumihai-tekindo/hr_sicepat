@@ -16,11 +16,12 @@
         'hr_attendance_payslip'
     ],
     'data': [     
-        'views/hr_payroll_template.xml',
-        'views/hr_job_position.xml',
+        'views/department_struct_ids.xml',
         'views/hr_wizard_template.xml',
+        'views/is_template_rule.xml',
+        'views/is_template_structure.xml',
+        'views/hr_job_position.xml',
         'views/hr_job_code.xml',
-        'data/hr_job_rule_data.xml',
     ],
     'installable': True,
 }
