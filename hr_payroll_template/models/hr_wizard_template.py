@@ -134,44 +134,42 @@ class HrWizardTemplate(models.TransientModel):
 			for job in jobs:
 				struct_code = dept.analytic_account.code+'-'+job
 				struct_name = dept.analytic_account.name
-				struct_id = payroll_struct.search([('code','=',struct_code)])
+				
+				for struct in dept.struct_ids:
+					struct_id = payroll_struct.search([('code','=',struct_code)])
+					if not struct_id:
+						base_struct_val = {
+						'name':'Base Structure '+job+" "+struct_name,
+						'code': struct_code+"_base",
+						'company_id':1,
+						'parent_id': False,
+						}
+						struct_id_base = payroll_struct.create(base_struct_val)
 
-				if not struct_id:
-					for struct in dept.struct_ids:
-						if struct.code == '_base':
-							base_struct_val = {
-							'name':'Base Structure '+job+" "+struct_name,
-							'code': struct_code+"_base",
-							'company_id':1,
-							'parent_id': False,
-							'rule_ids':[(4,2),(4,3)]
-							}
-							struct_id_base = payroll_struct.create(base_struct_val)
+						struct_val = {
+						'name':'Structure '+job+" "+struct_name,
+						'code': struct_code,
+						'company_id':1,
+						'parent_id':struct_id_base.id,
+						}
+						struct_record = payroll_struct.create(struct_val)
 
-							struct_val = {
-							'name':'Structure '+job+" "+struct_name,
-							'code': struct_code,
-							'company_id':1,
-							'parent_id':struct_id_base.id,
-							}
-							struct_record = payroll_struct.create(struct_val)
+					if struct_id:
+						for struct in dept.struct_ids:
+							newRule = struct.rule_ids.copy_data()
+							for rule in newRule:
+								rule['is_template'] = False
+								rule_name = False
+								rule_name = rule['name'] + ' ' + job + ' Cab. ' + struct_name
+								rule['name'] = rule_name
+								rule_id = self.env['hr.salary.rule'].create(rule)
 
-				if struct_id:
-					for struct in dept.struct_ids:
-						newRule = struct.rule_ids.copy_data()
-						for rule in newRule:
-							rule['is_template'] = False
-							rule_name = False
-							rule_name = rule['name'] + ' ' + job + ' Cab. ' + struct_name
-							rule['name'] = rule_name
-							rule_id = self.env['hr.salary.rule'].create(rule)
-
-							if rule['code'] not in base_code:
-								struct_id.write({"rule_ids":[(4,rule_id.id)]})
-							else:
-								base_struct_code = struct_code+'_base'
-								base_struct_id = payroll_struct.search([('code','=',base_struct_code)])
-								base_struct_id.write({'rule_ids':[(4,rule_id.id)]})
+								if rule['code'] not in base_code:
+									struct_id.write({"rule_ids":[(4,rule_id.id)]})
+								else:
+									base_struct_code = struct_code+'_base'
+									base_struct_id = payroll_struct.search([('code','=',base_struct_code)])
+									base_struct_id.write({'rule_ids':[(4,rule_id.id)]})
 
 	def create_analytic_account(self, base_code, jobs, rule_analytic, payroll_struct):
 		for dept in self.department:
