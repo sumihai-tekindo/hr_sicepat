@@ -11,20 +11,6 @@
 					<field name='analytic_account' />
 				</xpath>
 
-				<xpath expr="//form/sheet/group[1]" position="after">					
-					<notebook colspan="4">
-                         <page string="Structure Template">
-                           <field name="struct_ids">
-                             <tree>
-                                <field name="name"/>
-                                <field name="code"/>
-                                <field name="rule_ids"/>
-                                <field name="company_id" groups="base.group_multi_company" widget="selection"/>
-                             </tree>
-                          </field>
-                         </page>
-                    </notebook>
-				</xpath>
 			</field>
 		</record>
 	</data>

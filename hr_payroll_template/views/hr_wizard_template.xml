@@ -11,9 +11,12 @@
                     		<field name="department"/>
                     	</group>
                     	<notebook>
-                    		<page string="Jobs">
-                    			<field name="job_ids"/>
+                    		<page string="Jabatan Expense">
+                    			<field name="job_expense" domain="[('id','not in',job_cogs[0][2])]"/>
                     		</page>
+                            <page string="Jabatan Cogs">
+                                <field name="job_cogs" domain="[('id','not in',job_expense[0][2])]"/>
+                            </page>
                     	</notebook>
                     </sheet>
                     <footer>

@@ -15,7 +15,7 @@ class HrSalaryRule(models.Model):
 	_inherit = "hr.payroll.structure"
 
 	is_template = fields.Boolean()
-	dept_ids = fields.Many2many('hr.department')
+	is_expense = fields.Boolean()
 
 	@api.multi
 	def set_to_template(self):

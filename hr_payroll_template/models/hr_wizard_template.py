@@ -5,14 +5,14 @@ import copy
 class HrDepartmentAnalyticAccount(models.Model):
 	_inherit = "hr.department"
 
-	analytic_account = fields.Many2one('account.analytic.account', domain="[('tag', 'in', ('gerai', 'cabang', 'toko', 'head_office', 'agen', 'transit', 'pusat_transitan'))]", string='Analytic Account', required=True)	
-	struct_ids = fields.Many2many('hr.payroll.structure', 'dept_struct_rel', 'dept_id', 'struct_id', 'Structure Template', domain="[('is_template','=',True)]", required=True)
+	analytic_account = fields.Many2one('account.analytic.account', domain="[('tag', 'in', ('gerai', 'cabang', 'toko', 'head_office', 'agen', 'transit', 'pusat_transitan'))]", string='Analytic Account', required=True)
 
 class HrWizardTemplate(models.TransientModel):
 	_name = 'hr.wizard.template'
 
-	department = fields.Many2many('hr.department')
-	job_ids = fields.Many2many('hr.job')
+	department = fields.Many2one('hr.department', required=True)
+	job_expense = fields.Many2many('hr.job',relation='wizard_expense_rel')
+	job_cogs = fields.Many2many('hr.job', relation='wizard_cogs_rel')
 
 	@api.model
 	def default_get(self, fields_list):
@@ -119,116 +119,127 @@ class HrWizardTemplate(models.TransientModel):
 			'112.002.000': '100',
 		}
 
-		payroll_struct = self.env['hr.payroll.structure']
-		
-		jobs = []
-		for code in self.job_ids:
-			jobs.append(code.job_code)
+		exp_code = []
+		for job in self.job_expense:
+			exp_code.append(job.job_code)
+
+		cogs_code = []
+		for job in self.job_cogs:
+			cogs_code.append(job.job_code)
+
+		expense_struct = self.env['hr.payroll.structure'].search([('is_template','=',True),('is_expense','=',True)])
+		cogs_struct = self.env['hr.payroll.structure'].search([('is_template','=',True),('is_expense','!=',True)])
+
+		dict_todo = {
+			'expense':{'job_code':exp_code, 'salary_structure':expense_struct},
+			'cogs':{'job_code':cogs_code, 'salary_structure':cogs_struct},
+			}
 
 		base_code = ["BASIC","GROSS","NET","NETD","TDED"]
-		self.create_rule_structure(base_code, jobs, payroll_struct)
-		self.create_analytic_account(base_code, jobs, rule_analytic, payroll_struct)
+		for val in dict_todo.keys():
+			self.create_rule_structure_simplified(base_code, dict_todo.get(val,False).get('job_code',False), dict_todo.get(val,False).get('salary_structure',False))
+			self.create_analytic_account(base_code, dict_todo.get(val,False).get('job_code',False), rule_analytic)
 
-	def create_rule_structure(self, base_code, jobs, payroll_struct):
-		for dept in self.department:
-			for job in jobs:
-				struct_code = dept.analytic_account.code+'-'+job
-				struct_name = dept.analytic_account.name
-				
-				for struct in dept.struct_ids:
-					struct_id = payroll_struct.search([('code','=',struct_code)])
-					if not struct_id:
-						base_struct_val = {
-						'name':'Base Structure '+job+" "+struct_name,
-						'code': struct_code+"_base",
-						'company_id':1,
-						'parent_id': False,
-						}
-						struct_id_base = payroll_struct.create(base_struct_val)
+	def create_rule_structure_simplified(self, base_code, job_code, salary_structure):
+		payroll_struct = self.env['hr.payroll.structure']
+		for job in job_code:
+			for struct in salary_structure:
+				struct_code = self.department.analytic_account.code+'-'+job
+				struct_name = self.department.analytic_account.name	
+				struct_id = payroll_struct.search([('code','=',struct_code)])
 
-						struct_val = {
-						'name':'Structure '+job+" "+struct_name,
-						'code': struct_code,
-						'company_id':1,
-						'parent_id':struct_id_base.id,
-						}
-						struct_record = payroll_struct.create(struct_val)
+				if not struct_id:
+					base_struct_val = {
+					'name':'Base Structure '+job+" "+struct_name,
+					'code': struct_code+"_base",
+					'company_id':1,
+					'parent_id': False,
+					}
+					struct_id_base = payroll_struct.create(base_struct_val)
 
-					if struct_id:
-						for struct in dept.struct_ids:
-							newRule = struct.rule_ids.copy_data()
-							for rule in newRule:
-								rule['is_template'] = False
-								rule_name = False
-								rule_name = rule['name'] + ' ' + job + ' Cab. ' + struct_name
-								rule['name'] = rule_name
-								rule_id = self.env['hr.salary.rule'].create(rule)
+					struct_val = {
+					'name':'Structure '+job+" "+struct_name,
+					'code': struct_code,
+					'company_id':1,
+					'parent_id':struct_id_base.id,
+					}
+					struct_record = payroll_struct.create(struct_val)
+				else:
+					for struct in salary_structure:
+						newRule = struct.rule_ids.copy_data()
+						for rule in newRule:
+							rule['is_template'] = False
+							rule_name = False
+							rule_name = rule['name'] + ' ' + job + ' Cab. ' + struct_name
+							rule['name'] = rule_name
+							rule_id = self.env['hr.salary.rule'].create(rule)
 
-								if rule['code'] not in base_code:
-									struct_id.write({"rule_ids":[(4,rule_id.id)]})
-								else:
-									base_struct_code = struct_code+'_base'
-									base_struct_id = payroll_struct.search([('code','=',base_struct_code)])
-									base_struct_id.write({'rule_ids':[(4,rule_id.id)]})
+							if rule['code'] not in base_code:
+								struct_id.write({"rule_ids":[(4,rule_id.id)]})
+							else:
+								base_struct_code = struct_code+'_base'
+								base_struct_id = payroll_struct.search([('code','=',base_struct_code)])
+								base_struct_id.write({'rule_ids':[(4,rule_id.id)]})
+		return True
 
-	def create_analytic_account(self, base_code, jobs, rule_analytic, payroll_struct):
-		for dept in self.department:
-			for job in jobs:
-				struct_code = dept.analytic_account.code+'-'+job
-				struct_code_base = dept.analytic_account.code+'-'+job+'_base'
-				struct_name = dept.analytic_account.name
-				struct_ids = payroll_struct.search([('code','in',(struct_code, struct_code_base))])
+	def create_analytic_account(self, base_code, job_code, rule_analytic):
+		payroll_struct = self.env['hr.payroll.structure']
+		for job in job_code:
+			struct_code = self.department.analytic_account.code+'-'+job
+			struct_code_base = self.department.analytic_account.code+'-'+job+'_base'
+			struct_name = self.department.analytic_account.name
+			struct_ids = payroll_struct.search([('code','in',(struct_code, struct_code_base))])
 
-				if struct_ids:
-					for struct in struct_ids:
-						for rule in struct.rule_ids:
+			if struct_ids:
+				for struct in struct_ids:
+					for rule in struct.rule_ids:
 
-							if rule.account_debit:
-								analytic = False
-								analytic = rule_analytic.get(rule.account_debit.code)
+						if rule.account_debit:
+							analytic = False
+							analytic = rule_analytic.get(rule.account_debit.code)
 
-								if analytic or analytic != None:
-									parent_code = struct_code
-									code_analytic = struct_code+"-"+analytic
-								else:
-									code_analytic = False
+							if analytic or analytic != None:
+								parent_code = struct_code
+								code_analytic = struct_code+"-"+analytic
+							else:
+								code_analytic = False
 
-								if code_analytic:
-									analytic_id = self.env['account.analytic.account'].search([('code','=',code_analytic)])
+							if code_analytic:
+								analytic_id = self.env['account.analytic.account'].search([('code','=',code_analytic)])
 
-									if not analytic_id:
-										parent_analytic = self.env['account.analytic.account'].search([('code','=',parent_code)])
+								if not analytic_id:
+									parent_analytic = self.env['account.analytic.account'].search([('code','=',parent_code)])
 
-										if not parent_analytic:
-											jabatan = self.env['hr.job'].search([('job_code','=',job)])
-											parent_code_pcity = dept.analytic_account.code
-											pcity = self.env['account.analytic.account'].search([('code','=',parent_code_pcity)])
-											code_analytic_pcity = parent_code
-											analytic_account_pcity = {
-											'name': jabatan.name,
-											'tag': 'other',
-											'type': 'normal',
-											'code':code_analytic_pcity,
-											'company_id': 1,
-											'parent_id': pcity and pcity.id or False,
-											}
-											parent_analytic = self.env['account.analytic.account'].create(analytic_account_pcity)
+									if not parent_analytic:
+										jabatan = self.env['hr.job'].search([('job_code','=',job)])
+										parent_code_pcity = self.department.analytic_account.code
+										pcity = self.env['account.analytic.account'].search([('code','=',parent_code_pcity)])
+										code_analytic_pcity = parent_code
+										analytic_account_pcity = {
+										'name': jabatan.name,
+										'tag': 'other',
+										'type': 'normal',
+										'code':code_analytic_pcity,
+										'company_id': 1,
+										'parent_id': pcity and pcity.id or False,
+										}
+										parent_analytic = self.env['account.analytic.account'].create(analytic_account_pcity)
 
-										if parent_analytic:
-											try:
-												parent_analytic=parent_analytic.id
-											except:
-												parent_analytic=parent_analytic
+									if parent_analytic:
+										try:
+											parent_analytic=parent_analytic.id
+										except:
+											parent_analytic=parent_analytic
 
-										analytic_account_new = {
-											'name': rule.name,
-											'tag':'other',
-											'type':'normal',
-											'code':code_analytic,
-											'company_id':1,
-											'parent_id':parent_analytic or False,
-											}
-										analytic_id = self.env['account.analytic.account'].create(analytic_account_new)
+									analytic_account_new = {
+										'name': rule.name,
+										'tag':'other',
+										'type':'normal',
+										'code':code_analytic,
+										'company_id':1,
+										'parent_id':parent_analytic or False,
+										}
+									analytic_id = self.env['account.analytic.account'].create(analytic_account_new)
 
-									if analytic_id:
-										rule.write({'analytic_account_id':analytic_id.id})
+								if analytic_id:
+									rule.write({'analytic_account_id':analytic_id.id})
