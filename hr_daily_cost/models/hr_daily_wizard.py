@@ -4,8 +4,8 @@ class HrDailyWizard(models.TransientModel):
 	_name = 'hr.daily.wizard'
 
 	employee_ids = fields.Many2many('hr.employee')
-	date_from = fields.Date(required=True)
-	date_to = fields.Date(required=True)
+	date_from = fields.Date()
+	date_to = fields.Date()
 
 	@api.multi
 	def query_data(self):
@@ -13,5 +13,5 @@ class HrDailyWizard(models.TransientModel):
 		all_nik = []
 		for val in self.employee_ids:
 			all_nik.append(str(val.nik))
-		self.env['hr.daily.cost'].cron_job(self.date_from, self.date_to, all_nik)
+		self.env['hr.daily.cost'].with_context({'date_from':self.date_from, 'date_to':self.date_to, 'all_nik':all_nik}).cron_job()
 		return {'type': 'ir.actions.act_window_close'}

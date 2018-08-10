@@ -1,5 +1,5 @@
 from openerp import api, fields, models
-from datetime import datetime
+from datetime import datetime, timedelta
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 import pymssql
 
@@ -16,8 +16,16 @@ class DailyCost(models.Model):
 	voucher_code = fields.Boolean()
 	trx_date = fields.Date()
 
-	@api.model
-	def cron_job(self, search_date_from=False, search_date_to=False, all_nik=False):
+	@api.model	
+	def cron_job(self):
+		all_nik = self._context.get('all_nik')
+		if not self._context.get('date_from') and not self._context.get('date_to'):
+			search_date_from = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+			search_date_to = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+		else:
+			search_date_from = self._context.get('date_from')
+			search_date_to = self._context.get('date_to')
+		
 		get_credential = self.env['ir.config_parameter'].search([('key','in',['pettycash.host', 'pettycash.user', 'pettycash.password', 'pettycash.port', 'pettycash.db'])])
 		get_config = {
 			'user'		: '',
@@ -43,9 +51,9 @@ class DailyCost(models.Model):
 			port=get_config['port'], database=get_config['database'])
 		cr_mssql = conn.cursor(as_dict=True)
 
-		if all_nik and search_date_from and search_date_to:
-			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ('%s')" %(search_date_from, search_date_to, "','".join(all_nik) )
-		elif search_date_from and search_date_to:
+		if all_nik:
+			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ('%s')" %(str(search_date_from), str(search_date_to), "','".join(all_nik) )
+		else:
 			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' " % (str(search_date_from), str(search_date_to))
 		query = """
 					SELECT me.EmployeeNo, me.Name, pe.EmployeeId, pe.VoucherCode, ee.IsDisbursed,
@@ -142,20 +150,20 @@ class MasterDataDailyCost(models.Model):
 		return recs.name_get()
 
 
-class HRPayslip(models.Model):
-	_inherit = 'hr.payslip'
+# class HRPayslip(models.Model):
+# 	_inherit = 'hr.payslip'
 	
-	def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
-		res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
+# 	def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
+# 		res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
 
-		browse_contract = self.pool.get('hr.contract').browse(cr,uid,contract_ids)
-		contracts = {}
-		for x in browse_contract:
-			contracts.update({x.id:x})
+# 		browse_contract = self.pool.get('hr.contract').browse(cr,uid,contract_ids)
+# 		contracts = {}
+# 		for x in browse_contract:
+# 			contracts.update({x.id:x})
 
-		for result in res:
-			c = contracts.get(result.get('contract_id',False),False)
-			data = self.pool.get('hr.daily.cost').sum_amount_perType(cr, uid, c.employee_id, date_from, date_to)
-			if result.get('code') in data.keys():
-				result['amount'] = data[result.get('code')]
-		return res
+# 		for result in res:
+# 			c = contracts.get(result.get('contract_id',False),False)
+# 			data = self.pool.get('hr.daily.cost').sum_amount_perType(cr, uid, c.employee_id, date_from, date_to)
+# 			if result.get('code') in data.keys():
+# 				result['amount'] = data[result.get('code')]
+# 		return res
