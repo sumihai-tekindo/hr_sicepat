@@ -110,6 +110,100 @@ class DailyCost(models.Model):
 								 'voucher_code': bool(record['VoucherCode']),
 								 'trx_date': record['NewTxDate'][:10]})
 
+
+
+	def cron_job2(self):
+		all_nik = self._context.get('all_nik')
+		if not self._context.get('date_from') and not self._context.get('date_to'):
+			search_date_from = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+			search_date_to = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+		else:
+			search_date_from = self._context.get('date_from')
+			search_date_to = self._context.get('date_to')
+		
+		get_credential = self.env['ir.config_parameter'].search([('key','in',['pettycash.host', 'pettycash.user', 'pettycash.password', 'pettycash.port', 'pettycash.db'])])
+		get_config = {
+			'user'		: '',
+			'password'	: '',
+			'host'		: '',
+			'database'	: '',
+			'port'		: '',
+		}
+		if get_credential:
+			for val in get_credential:
+				if val.key == 'pettycash.host':
+					get_config.update({'host': val.value})
+				elif val.key == 'pettycash.user':
+					get_config.update({'user': val.value})
+				elif val.key == 'pettycash.password':
+					get_config.update({'password': val.value})
+				elif val.key == 'pettycash.port':
+					get_config.update({'port': val.value})
+				elif val.key == 'pettycash.db':
+					get_config.update({'database': val.value})
+
+		conn = pymssql.connect(server=get_config['host'], user=get_config['user'], password=get_config['password'], 
+			port=get_config['port'], database=get_config['database'])
+		cr_mssql = conn.cursor(as_dict=True)
+
+		if all_nik:
+			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' and me.EmployeeNo in ('%s')" %(str(search_date_from), str(search_date_to), "','".join(all_nik) )
+		else:
+			condition = "cast(pe.TxDate as DATE) >= '%s' and cast(pe.TxDate as DATE) <= '%s' " % (str(search_date_from), str(search_date_to))
+		query = """
+					SELECT me.EmployeeNo, me.Name, pe.EmployeeId, pe.VoucherCode, ee.IsDisbursed,
+					COALESCE(pe.ExpenseId, ee.ExpenseId) as ExpenseId, 
+					CASE
+						WHEN pe.VoucherCode IS NULL
+						THEN pe.Amount
+						ELSE ee.Amount
+					END AS Amount,
+					CASE
+						WHEN pe.VoucherCode IS NULL
+						THEN pe.TxDate
+						ELSE ee.TxDatetime
+					END AS NewTxDate
+
+					FROM EPETTYCASH.dbo.PettyCashExpense pe WITH (NOLOCK)
+					LEFT JOIN EPETTYCASH.dbo.EmployeeExpense ee WITH (NOLOCK) ON pe.VoucherCode = ee.VoucherCode
+					LEFT JOIN EPETTYCASH.dbo.MsEmployee me WITH (NOLOCK) ON COALESCE(pe.EmployeeId, ee.EmployeeId) = me.Id
+					WHERE ee.IsDisbursed = 'Y' AND """ + condition
+
+		cr_mssql.execute(query)
+		records = cr_mssql.fetchall()
+		emp_dict = {}
+		all_employee = self.env['hr.employee'].search([])
+		for e in all_employee:
+			emp_dict.update({e.nik:{'name': e.name, 'employee_id': e.id}})
+
+		masterdata_dict = {}
+		expense_type_masterdata = self.env['expense.type.masterdata'].search([])
+		for val in expense_type_masterdata:
+			masterdata_dict.update({val.expense_id:{'id':val.id, 'code':val.code}})
+
+		list_voucher = []
+		for record in records:
+			list_voucher.append(record['VoucherCode'])
+			
+		domain = [('name', 'in', list_voucher)]	
+		data_from_hr_daily_cost = self.env['hr.daily.cost'].search(domain)
+		all_voucher = [x.name for x in data_from_hr_daily_cost if x]
+
+		for record in records:
+			if record['VoucherCode'] not in all_voucher:
+				date_ctx = record['NewTxDate'][:10]
+				rr=self.create({'nik': record['EmployeeNo'],
+							 'name': record['VoucherCode'] or self.env['ir.sequence'].with_context(ir_sequence_date=date_ctx).get('daily.cost'), 
+							 'employee_id2': record['EmployeeId'], 
+							 'employee_id': emp_dict.get(record['EmployeeNo']).get('employee_id'), 
+							 'expense_id': masterdata_dict.get(record['ExpenseId']).get('id') or False,
+							 'expense_type': masterdata_dict.get(record['ExpenseId']).get('code') or False,
+							 'amount': record['Amount'],
+							 'voucher_code': bool(record['VoucherCode']),
+							 'trx_date': record['NewTxDate'][:10]})
+
+
+
 	@api.model					 
 	def sum_amount_perType(self, employee_id, date_from, date_to):
 		ids = self.env['hr.daily.cost'].search([('employee_id','=',employee_id.id),('trx_date','>=',date_from),('trx_date','<=',date_to)])
@@ -150,20 +244,20 @@ class MasterDataDailyCost(models.Model):
 		return recs.name_get()
 
 
-# class HRPayslip(models.Model):
-# 	_inherit = 'hr.payslip'
+class HRPayslip(models.Model):
+	_inherit = 'hr.payslip'
 	
-# 	def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
-# 		res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
+	def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
+		res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
 
-# 		browse_contract = self.pool.get('hr.contract').browse(cr,uid,contract_ids)
-# 		contracts = {}
-# 		for x in browse_contract:
-# 			contracts.update({x.id:x})
+		browse_contract = self.pool.get('hr.contract').browse(cr,uid,contract_ids)
+		contracts = {}
+		for x in browse_contract:
+			contracts.update({x.id:x})
 
-# 		for result in res:
-# 			c = contracts.get(result.get('contract_id',False),False)
-# 			data = self.pool.get('hr.daily.cost').sum_amount_perType(cr, uid, c.employee_id, date_from, date_to)
-# 			if result.get('code') in data.keys():
-# 				result['amount'] = data[result.get('code')]
-# 		return res
+		for result in res:
+			c = contracts.get(result.get('contract_id',False),False)
+			data = self.pool.get('hr.daily.cost').sum_amount_perType(cr, uid, c.employee_id, date_from, date_to)
+			if result.get('code') in data.keys():
+				result['amount'] = data[result.get('code')]
+		return res
