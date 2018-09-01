@@ -4,8 +4,7 @@
 		<template id="hr_payroll.report_payslip">
 			<t t-call="report.html_container">
 				<t t-foreach="docs" t-as="o">
-					<t t-call="hr_payslip_form.external_layout_hide_footer">
-					</t>
+					<t t-call="hr_payslip_form.external_layout_hide_footer" />
 					<t>
 						<div class="page">
 							<h2>Slip Gaji</h2>
