@@ -35,10 +35,9 @@
                 <field name="end_date" string="Contract End"/>
                 <field name="type_id" string="Status Type"/>
 				<field name="working_hour" string="Working Schedule"/>
+				<field name="days_left" invisible="1"/>
             </field>
-	            <field name="days_left" position="attributes">
-					<attribute name="invisible" >1</attribute>
-				</field>
+         
 
             </field>
         </record>
