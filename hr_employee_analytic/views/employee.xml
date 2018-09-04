@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<record id="hr_employee_FORM_analytic" model="ir.ui.view">
+			<field name="name">hr.employee.form.analytic</field>
+			<field name="model">hr.employee</field>
+			<field name="inherit_id" ref="hr.view_employee_form"/>
+			<field name="arch" type="xml">	    
+			  	<xpath expr="//form/sheet/notebook/page[1]/group/group[1]/field[3]" position="after">
+					<field name="work_location_analytic" domain="[('tag', 'in', ('gerai', 'cabang', 'toko', 'head_office', 'agen', 'transit', 'pusat_transitan'))]"/>
+				</xpath>
+				 <field name="work_location" position="attributes">
+					<attribute name="invisible" >1</attribute>
+				</field>
+			</field>
+		</record>
+		
+
+		<record id="hr_contract.hr_menu_contract" model="ir.ui.menu">
+			<field name="action" eval="False"/>
+		</record>
+
+
+		 <record id="view_employee_tree_inherit" model="ir.ui.view">
+            <field name="name">hr.employee.tree.inherit</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_tree"/>
+            <field name="arch" type="xml">
+    	     <tree position="attributes">
+				<attribute name="colors">red:days_left &lt;= 14; blue:days_left &gt;=15 and days_left &lt;= 30</attribute>
+				<attribute name="fonts">bold:days_left &lt;= 14</attribute>
+			</tree>
+            <field name="work_phone" position="before"> 
+        	    <field name="start_date" string="Contract Start"/>
+                <field name="end_date" string="Contract End"/>
+                <field name="type_id" string="Status Type"/>
+				<field name="working_hour" string="Working Schedule"/>
+				<field name="days_left" invisible="1"/>
+            </field>
+         
+
+            </field>
+        </record>
+
+		<record id="hr_employee_FORM_analytic2" model="ir.ui.view">
+			<field name="name">hr.employee.form.analytic</field>
+			<field name="model">hr.employee</field>
+			<field name="inherit_id" ref="hr.view_employee_form"/>
+			<field name="arch" type="xml">  	    	
+				  <xpath expr="//page[@string='Personal Information']/group" position="after">
+					    <separator string="Contract Histories" colspan="4" col="2"/>
+	                    <field name="contract_ids" readonly="True"/>			
+				</xpath>		  		
+			</field>
+		</record>
+
+	</data>
+</openerp>
