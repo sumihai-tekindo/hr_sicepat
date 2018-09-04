@@ -30,7 +30,7 @@ class EmailPayslipTest(models.TransientModel):
 					default_use_template = bool(template),
 					default_template_id = template and template.id or False,
 					composition_mode = 'comment',
-					active_ids = [val.id for val in self.payslip_ids],
+					active_ids = [self.payslip_ids[0].id],
 					active_id = self.payslip_ids[0].id,
 					default_res_id = self.payslip_ids[0].id,
 					res_id = self.payslip_ids[0].id,
@@ -70,17 +70,14 @@ class EmailPayslipTest(models.TransientModel):
 						model = 'hr.payslip',
 						default_use_template = bool(template),
 						default_template_id = template and template.id or False,
-						active_ids = [val.id for val in self.payslip_ids],
+						active_ids = [payslip.id],
 						active_id = payslip.id,
 						default_res_id = payslip.id,
 						res_id = payslip.id,
 					)
 					template.with_context(ctx).send_mail(payslip.id, force_send=True, raise_exception=True)
 
-		return True
-
-
-					
+		return True					
 
 class HRPayslip(models.Model):
 	_name = 'hr.payslip'
@@ -91,5 +88,3 @@ class ResCompany(models.Model):
 
 	hr_line_id = fields.Char(string="Line Id")
 	hr_phone_contact = fields.Char(string="Contact Number")
-
-
