@@ -23,7 +23,10 @@
 # 1 : imports of python lib
 
 # 2 :  imports of openerp
-from openerp import models, fields, api
+from openerp.tools.translate import _
+from openerp import models, fields, api, tools
+from datetime import datetime
+import time
 
 # 3 :  imports from odoo modules
 import openerp.addons.decimal_precision as dp
@@ -75,30 +78,17 @@ class HRPayslip(models.Model):
                 amount += l.total
         self.net_amount = amount
 
-    # Constraints and onchanges
-#     def onchange_employee_id(self, cr, uid, ids, date_from, date_to, employee_id=False, contract_id=False, context=None):
-#         contract_obj = self.pool.get('hr.contract')
-#         if context is None:
-#             context = {}
-# 
-#         res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, \
-#             employee_id=employee_id, contract_id=contract_id, context=context)
-# 
-#         contract_ids = res.get('value', {}) and res.get('value').get('contract_id', False)
-#         
-#         if contract_ids:
-#             contract = contract_obj.browse(cr, uid, contract_ids, context=context)
-#             if contract.date_start and contract.date_start >= date_from:
-#                 date_from = contract.date_start
-#             if contract.date_end and contract.date_end <= date_to:
-#                 date_to = contract.date_end
-#             new_worked_days_line = self.get_worked_day_lines(cr, uid, contract_ids, date_from, date_to, context=context)
-#             worked_days_line_ids = res.get('value', {}) and res.get('value').get('worked_days_line_ids', [])
-#             if new_worked_days_line:
-#                 new_worked_days_line[0]['code'] = 'WORKING'
-#                 worked_days_line_ids += new_worked_days_line 
-#         
-#         return res
+    # change payslip name to be date_to
+    def onchange_employee_id(self, cr, uid, ids, date_from, date_to, employee_id=False, contract_id=False, context=None):
+        empolyee_obj = self.pool.get('hr.employee')
+        res = super(HRPayslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, employee_id=employee_id, contract_id=contract_id, context=context)
+
+        ttyme = datetime.fromtimestamp(time.mktime(time.strptime(date_to, "%Y-%m-%d")))
+        employee_id = empolyee_obj.browse(cr, uid, employee_id, context=context)
+        res['value'].update({
+                        'name': _('Salary Slip of %s for %s') % (employee_id.name, tools.ustr(ttyme.strftime('%B-%Y')))
+                    })
+        return res
 
     # CRUD methods
 

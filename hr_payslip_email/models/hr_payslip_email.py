@@ -11,6 +11,7 @@ class EmailPayslipTest(models.TransientModel):
 
 	payslip_ids = fields.Many2many('hr.payslip', string='Payslip', required=True, default=_get_active_ids)
 
+
 	@api.multi
 	def send_via_email(self):
 		self.ensure_one()
@@ -21,6 +22,7 @@ class EmailPayslipTest(models.TransientModel):
 			else:
 				template = self.env.ref('hr_payslip_email.email_payslip_template')
 				compose_form = self.env.ref('mail.email_compose_message_wizard_form', False)
+
 				ctx = dict(
 					default_model = 'hr.payslip',
 					active_model = 'hr.payslip',
@@ -33,6 +35,7 @@ class EmailPayslipTest(models.TransientModel):
 					default_res_id = self.payslip_ids[0].id,
 					res_id = self.payslip_ids[0].id,
 				)
+
 				return {
 					'name': _('Compose Email for Payslip'),
 					'type': 'ir.actions.act_window',
@@ -86,9 +89,7 @@ class HRPayslip(models.Model):
 class ResCompany(models.Model):
 	_inherit = 'res.company'
 
-	hr_line_id = fields.Char(stirng="Line Id")
-	hr_phone_contact = fields.Char(stirng="Contact Number")
-
-
+	hr_line_id = fields.Char(string="Line Id")
+	hr_phone_contact = fields.Char(string="Contact Number")
 
 
