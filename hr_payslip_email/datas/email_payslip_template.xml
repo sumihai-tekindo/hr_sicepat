@@ -3,7 +3,7 @@
         <!--Email template -->
         <record id="email_payslip_template" model="email.template">
             <field name="name">Payslip Send by Email</field>
-            <field name="email_from">${(object.company_id.email or 'noreply@localhost')|safe}</field>
+            <field name="email_from">${'HRD Sicepat &lt;hrd1@sicepat.com&gt;'|safe}</field>
             <field name="subject">${object.name}</field>
             <field name="email_to">${(object.employee_id.work_email | safe)}</field>
             <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
@@ -24,6 +24,12 @@
     <p>Apabila ada ketidaksesuaian informasi di atas, dapat menghubungi HRD Payroll Sicepat Ekspres Indonesia di: </p>
     <p>Line ID: ${object.company_id.hr_line_id}</p>
     <p>WhatsApp: ${object.company_id.hr_phone_contact}</p>
+    <br/>
+    <p>Silahkan gunakan password ddmmyy untuk membuka Slip Gaji Anda, yang terdiri dari :</p>
+        dd : Dua digit tanggal lahir Anda <br/>
+        mm : Dua digit bulan lahir <br/>
+        yy : Dua digit tahun lahir <br/>
+        Contoh: Password untuk tanggal lahir 20 Maret 1971 adalah 200371
     <br/>
     <br/>
     <p>Thank you for choosing ${object.company_id.name or 'us'}!</p>
