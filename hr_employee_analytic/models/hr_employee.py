@@ -15,7 +15,7 @@ class hr_employee(models.Model):
 			if contract_id :
 				me_id.working_hour = contract_id.working_hours
 				me_id.type_id = contract_id.type_id.id
-				me_id.start_date = contract_id.date_startW
+				me_id.start_date = contract_id.date_start
 				me_id.end_date = contract_id.date_end
 				me_id.tgl_masuk = contract_id.date_start
 
