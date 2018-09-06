@@ -26,7 +26,7 @@ class EmailPayslipTest(models.TransientModel):
 				compose_form = self.env.ref('mail.email_compose_message_wizard_form', False)
 				birthday = self.payslip_ids[0].employee_id.birthday
 				# set default password if birthday null
-				password = '1234' 
+				password = self.payslip_ids[0].employee_id.nik
 				if birthday:
 					# 2 digit from each of the employee's birthday number
 					password = ''.join(res[-2:] for res in birthday.split('-')[::-1])
@@ -75,7 +75,7 @@ class EmailPayslipTest(models.TransientModel):
 					template = self.env.ref('hr_payslip_email.email_payslip_template')
 					birthday = payslip.employee_id.birthday
 					# set default password if birthday null
-					password = '1234' 
+					password = payslip.employee_id.nik
 					if birthday:
 						# 2 digit from each of the employee's birthday number
 						password = ''.join(res[-2:] for res in birthday.split('-')[::-1])

@@ -25,12 +25,17 @@
     <p>Line ID: ${object.company_id.hr_line_id}</p>
     <p>WhatsApp: ${object.company_id.hr_phone_contact}</p>
     <br/>
-    <p>Silahkan gunakan password ddmmyy untuk membuka Slip Gaji Anda, yang terdiri dari :</p>
+    
+    %if object.employee_id.birthday:
+        <p>Silahkan gunakan password ddmmyy untuk membuka Slip Gaji Anda, yang terdiri dari :</p>
         dd : Dua digit tanggal lahir Anda <br/>
         mm : Dua digit bulan lahir <br/>
         yy : Dua digit tahun lahir <br/>
         Contoh: Password untuk tanggal lahir 20 Maret 1971 adalah 200371
-    <br/>
+    %else:
+        <p>Silahkan gunakan NIK sebagai password untuk membuka Slip Gaji Anda :</p>
+    %endif
+
     <br/>
     <p>Thank you for choosing ${object.company_id.name or 'us'}!</p>
     <br/>
