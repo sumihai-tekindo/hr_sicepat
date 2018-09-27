@@ -3,13 +3,13 @@
         <!--Email template -->
         <record id="email_payslip_template" model="email.template">
             <field name="name">Payslip Send by Email</field>
-            <field name="email_from">${(object.company_id.email or 'noreply@localhost')|safe}</field>
+            <field name="email_from">${'HRD Sicepat &lt;hrd1@sicepat.com&gt;'|safe}</field>
             <field name="subject">${object.name}</field>
             <field name="email_to">${(object.employee_id.work_email | safe)}</field>
             <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
             <field name="auto_delete" eval="False"/>
             <field name="report_template" ref="hr_payroll.action_report_payslip"/>
-            <field name="report_name">Slip Gaji</field>
+            <field name="report_name">${object.name}</field>
             <field name="lang">${object.company_id.partner_id.lang}</field>
             <field name="body_html"><![CDATA[
 <div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: #FFF; ">
@@ -25,6 +25,17 @@
     <p>Line ID: ${object.company_id.hr_line_id}</p>
     <p>WhatsApp: ${object.company_id.hr_phone_contact}</p>
     <br/>
+    
+    %if object.employee_id.birthday:
+        <p>Silahkan gunakan password ddmmyy untuk membuka Slip Gaji Anda, yang terdiri dari :</p>
+        dd : Dua digit tanggal lahir Anda <br/>
+        mm : Dua digit bulan lahir <br/>
+        yy : Dua digit tahun lahir <br/>
+        Contoh: Password untuk tanggal lahir 20 Maret 1971 adalah 200371
+    %else:
+        <p>Silahkan gunakan NIK sebagai password untuk membuka Slip Gaji Anda :</p>
+    %endif
+
     <br/>
     <p>Thank you for choosing ${object.company_id.name or 'us'}!</p>
     <br/>

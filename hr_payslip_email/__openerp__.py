@@ -12,7 +12,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'hr', 'hr_payroll', 'report', 'hr_salary_add'],
+    'depends': ['base', 'hr', 'hr_payroll', 'report', 'hr_salary_add', 'encryption_pdf'],
     'data': [
         # 'security/ir.model.access.csv',
         'views/hr_payslip_email.xml',
