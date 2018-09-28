@@ -74,7 +74,7 @@ class EmailPayslipTest(models.TransientModel):
 				else:	
 					birthday = payslip.employee_id.birthday
 					# set default password if birthday null
-					password = payslip.employee_id.nik
+					password = str(payslip.employee_id.nik)
 					if birthday:
 						# 2 digit from each of the employee's birthday number
 						password = ''.join(res[-2:] for res in birthday.split('-')[::-1])
@@ -84,7 +84,7 @@ class EmailPayslipTest(models.TransientModel):
 						'active_id': payslip.id,
 						'default_res_id': payslip.id,
 						'res_id': payslip.id,
-						'set_password': payslip_password
+						'set_password': password
 					})
 
 					template.with_context(ctx).send_mail(payslip.id, force_send=True, raise_exception=True)
