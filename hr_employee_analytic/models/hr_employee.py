@@ -3,6 +3,7 @@ from dateutil.relativedelta import relativedelta
 from openerp import api, fields, models, _
 from openerp.addons.base.ir.ir_cron import _intervalTypes
 import time
+from openerp.exceptions import Warning
 
 class hr_employee(models.Model):
 	_inherit = "hr.employee"
@@ -26,7 +27,7 @@ class hr_employee(models.Model):
 				employee.days_left=str(days_left.days)
 
 			if contract_id.sts_karyawan =='kartap':	
-				employee.days_left= -1
+				employee.days_left = -1
 
 			if contract_id.sts_karyawan =='ojt':
 				employee.start_date = contract_id.trial_date_start
@@ -54,16 +55,25 @@ class hr_employee(models.Model):
 class hr_contract(models.Model):
 	_inherit = "hr.contract" 
 	
+	@api.one
+	def action_apply(self):
+		contract_ids = self.env['hr.contract'].search([('id','=',self.id)])
+		# if contract.department_id == False or contract.job_id==False or contract.sts_karyawan==False:
+		# 	raise Warning('Please select, Department, Job tittle & Employee Status')
+		for contract in contract_ids:
+			if contract.employee_id:
+				contract.employee_id.write({'department_id':contract.department_id.id,
+												'sts_karyawan': contract.sts_karyawan,
+												'job_id':contract.job_id.id
+											})
+
 	@api.model		
 	def _execute_contract(self):		
 		today = time.strftime('%Y-%m-%d')
-		# search contract start date = today
 		contract_ids = self.env['hr.contract'].search([('date_start','=',today)])
 		for contract in contract_ids :
-				
 					date_start = datetime.strptime(contract.date_start,'%Y-%m-%d').strftime('%Y-%m-%d')
 					if contract.promotion_trial:
-						# print"promotion========================================"
 						contract.employee_id.write({'department_id':contract.department_trial.id,
 												'job_id_trial':contract.job_id_trial.id,
 												'sts_karyawan': contract.sts_karyawan,
@@ -74,7 +84,6 @@ class hr_contract(models.Model):
 												'working_hour':contract.working_hours.id
 											})
 					else:
-						# print"non promotion========================================",contract.date_start
 						contract.employee_id.write({'department_id':contract.department_id.id,
 												'job_id':contract.job_id.id,
 												'sts_karyawan': contract.sts_karyawan,
