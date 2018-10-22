@@ -205,15 +205,21 @@ class DailyCost(models.Model):
 
 
 	@api.model					 
-	def sum_amount_perType(self, employee_id, date_from, date_to):
+	def sum_amount_perType(self, employee_id, date_from, date_to, working_hours_id):
 		ids = self.env['hr.daily.cost'].search([('employee_id','=',employee_id.id),('trx_date','>=',date_from),('trx_date','<=',date_to)])
+
 		data = {}
 		for val in ids:
 			key = val.expense_type
-			if data.get(key):
+			trx_date = datetime.strptime(val.trx_date, '%Y-%m-%d')
+			is_holiday = self.env['hr.holidays.public'].is_public_holiday(trx_date, employee_id=employee_id.id)
+			working_hours_on_day = self.env['resource.calendar'].working_hours_on_day(working_hours_id, trx_date)
+
+			if data.get(key) and working_hours_on_day and not is_holiday:
 				data[key] += val.amount
 			else: 
 				data[key] = val.amount
+
 		return data
 
 class MasterDataDailyCost(models.Model):
@@ -251,13 +257,15 @@ class HRPayslip(models.Model):
 		res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
 
 		browse_contract = self.pool.get('hr.contract').browse(cr,uid,contract_ids)
+		working_hours_id = browse_contract.working_hours
+		
 		contracts = {}
 		for x in browse_contract:
 			contracts.update({x.id:x})
 
 		for result in res:
 			c = contracts.get(result.get('contract_id',False),False)
-			data = self.pool.get('hr.daily.cost').sum_amount_perType(cr, uid, c.employee_id, date_from, date_to)
+			data = self.pool.get('hr.daily.cost').sum_amount_perType(cr, uid, c.employee_id, date_from, date_to, working_hours_id)
 			if result.get('code') in data.keys():
 				result['amount'] = data[result.get('code')]
 		return res
