@@ -18,6 +18,7 @@
         'hr_salary_add',
     ],
     'data': [     
+        'security/hr_leave_request_access.xml',
         'views/hr_leave_workflow.xml',
         'views/allocation_valid_periode.xml',
         'views/add_desc_leave_type.xml',
@@ -25,7 +26,6 @@
         'views/hr_leave_request.xml',
         'views/allocation_request_inherit_onchange.xml',
         'security/ir.model.access.csv',
-        'security/hr_leave_request_access.xml',
     ],
     'installable': True,
 }
