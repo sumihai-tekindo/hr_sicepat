@@ -1,0 +1,50 @@
+<openerp>
+    <data>
+        <record model="ir.actions.act_window" id="action_leave_request">
+            <field name="name">Leave Category Master</field>
+            <field name="res_model">hr.category.master</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+         <record model="ir.ui.view" id="hr_leave_request_tree">
+            <field name="name">leave.category.master.tree.view</field>
+            <field name="model">hr.category.master</field>
+            <field name="arch" type="xml">
+                <tree string="Leaves Category Master">
+                    <field name="leave_type"/>
+                    <field name="name"/>
+                    <field name="number_of_days"/>
+                    <field name="leave_tag"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_leave_request_form_view">
+            <field name="name">leave.category.master.form.view</field>
+            <field name="model">hr.category.master</field>
+            <field name="arch" type="xml">
+                <form string="Leaves Category Master">
+                    <sheet>
+                       <group>
+                            <field name="leave_type" class="oe_inline"/>
+                            <field name="name"/>
+                            <field name="number_of_days" class="oe_inline"/>
+                            <field name="gender" class="oe_inline"/>
+                            <field name="leave_tag" widget="many2many_tags" class="oe_inline"/>
+                        </group>
+                        <notebook>
+                            <page string="Jobs Position">
+                                <field name="job_ids"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <menuitem id="hr_leave_request_menu" name="Leaves Category Master" 
+                  parent="hr.menu_hr_configuration"
+                  action="action_leave_request" sequence="9"/>
+
+    </data>
+</openerp>

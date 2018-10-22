@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<record id="hr_allocation_request" model="ir.ui.view">
+            <field name="name">hr.allocation.request</field>
+            <field name="model">hr.holidays</field>
+            <field name="inherit_id" ref="hr_holidays.edit_holiday_new"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/group/group[2]/field[@name='holiday_type']" position="attributes">
+                  <attribute name="on_change">onchange_employee(employee_id, holiday_status_id)</attribute>
+                </xpath>
+
+                <xpath expr="//form/sheet/group/group[1]/div/group" position="attributes">
+                 <attribute name="attrs"></attribute>
+                </xpath>
+
+                <xpath expr="//form/sheet/group/group[1]/div" position="after">
+                 <field name="valid_periode" attrs="{'invisible': [('type', '=', 'remove')], 'required': [('type', '=', 'add')] }"/>
+                </xpath>
+
+
+            </field>
+        </record>
+
+        <record id="hr_allocation_request_tree" model="ir.ui.view">
+            <field name="name">hr.allocation.request.tree</field>
+            <field name="model">hr.holidays</field>
+            <field name="inherit_id" ref="hr_holidays.view_holiday_allocation_tree"/>
+            <field name="arch" type="xml">
+                 <xpath expr="//tree/field[@name='holiday_type']" position="after">
+                  <field name="date_from" />
+                  <field name="date_to" />
+                  <field name="valid_periode" />
+                </xpath>                
+            </field>
+        </record>
+
+    </data>
+</openerp>

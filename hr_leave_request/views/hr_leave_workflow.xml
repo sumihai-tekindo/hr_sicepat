@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<openerp>	
+	<data noupdate="1">
+		<function name="unlink" model="workflow.transition" eval="[ref('hr_holidays.holiday_refuse2draft')]" />
+		<function name="unlink" model="workflow.transition" eval="[ref('hr_holidays.holiday_validate2refuse')]" />
+	</data>
+	<data>
+		<record model="workflow.activity" id="hr_holidays.act_refuse">
+			<field name="flow_stop" eval="True"/>
+		</record>
+
+		<record model="workflow.transition" id="hr_holidays.holiday_confirm2validate">
+			<field name="group_id" ref="hr_leave_request.leave_request_approval"/>
+		</record>
+
+		<record model="workflow.transition" id="hr_holidays.holiday_confirm2validate1">
+			<field name="group_id" ref="hr_leave_request.leave_request_approval"/>
+		</record>
+
+		<record model="workflow.transition" id="hr_holidays.holiday_confirm2refuse">
+			<field name="group_id" ref="hr_leave_request.leave_request_approval"/>
+		</record>
+
+		<record model="workflow.transition" id="hr_holidays.holiday_validate1_validate">
+			<field name="group_id" ref="hr_leave_request.leave_request_approval"/>
+		</record>
+
+		<record model="workflow.transition" id="hr_holidays.holiday_validate1_refuse">
+			<field name="group_id" ref="hr_leave_request.leave_request_approval"/>
+		</record>
+
+	</data>
+</openerp>

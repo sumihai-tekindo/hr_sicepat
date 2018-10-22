@@ -1,50 +1,102 @@
 <openerp>
-    <data>
-        <record model="ir.actions.act_window" id="action_leave_request">
-            <field name="name">Leave Category Master</field>
-            <field name="res_model">hr.category.master</field>
-            <field name="view_mode">tree,form</field>
-        </record>
+	<data>
+		<record id="hr_leave_request_modified" model="ir.ui.view">
+			<field name="name">hr.leave.request.modified</field>
+			<field name="model">hr.holidays</field>
+			<field name="inherit_id" ref="hr_holidays.edit_holiday_new"/>
+			<field name="arch" type="xml">
+				<xpath expr="//form/sheet/group/group[1]/field[@name='name']" position="replace"></xpath>
 
-         <record model="ir.ui.view" id="hr_leave_request_tree">
-            <field name="name">leave.category.master.tree.view</field>
-            <field name="model">hr.category.master</field>
-            <field name="arch" type="xml">
-                <tree string="Leaves Category Master">
-                    <field name="leave_type"/>
-                    <field name="name"/>
-                    <field name="number_of_days"/>
-                    <field name="leave_tag"/>
-                </tree>
-            </field>
-        </record>
+				<xpath expr="//form/sheet/group/group[2]/field[@name='holiday_type']" position="attributes">
+					<attribute name="invisible">0</attribute>
+				</xpath>
 
-        <record model="ir.ui.view" id="hr_leave_request_form_view">
-            <field name="name">leave.category.master.form.view</field>
-            <field name="model">hr.category.master</field>
-            <field name="arch" type="xml">
-                <form string="Leaves Category Master">
-                    <sheet>
-                       <group>
-                            <field name="leave_type" class="oe_inline"/>
-                            <field name="name"/>
-                            <field name="number_of_days" class="oe_inline"/>
-                            <field name="gender" class="oe_inline"/>
-                            <field name="leave_tag" widget="many2many_tags" class="oe_inline"/>
-                        </group>
-                        <notebook>
-                            <page string="Jobs Position">
-                                <field name="job_ids"/>
-                            </page>
-                        </notebook>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+				<xpath expr="//form/sheet/group/group[2]/field[@name='employee_id']" position="attributes">
+					<attribute name="invisible">0</attribute>
+				</xpath>
 
-        <menuitem id="hr_leave_request_menu" name="Leaves Category Master" 
-                  parent="hr.menu_hr_configuration"
-                  action="action_leave_request" sequence="9"/>
+				<xpath expr="//form/sheet/group/group[2]/field[@name='department_id']" position="attributes">
+					<attribute name="invisible">0</attribute>
+				</xpath>
 
-    </data>
+				<xpath expr="//form/sheet/group/group[1]/field[@name='holiday_status_id']" position="after">
+						<field name= 'description' invisible='True' />
+						<field name="name" attrs="{'readonly': [('description', '=', False)] }" />
+						<field name="total_days_according_to_categories" attrs="{'invisible': [('type', '=', 'add')] }" />
+				</xpath>
+
+				<xpath expr="//form/sheet/group/group[1]/div" position="after">
+					<field name="employee_email" attrs="{'invisible': [('type', '=', 'add')] }" />
+					<field name="employee_contact_number" attrs="{'invisible': [('type', '=', 'add')] }" />
+					<field name="assign_to" attrs="{'invisible': [('type', '=', 'add')]}" groups="hr_leave_request.leave_request_approval"/>
+				</xpath>
+
+				<xpath expr="//form/sheet/group/group[2]/field[@name='department_id']" position="after">
+					<field name="current_leave" attrs="{'invisible': [('type', '=', 'add')] }" />
+					<field name="max_leaves_past_year" attrs="{'invisible': [('type', '=', 'add')] }" />
+					<field name="max_leaves" attrs="{'invisible': [('type', '=', 'add')] }" />
+					<field name="remaining_leaves" attrs="{'invisible': [('type', '=', 'add')] }" />
+				</xpath>
+
+				<xpath expr="//form/sheet/group/group[1]/div/group" position="attributes">
+					<attribute name="col">2</attribute>
+				</xpath>
+
+
+			</field>
+		</record>
+
+		<record id="hr_leave_approval" model="ir.ui.view">
+			<field name="name">hr.leave.approval.view</field>
+			<field name="model">hr.holidays</field>
+			<field name="inherit_id" ref="hr_holidays.edit_holiday_new"/>
+			<field name="arch" type="xml">
+				<xpath expr="//form/header/button[@name='validate']" position="attributes">
+				  <attribute name="groups">hr_leave_request.leave_request_approval</attribute>
+				</xpath>
+
+				<xpath expr="//form/header/button[@name='second_validate']" position="attributes">
+				  <attribute name="groups">hr_leave_request.leave_request_approval</attribute>
+				</xpath>
+
+				<xpath expr="//form/header/button[@name='refuse']" position="attributes">
+				  <attribute name="groups">hr_leave_request.leave_request_approval</attribute>
+				  <attribute name="states">confirm, validate1</attribute>
+				</xpath>
+
+				<xpath expr="//form/header/button[@name='reset']" position="attributes">
+				  <attribute name="attrs">{'invisible': ['|', ('can_reset', '=', False), ('state', '!=', 'confirm')]}</attribute>
+				  <attribute name="groups">hr_leave_request.leave_request_approval</attribute>
+				</xpath>
+			</field>
+		</record>
+
+		<record id="hr_leave_request_days_temp" model="ir.ui.view">
+			<field name="name">hr.leave.request.days.view</field>
+			<field name="model">hr.holidays</field>
+			<field name="inherit_id" ref="hr_holidays.edit_holiday_new"/>
+			<field name="groups_id" eval="[(6,0,[ref('hr_leave_request.menu_hr_leave_request')])]" />
+			<field name="arch" type="xml">
+				<xpath expr="//form/sheet/group/group[1]/div/div/field[@name='number_of_days_temp']" position="attributes">
+				  <attribute name="readonly">False</attribute>
+				  <attribute name="attrs">{'readonly':[('state','not in', ['draft','confirm', 'validate'])]}</attribute>
+				</xpath>
+			</field>
+		</record>
+
+		<record id="hr_leave_request_remaining_leave" model="ir.ui.view">
+			<field name="name">hr.leave.request.remaining.leave.view</field>
+			<field name="model">hr.holidays</field>
+			<field name="inherit_id" ref="hr_leave_request.hr_leave_request_modified"/>
+			<field name="groups_id" eval="[(6,0,[ref('hr_leave_request.menu_hr_leave_request')])]" />
+			<field name="arch" type="xml">
+				<xpath expr="//form/sheet/group/group[2]/field[@name='remaining_leaves']" position="attributes">
+				  <attribute name="readonly">False</attribute>
+				  <attribute name="attrs">{'readonly':[('state','not in', ['draft','confirm', 'validate'])]}</attribute>
+				</xpath>
+			</field>
+		</record>
+
+
+	</data>
 </openerp>

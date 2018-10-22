@@ -1,0 +1,53 @@
+<openerp>
+	<data>
+		 <record id="hr_holidays.view_hr_holidays_filter" model="ir.ui.view">
+            <field name="name">hr.holidays.filter</field>
+            <field name="model">hr.holidays</field>
+            <field name="arch" type="xml">
+                <search string="Search Leave">
+                    <field name="name"/>
+                    <separator/>
+                    <filter domain="[('state','=','draft')]" string="To Confirm"/>
+                    <filter domain="[('state','in',('confirm','validate1'))]" string="To Approve" name="approve"/>
+                    <filter domain="[('state','=','validate')]" string="Validated" name="validated"/>
+                    <separator/>
+                    <filter name="active_types" string="Active Types" domain="[('holiday_status_id.active', '=', True)]" help="Filters only on allocations and requests that belong to an holiday type that is 'active' (active field is True)"/>
+                    <separator/>
+                    <filter name="year" string="Year"
+                        domain="['|','&amp;',('date_to', '&lt;=', time.strftime('%%Y-12-31')),
+                                             ('date_to', '&gt;=', time.strftime('%%Y-01-01')),
+                                     '&amp;',('date_from', '&lt;=', time.strftime('%%Y-12-31')),
+                                             ('date_from', '&gt;=', time.strftime('%%Y-01-01'))]"
+                        help="Current Year Leaves"/>
+                    <separator/>
+                    <filter string="My Requests" name="my_leaves" domain="[('user_id', '=', uid)]" help="My Leave Requests"/>
+                    <filter string="My Subordinates" name="my_subordinates" domain="[('employee_id.parent_id.user_id.id', '=', uid)]" help="My Subordinates Requests"/>
+                    <separator/>
+                    <filter string="My Department Leaves" name="my_department_leaves" domain="[('department_id.manager_id.user_id', '=', uid)]"/>
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <field name="holiday_status_id"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_name" string="Description" context="{'group_by':'name'}"/>
+                        <filter name="group_employee" string="Employee" context="{'group_by':'employee_id'}"/>
+                        <filter name="group_category" string="Category" context="{'group_by':'category_id'}"/>
+                        <filter string="Manager" context="{'group_by':'manager_id'}"/>
+                        <filter name="group_type" string="Type" context="{'group_by':'holiday_status_id'}"/>
+                        <separator/>
+                        <filter name="group_date_from" string="Start Month" context="{'group_by':'date_from:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="hr_holidays.open_ask_holidays">
+            <field name="name">Leave Request</field>
+            <field name="res_model">hr.holidays</field>
+            <field name="view_type">form</field>
+            <field name="context">{'default_type': 'remove', 'search_default_my_leaves':1,'search_default_my_subordinates':1}</field>
+            <field name="domain">[('type','=','remove')]</field>
+            <field name="view_id" ref="hr_holidays.view_holiday"/>
+            <field name="search_view_id" ref="hr_holidays.view_hr_holidays_filter"/>
+        </record>
+	</data>
+</openerp>

@@ -10,6 +10,7 @@
     'author': 'Ade Anugerah',
     'website': "https://github.com/sumihai-tekindo/",
     'depends': [
+        'base',
         'hr',
         'account',
         'hr_payroll',
@@ -17,10 +18,14 @@
         'hr_salary_add',
     ],
     'data': [     
-        # 'data/hr_education_cost.xml',
+        'views/hr_leave_workflow.xml',
+        'views/allocation_valid_periode.xml',
+        'views/add_desc_leave_type.xml',
+        'views/hr_category_master.xml',
         'views/hr_leave_request.xml',
-        # 'security/ir.model.access.csv',
-        # 'security/hr_education_access.xml',
+        'views/allocation_request_inherit_onchange.xml',
+        'security/ir.model.access.csv',
+        'security/hr_leave_request_access.xml',
     ],
     'installable': True,
 }
