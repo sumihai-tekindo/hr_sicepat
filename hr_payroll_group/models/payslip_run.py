@@ -61,7 +61,7 @@ class hr_payslip_run_wizard(osv.osv_memory):
 					"journal_id": journal_id,
 					}
 				run_id = self.pool.get("hr.payslip.run").create(cr,uid,value,context=context)
-				employee_ids = self.pool.get('hr.employee').search(cr,uid,[('department_id','=',dept.id)])
+				employee_ids = self.pool.get('hr.employee').search(cr,uid,[('department_id','=',dept.id)], order='name_related')
 				for emp in self.pool.get('hr.employee').browse(cr, uid, employee_ids, context=context):
 					vals = {}
 					vals['employee_id'] = emp.id
