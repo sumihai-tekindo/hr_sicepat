@@ -1,7 +1,8 @@
-from openerp import api, fields, models
 from datetime import datetime, timedelta
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 import pymssql
+
+from openerp import api, fields, models
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DF
 
 class DailyCost(models.Model):
 	_name = 'hr.daily.cost'
@@ -202,25 +203,45 @@ class DailyCost(models.Model):
 	# 						 'voucher_code': bool(record['VoucherCode']),
 	# 						 'trx_date': record['NewTxDate'][:10]})
 
-
-
 	@api.model					 
-	def sum_amount_perType(self, employee_id, date_from, date_to, working_hours_id):
-		ids = self.env['hr.daily.cost'].search([('employee_id','=',employee_id.id),('trx_date','>=',date_from),('trx_date','<=',date_to)])
+	def sum_amount_perType(self, contract, date_from, date_to):
+		Resource = self.env['resource.calendar']
+		HrHPO = self.env['hr.holidays.public']
+		
+		employee = contract.employee_id
+		working_hours = contract.working_hours
+		year_from = fields.Date.from_string(date_from).year
+		year_to = fields.Date.from_string(date_to).year
 
-		data = {}
-		for val in ids:
-			key = val.expense_type
-			trx_date = datetime.strptime(val.trx_date, '%Y-%m-%d')
-			is_holiday = self.env['hr.holidays.public'].is_public_holiday(trx_date, employee_id=employee_id.id)
-			working_hours_on_day = self.env['resource.calendar'].working_hours_on_day(working_hours_id, trx_date)
+		pholidays = HrHPO.get_holidays_list(str(year_from), employee.id)
+		if year_to != year_from:
+			pholidays |= HrHPO.get_holidays_list(str(year_to), employee.id)
+		
+		if pholidays:
+			pholidays_dict = dict()
+			for pholiday in pholidays:
+				key = pholiday.date
+				if pholidays_dict.get(key):
+					pholidays_dict[key] += pholiday
+				else:
+					pholidays_dict[key] = pholiday
+		
+		daily_cost_dict = dict()
+		domain = [('employee_id', '=', employee.id)]
+		domain += [('trx_date', '>=', date_from), ('trx_date', '<=', date_to)]
+		for daily_cost in self.search(domain):
+			key = daily_cost.expense_type
+			trx_date = datetime.strptime(daily_cost.trx_date, DF)
+			holiday = pholidays_dict.get(daily_cost.trx_date, False)
+			working_hours_on_day = Resource.working_hours_on_day(working_hours, trx_date)
 
-			if data.get(key) and working_hours_on_day and not is_holiday:
-				data[key] += val.amount
-			else: 
-				data[key] = val.amount
+			if not holiday and working_hours_on_day:
+				if daily_cost_dict.get(key):
+					daily_cost_dict[key] += daily_cost.amount
+				else: 
+					daily_cost_dict[key] = daily_cost.amount
 
-		return data
+		return daily_cost_dict
 
 class MasterDataDailyCost(models.Model):
 	_name = 'expense.type.masterdata'
@@ -256,16 +277,21 @@ class HRPayslip(models.Model):
 	def get_inputs(self, cr, uid, contract_ids, date_from, date_to, context=None):
 		res = super(HRPayslip, self).get_inputs(cr, uid, contract_ids, date_from, date_to, context=context)
 
-		browse_contract = self.pool.get('hr.contract').browse(cr,uid,contract_ids)
-		working_hours_id = browse_contract.working_hours
-		
 		contracts = {}
-		for x in browse_contract:
-			contracts.update({x.id:x})
+		for contract in self.pool.get('hr.contract').browse(cr, uid, contract_ids, context=context):
+			contracts[contract.id] = contract
+
+		expense_daily = {}
+		expense_ids = self.pool.get('expense.type.masterdata').search(cr, uid, [], context=context)
+		for expense in self.pool.get('expense.type.masterdata').browse(cr, uid, expense_ids, context=context):
+			expense_daily[expense.code] = expense
 
 		for result in res:
-			c = contracts.get(result.get('contract_id',False),False)
-			data = self.pool.get('hr.daily.cost').sum_amount_perType(cr, uid, c.employee_id, date_from, date_to, working_hours_id)
-			if result.get('code') in data.keys():
-				result['amount'] = data[result.get('code')]
+			if not result.get('contract_id', False):
+				continue
+			contract = contracts.get(result['contract_id'], False)
+			if contract:
+				if result.get('code') in expense_daily.keys():
+					daily_cost = self.pool.get('hr.daily.cost').sum_amount_perType(cr, uid, contract, date_from, date_to, context=context)
+					result['amount'] = daily_cost.get(result['code'], 0.0)
 		return res
